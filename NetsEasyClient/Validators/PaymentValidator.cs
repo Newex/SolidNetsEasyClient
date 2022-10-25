@@ -1,0 +1,226 @@
+using System;
+using System.Linq;
+using ISO3166;
+using SolidNetsEasyClient.Models;
+using SolidNetsEasyClient.Models.Requests;
+
+namespace SolidNetsEasyClient.Validators;
+
+/// <summary>
+/// A payment validator
+/// </summary>
+public static class PaymentValidator
+{
+    /// <summary>
+    /// Checks if a payment is valid
+    /// </summary>
+    /// <param name="payment">The payment</param>
+    /// <returns>True if valid otherwise false</returns>
+    public static bool IsValidPaymentObject(PaymentRequest payment)
+    {
+        // Checkout URL must not be empty
+        if (string.IsNullOrWhiteSpace(payment.Checkout.Url))
+        {
+            return false;
+        }
+
+        if (!MustHaveAtLeastOneOrderItem(payment))
+        {
+            return false;
+        }
+
+        if (!HasTermsUrl(payment))
+        {
+            return false;
+        }
+
+        if (!HasReturnUrl(payment))
+        {
+            return false;
+        }
+
+        if (!ShippingCountryCodeMustBeISO3166(payment))
+        {
+            return false;
+        }
+
+        if (!HasMerchantConsumerDataAndNoConsumerType(payment))
+        {
+            return false;
+        }
+
+        if (!HasCountryCode(payment))
+        {
+            return false;
+        }
+
+        if (!Below32WebHooks(payment))
+        {
+            return false;
+        }
+
+        if (!CheckWebHooks(payment))
+        {
+            return false;
+        }
+
+        if (!PaymentConfigurationAllMethodOrAllType(payment))
+        {
+            return false;
+        }
+
+        return true;
+    }
+
+    internal static bool HasMerchantConsumerDataAndNoConsumerType(PaymentRequest payment)
+    {
+        if (payment.Checkout.MerchantHandlesConsumerData == true)
+        {
+            // Then no consumer type
+            if (HasConsumerType(payment))
+            {
+                return false;
+            }
+
+            // Must have consumer. A person or company not both
+            if (!HasConsumer(payment))
+            {
+                return false;
+            }
+
+            if (BothPersonAndCompany(payment))
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    internal static bool MustHaveAtLeastOneOrderItem(PaymentRequest payment)
+    {
+        return payment.Order.Items.Any();
+    }
+
+    internal static bool HasReturnUrl(PaymentRequest payment)
+    {
+        return !string.IsNullOrWhiteSpace(payment.Checkout.ReturnUrl);
+    }
+
+    internal static bool ShippingCountryCodeMustBeISO3166(PaymentRequest payment)
+    {
+        var shippingCountry = payment.Checkout.Consumer?.ShippingAddress?.Country;
+        if (shippingCountry is not null)
+        {
+            var isValid = CountryCodeExists(shippingCountry);
+            if (!isValid)
+            {
+                return false;
+            }
+        }
+
+        var shippingCountries = payment.Checkout.ShippingCountries;
+        if (shippingCountries is not null && shippingCountries.Any())
+        {
+            foreach (var destination in shippingCountries)
+            {
+                if (!CountryCodeExists(destination?.CountryCode))
+                {
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+
+    internal static bool HasTermsUrl(PaymentRequest payment)
+    {
+        return !string.IsNullOrWhiteSpace(payment.Checkout.TermsUrl);
+    }
+
+    internal static bool HasConsumerType(PaymentRequest payment)
+    {
+        return payment.Checkout.ConsumerType is not null;
+    }
+
+    internal static bool HasConsumer(PaymentRequest payment)
+    {
+        return payment.Checkout.Consumer is not null;
+    }
+
+    internal static bool BothPersonAndCompany(PaymentRequest payment)
+    {
+        return !((payment.Checkout.Consumer!.Company is not null) ^ (payment.Checkout.Consumer.PrivatePerson is not null));
+    }
+
+    internal static bool CountryCodeExists(string? countryCode)
+    {
+        var country = Country.List.SingleOrDefault(c => c.ThreeLetterCode.Equals(countryCode, StringComparison.OrdinalIgnoreCase));
+        return country is not null;
+    }
+
+    internal static bool Below32WebHooks(PaymentRequest payment)
+    {
+        var countWebHooks = payment.Notifications?.WebHooks.Count() ?? 0;
+        return countWebHooks <= 32;
+    }
+
+    internal static bool HasCountryCode(PaymentRequest payment)
+    {
+        var isValid = true;
+        var hasCountryCode = payment.Checkout.CountryCode is not null;
+        if (hasCountryCode)
+        {
+            isValid = CountryCodeExists(payment.Checkout.CountryCode);
+            if (!isValid)
+            {
+                return false;
+            }
+        }
+
+        return isValid;
+    }
+
+    internal static bool CheckWebHooks(PaymentRequest payment)
+    {
+        var checkWebHooks = payment.Notifications?.WebHooks.Aggregate(true, (soFar, current) => soFar && ProperWebHookUrl(current.Url) && ProperAuthorization(current.Authorization));
+        return checkWebHooks is null || checkWebHooks.Value;
+    }
+
+    internal static bool PaymentConfigurationAllMethodOrAllType(PaymentRequest payment)
+    {
+        var paymentConfiguration = payment.PaymentMethodsConfiguration;
+        if (paymentConfiguration is null || !paymentConfiguration.Any())
+        {
+            return true;
+        }
+
+        var allMethods = paymentConfiguration.All(c => c.Name?.PaymentInstance == PaymentInstance.Method);
+        var allTypes = paymentConfiguration.All(c => c.Name?.PaymentInstance == PaymentInstance.Type);
+        return allMethods || allTypes;
+    }
+
+    private static bool ProperWebHookUrl(string? url)
+    {
+        if (url is null)
+        {
+            return true;
+        }
+
+        var isHttps = url.StartsWith("https", StringComparison.OrdinalIgnoreCase);
+        var hasLength = url.Length <= 256;
+        return isHttps && hasLength;
+    }
+
+    private static bool ProperAuthorization(string? url)
+    {
+        if (url is null)
+        {
+            return true;
+        }
+
+        var size = url.Length >= 8 && url.Length <= 32;
+        return size;
+    }
+}

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RuleSet Name="Library roslynator rules" ToolsVersion="15.0">
+  <Include Path="/home/repro/.local/share/JosefPihrt/Roslynator/VisualStudioCode/roslynator.ruleset" Action="Default" />
+  <Rules AnalyzerId="Roslynator.CSharp.Analyzers" RuleNamespace="Roslynator.CSharp.Analyzers">
+    <!-- Unused parameter -->
+    <Rule Id="RCS1163" Action="None" />
+  </Rules>
+</RuleSet>
