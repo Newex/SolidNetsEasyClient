@@ -22,7 +22,7 @@ steps:
       from_secret: github-pat
   commands:
   - dotnet nuget add source http://baget.digify/v3/index.json -n baget.digify
-  - dotnet restore NetsEasyClient/payment.csproj -v q
+  - dotnet restore NetsEasyClient/payments.csproj -v q
   - dotnet restore tests/tests.csproj -v q
   depends_on:
     - clone
@@ -45,8 +45,8 @@ steps:
     NUGET_HTTP_CACHE_PATH: /drone/src/.nuget/http-cache/v3-cache
     NUGET_PLUGINS_CACHE_PATH: /drone/src/.nuget/plugins-cache
   commands:
-  - dotnet build NetsEasyClient/payment.csproj -c Release --no-restore
-  - dotnet pack NetsEasyClient/payment.csproj -c Release --no-restore -p:PackageVersion=${DRONE_TAG##v.} -p:PackageId=SolidNetsEasyClient --include-symbols -p:SymbolPackageFormat=snupkg -o /drone/src
+  - dotnet build NetsEasyClient/payments.csproj -c Release --no-restore
+  - dotnet pack NetsEasyClient/payments.csproj -c Release --no-restore -p:PackageVersion=${DRONE_TAG##v.} -p:PackageId=SolidNetsEasyClient --include-symbols -p:SymbolPackageFormat=snupkg -o /drone/src
   depends_on:
     - pre
 
