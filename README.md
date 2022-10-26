@@ -8,7 +8,7 @@ Current development status is: under development, non functional library.
 
 Add the package to your project:  
 ```
-$ `dotnet add package [PACKAGE_NAME]`
+$ `dotnet add package SolidNetsEasyClient`
 ```
 
 Register the service in the startup process:
