@@ -22,12 +22,12 @@ public static class ClientConstants
 public enum ClientMode
 {
     /// <summary>
+    /// Test mode
+    /// </summary>
+    Test,
+
+    /// <summary>
     /// Live mode
     /// </summary>
     Live,
-
-    /// <summary>
-    /// Test mode
-    /// </summary>
-    Test
 }
