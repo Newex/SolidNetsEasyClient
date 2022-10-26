@@ -15,7 +15,7 @@ public record PlatformPaymentOptions
     /// <summary>
     /// The secret API key
     /// </summary>
-    public string Authorization { get; set; } = string.Empty;
+    public string ApiKey { get; set; } = string.Empty;
 
     /// <summary>
     /// An identifier of the ecommerce platform

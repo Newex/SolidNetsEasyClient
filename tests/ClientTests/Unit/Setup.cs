@@ -16,7 +16,7 @@ public static class Setup
         return new PaymentClient(
             Options.Create<PlatformPaymentOptions>(new()
             {
-                Authorization = "MycustomAPI_KEY"
+                ApiKey = "MycustomAPI_KEY"
             }),
             Mocks.PaymentHttpClientFactory(method, "https://api.dibspayment.eu" + relativePath, defaultCondition, success, responseJson)
         );

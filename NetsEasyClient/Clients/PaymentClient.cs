@@ -44,7 +44,7 @@ public class PaymentClient : IPaymentClient
             ClientMode.Test => ClientConstants.Test,
             _ => throw new NotSupportedException("Client mode must be either in Live or Test mode")
         };
-        apiKey = options.Value.Authorization;
+        apiKey = options.Value.ApiKey;
         platformId = options.Value.CommercePlatformTag;
         this.httpClientFactory = httpClientFactory;
         this.logger = logger ?? NullLogger<PaymentClient>.Instance;
