@@ -1,13 +1,14 @@
 using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.DependencyInjection;
 using SolidNetsEasyClient.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add nets
+builder.Services.AddControllersWithViews();
 builder.Services.AddNetsEasyClient();
 
 var app = builder.Build();
 
-app.MapGet("/", () => "Hello World!");
+app.MapDefaultControllerRoute();
 
 app.Run();
