@@ -21,4 +21,9 @@ public record PlatformPaymentOptions
     /// An identifier of the ecommerce platform
     /// </summary>
     public string? CommercePlatformTag { get; set; }
+
+    /// <summary>
+    /// The nets easy configuration section
+    /// </summary>
+    internal const string NetsEasyConfigurationSection = "SolidNetsEasy";
 }

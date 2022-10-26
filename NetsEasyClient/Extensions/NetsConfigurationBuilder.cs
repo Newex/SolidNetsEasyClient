@@ -21,29 +21,19 @@ public sealed class NetsConfigurationBuilder
     }
 
     /// <summary>
-    /// Add an API key from a configuration source, such as: Environment variable
+    /// Add an API key, commerce platform tag and set the client operating mode from a configuration source, such as: environment variable or appsettings.json file
     /// </summary>
     /// <param name="configuration">The configuration object</param>
     /// <returns>A builder object</returns>
-    public NetsConfigurationBuilder AddApiKey(IConfiguration configuration)
+    public NetsConfigurationBuilder Configure(IConfiguration configuration)
     {
-        // TODO: load api key from configuration
+        var section = configuration.GetSection(PlatformPaymentOptions.NetsEasyConfigurationSection);
+        services.Configure<PlatformPaymentOptions>(section);
         return this;
     }
 
     /// <summary>
-    /// Add an API key directly
-    /// </summary>
-    /// <param name="apiKey">The API key to use for each request</param>
-    /// <returns>A builder object</returns>
-    public NetsConfigurationBuilder AddApiKey(string apiKey)
-    {
-        // TODO: load api key
-        return this;
-    }
-
-    /// <summary>
-    /// Configure the options for the nets easy payment requests
+    /// Configure the options for the nets easy payment requests directly instead of loading them from a configuration source
     /// </summary>
     /// <param name="options">The options to set</param>
     /// <returns>A builder object</returns>
