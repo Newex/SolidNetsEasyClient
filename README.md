@@ -27,3 +27,4 @@ Use the client to make and manage payments, from the backend. Remember that the 
 * Create nuget package
 * Add unit tests
 * Add easy to use configuration for handling API keys and other client settings
+* Add example site
