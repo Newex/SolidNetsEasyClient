@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "payments", "NetsEasyClient\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "tests", "tests\tests.csproj", "{15E6CE57-F2CF-4AA0-B1B7-42E754EAC186}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExampleSite", "example_site\ExampleSite.csproj", "{CBAE8780-6D59-43AB-B24F-83C8E5C280A5}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -24,5 +26,9 @@ Global
 		{15E6CE57-F2CF-4AA0-B1B7-42E754EAC186}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{15E6CE57-F2CF-4AA0-B1B7-42E754EAC186}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{15E6CE57-F2CF-4AA0-B1B7-42E754EAC186}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CBAE8780-6D59-43AB-B24F-83C8E5C280A5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CBAE8780-6D59-43AB-B24F-83C8E5C280A5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CBAE8780-6D59-43AB-B24F-83C8E5C280A5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CBAE8780-6D59-43AB-B24F-83C8E5C280A5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
