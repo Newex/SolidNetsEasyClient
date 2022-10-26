@@ -7,11 +7,6 @@ clone:
   disable: true
 
 steps:
-- name: clone
-  image: alpine/git
-  commands:
-  - git clone https://github.com/Newex/SolidNetsEasyClient.git
-
 - name: pre
   image: mcr.microsoft.com/dotnet/sdk:6.0-focal
   environment:
@@ -24,8 +19,6 @@ steps:
   - dotnet nuget add source http://baget.digify/v3/index.json -n baget.digify
   - dotnet restore NetsEasyClient/payments.csproj -v q
   - dotnet restore tests/tests.csproj -v q
-  depends_on:
-    - clone
 
 - name: test
   image: mcr.microsoft.com/dotnet/sdk:6.0-focal
