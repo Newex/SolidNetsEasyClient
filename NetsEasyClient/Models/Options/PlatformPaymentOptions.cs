@@ -1,3 +1,5 @@
+using SolidNetsEasyClient.Constants;
+
 namespace SolidNetsEasyClient.Models.Options;
 
 /// <summary>
@@ -5,6 +7,11 @@ namespace SolidNetsEasyClient.Models.Options;
 /// </summary>
 public record PlatformPaymentOptions
 {
+    /// <summary>
+    /// The http client mode, which can be either in test mode or in live mode
+    /// </summary>
+    public ClientMode ClientMode { get; set; }
+
     /// <summary>
     /// The secret API key
     /// </summary>
