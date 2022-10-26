@@ -1,0 +1,73 @@
+kind: pipeline
+type: kubernetes
+service_account_name: drone-sa
+name: default
+
+clone:
+  disable: true
+
+steps:
+- name: clone
+  image: alpine/git
+  commands:
+  - git clone https://github.com/Newex/SolidNetsEasyClient.git
+
+- name: pre
+  image: mcr.microsoft.com/dotnet/sdk:6.0-focal
+  environment:
+    NUGET_PACKAGES: /drone/src/.nuget/global/packages
+    NUGET_HTTP_CACHE_PATH: /drone/src/.nuget/http-cache/v3-cache
+    NUGET_PLUGINS_CACHE_PATH: /drone/src/.nuget/plugins-cache
+    GITHUB_PAT:
+      from_secret: github-pat
+  commands:
+  - dotnet nuget add source http://baget.digify/v3/index.json -n baget.digify
+  - dotnet restore NetsEasyClient/payments.csproj -v q
+  - dotnet restore tests/tests.csproj -v q
+  depends_on:
+    - clone
+
+- name: test
+  image: mcr.microsoft.com/dotnet/sdk:6.0-focal
+  environment:
+    NUGET_PACKAGES: /drone/src/.nuget/global/packages
+    NUGET_HTTP_CACHE_PATH: /drone/src/.nuget/http-cache/v3-cache
+    NUGET_PLUGINS_CACHE_PATH: /drone/src/.nuget/plugins-cache
+  commands:
+  - dotnet test --filter "Category=UnitTest" --nologo --no-restore tests/tests.csproj
+  depends_on:
+    - pre
+
+- name: build
+  image: mcr.microsoft.com/dotnet/sdk:6.0-focal
+  environment:
+    NUGET_PACKAGES: /drone/src/.nuget/global/packages
+    NUGET_HTTP_CACHE_PATH: /drone/src/.nuget/http-cache/v3-cache
+    NUGET_PLUGINS_CACHE_PATH: /drone/src/.nuget/plugins-cache
+  commands:
+  - dotnet build NetsEasyClient/payments.csproj -c Release --no-restore
+  - dotnet pack NetsEasyClient/payments.csproj -c Release --no-restore -p:PackageVersion=${DRONE_TAG##v.} -p:PackageId=SolidNetsEasyClient --include-symbols -p:SymbolPackageFormat=snupkg -o /drone/src
+  depends_on:
+    - pre
+
+- name: deploy
+  image: mcr.microsoft.com/dotnet/sdk:6.0-focal
+  environment:
+    BAGET_KEY:
+      from_secret: baget-api-key
+    NUGET_KEY:
+      from_secret: nuget-api-key
+    GITHUB_PAT:
+      from_secret: github-pat
+  commands:
+  - dotnet nuget push -s http://baget.digify/v3/index.json /drone/src/SolidNetsEasyClient.${DRONE_TAG##v.}.nupkg -k $BAGET_KEY
+  - dotnet nuget push -s http://baget.digify/v3/index.json -k $BAGET_KEY /drone/src/SolidNetsEasyClient.${DRONE_TAG##v.}.snupkg
+  - dotnet nuget push -s https://api.nuget.org/v3/index.json /drone/src/SolidNetsEasyClient.${DRONE_TAG##v.}.nupkg -k $NUGET_KEY
+  - dotnet nuget push -s https://nuget.pkg.github.com/Newex/index.json -k $GITHUB_PAT /drone/src/SolidNetsEasyClient.${DRONE_TAG##v.}.nupkg
+  depends_on:
+  - test
+  - build
+
+trigger:
+  event:
+  - tag
