@@ -3,9 +3,6 @@ type: kubernetes
 service_account_name: drone-sa
 name: default
 
-clone:
-  disable: true
-
 steps:
 - name: pre
   image: mcr.microsoft.com/dotnet/sdk:6.0-focal
