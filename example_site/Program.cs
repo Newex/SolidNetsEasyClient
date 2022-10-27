@@ -5,7 +5,12 @@ using SolidNetsEasyClient.Extensions;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllersWithViews();
-builder.Services.AddNetsEasyClient();
+
+// nets easy
+builder
+.Services
+.AddNetsEasyClient()
+.Configure(builder.Configuration);
 
 var app = builder.Build();
 
