@@ -21,7 +21,6 @@ public class PaymentController : Controller
     [HttpGet("/pay")]
     public async Task<ActionResult> Pay(CancellationToken cts)
     {
-        var payment = await paymentClient.CreatePaymentAsync(MinimalPaymentExample, cts);
         return View();
     }
 

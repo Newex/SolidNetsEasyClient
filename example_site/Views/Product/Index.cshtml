@@ -1,0 +1,31 @@
+@model ExampleSite.Models.ProductCola
+
+<h2>Product: @Model.Name</h2>
+<table>
+    <tr>
+        <td>ID: </td>
+        <td>@Model.ID</td>
+    </tr>
+    <tr>
+        <td>Description: </td>
+        <td>@Model.Description</td>
+    </tr>
+    <tr>
+        <td>Price per unit: </td>
+        <td>@Model.Price</td>
+    </tr>
+    <tr>
+        <td>Currency</td>
+        <td>@Model.Currency</td>
+    </tr>
+</table>
+
+<br />
+
+<form asp-controller="Checkout" asp-action="Index" method="post">
+Select quantity: 1
+<br />
+<button type="submit">
+Go to checkout
+</button>
+</form>
