@@ -18,7 +18,7 @@
             "serverReadyAction": {
                 "action": "openExternally",
                 "pattern": "\\bNow listening on:\\s+(https?://\\S+)",
-                "uriFormat": "%s/pay"
+                "uriFormat": "%s/products"
             },
             "env": {
                 "ASPNETCORE_ENVIRONMENT": "Development"

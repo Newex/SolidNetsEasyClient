@@ -1,1 +1,11 @@
+@model ExampleSite.Models.CheckoutViewModel
 Checkout initiated
+
+<input type="hidden" id="checkout" value="@Model.CheckoutKey" />
+<input type="hidden" id="payment" value="@Model.PaymentID" />
+
+   <div id="checkout-container-div">
+     <!-- checkout iframe will be embedded here -->
+   </div>
+   <script src="https://test.checkout.dibspayment.eu/v1/checkout.js?v=1"></script>
+   <script src="/js/script.js"></script>
