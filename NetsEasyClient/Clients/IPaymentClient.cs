@@ -14,6 +14,11 @@ namespace SolidNetsEasyClient.Clients;
 public interface IPaymentClient
 {
     /// <summary>
+    /// The checkout key for the payment client
+    /// </summary>
+    string CheckoutKey { get; }
+
+    /// <summary>
     /// Cancels the specified payment. When a payment is canceled, the reserved amount of the payment will be released to the customer's payment card
     /// </summary>
     /// <remarks>

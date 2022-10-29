@@ -18,6 +18,11 @@ public record PlatformPaymentOptions
     public string ApiKey { get; set; } = string.Empty;
 
     /// <summary>
+    /// The checkout key
+    /// </summary>
+    public string CheckoutKey { get; init; } = string.Empty;
+
+    /// <summary>
     /// An identifier of the ecommerce platform
     /// </summary>
     public string? CommercePlatformTag { get; set; }

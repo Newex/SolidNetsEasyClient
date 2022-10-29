@@ -45,10 +45,14 @@ public class PaymentClient : IPaymentClient
             _ => throw new NotSupportedException("Client mode must be either in Live or Test mode")
         };
         apiKey = options.Value.ApiKey;
+        CheckoutKey = options.Value.CheckoutKey;
         platformId = options.Value.CommercePlatformTag;
         this.httpClientFactory = httpClientFactory;
         this.logger = logger ?? NullLogger<PaymentClient>.Instance;
     }
+
+    /// <inheritdoc />
+    public string CheckoutKey { get; }
 
     /// <inheritdoc />
     public async Task<PaymentResult> CreatePaymentAsync(PaymentRequest payment, CancellationToken cancellationToken)
