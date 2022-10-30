@@ -4,7 +4,7 @@ WORKDIR /source
 COPY ./ ./
 RUN dotnet restore
 
-RUN dotnet publish example_site/ExampleSite.csproj --runtime alpine-x64 -c Release --self-contained true -o /app 
+RUN dotnet publish example_site/ExampleSite.csproj --runtime alpine-x64 -c Release --self-contained true /p:PublishTrimmed=true -o /app 
 
 # 2nd stage
 # FROM mcr.microsoft.com/dotnet/aspnet:6.0
