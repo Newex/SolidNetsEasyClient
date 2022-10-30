@@ -12,18 +12,18 @@ builder
 .AddNetsEasyClient()
 .Configure(builder.Configuration);
 
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("MyCorsPolicy", corsBuilder => corsBuilder.SetIsOriginAllowedToAllowWildcardSubdomains()
-    .WithOrigins("*")
-    .AllowAnyMethod()
-    .AllowCredentials()
-    .AllowAnyHeader()
-    .Build());
-});
+// builder.Services.AddCors(options =>
+// {
+//     options.AddPolicy("MyCorsPolicy", corsBuilder => corsBuilder.SetIsOriginAllowedToAllowWildcardSubdomains()
+//     .WithOrigins("*")
+//     .AllowAnyMethod()
+//     .AllowCredentials()
+//     .AllowAnyHeader()
+//     .Build());
+// });
 
 var app = builder.Build();
-app.UseCors("MyCorsPolicy");
+// app.UseCors("MyCorsPolicy");
 
 app.UseStaticFiles();
 app.MapDefaultControllerRoute();
