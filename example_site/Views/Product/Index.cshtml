@@ -22,10 +22,10 @@
 
 <br />
 
-<form asp-controller="Checkout" asp-action="Index" method="post">
-Select quantity: 1
-<br />
-<button type="submit">
-Go to checkout
-</button>
+<form asp-controller="Checkout" asp-action="Index" method="post" asp-antiforgery="false">
+    Select quantity: 1
+    <br />
+    <button type="submit">
+    Go to checkout
+    </button>
 </form>
