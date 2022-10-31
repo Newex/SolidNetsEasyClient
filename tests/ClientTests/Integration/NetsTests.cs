@@ -16,7 +16,7 @@ public class NetsTests
         var cancel = CancellationToken.None;
         var order = Fakes.MinimalOrderExample;
 
-        var create = await nets.CreatePaymentAsync(order, cancel);
+        var create = await nets.CreatePaymentAsync(order, Models.Integration.EmbeddedCheckout, cancel);
         Assert.True(create.PaymentId != Guid.Empty);
 
         var status = await nets.GetPaymentStatusAsync(create.PaymentId, cancel);

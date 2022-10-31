@@ -63,16 +63,22 @@ public class PaymentClient : IPaymentClient
     public string CheckoutKey { get; }
 
     /// <inheritdoc />
-    public async Task<PaymentResult> CreatePaymentAsync(Order order, CancellationToken cancellationToken, string? checkoutUrl = null, string? returnUrl = null, string? termsUrl = null)
+    public async Task<PaymentResult> CreatePaymentAsync(Order order, Integration integration, CancellationToken cancellationToken, string? checkoutUrl = null, string? returnUrl = null, string? termsUrl = null)
     {
         // load optional values
+        var hostedReturnUrl = integration switch
+        {
+            Integration.EmbeddedCheckout => string.Empty,
+            Integration.HostedPaymentPage => returnUrl ?? this.returnUrl,
+            _ => throw new NotImplementedException()
+        };
         var payment = new PaymentRequest
         {
             Order = order,
             Checkout = new Checkout
             {
                 Url = checkoutUrl ?? this.checkoutUrl,
-                ReturnUrl = returnUrl ?? this.returnUrl,
+                ReturnUrl = hostedReturnUrl,
                 TermsUrl = termsUrl ?? this.termsUrl,
                 MerchantTermsUrl = merchantTermsUrl
             }

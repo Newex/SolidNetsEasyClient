@@ -65,13 +65,14 @@ public interface IPaymentClient
     /// Initializes a new payment object that becomes the object used throughout the checkout flow for a particular customer and order. Creating a payment object is the first step when you intend to accept a payment from your customer. Entering the amount 100 corresponds to 1 unit of the currency entered, such as e.g. 1 NOK
     /// </remarks>
     /// <param name="order">The order</param>
+    /// <param name="integration">The integration type</param>
     /// <param name="cancellationToken">The cancellation token</param>
     /// <param name="checkoutUrl">The optional checkout url, if not specified it will use the value given from configuration</param>
     /// <param name="returnUrl">The optional return url, if not specified it will use the value given from configuration</param>
     /// <param name="termsUrl">The optional terms url, if not specified it will use the value given from configuration</param>
     /// <returns>A payment result or throws an exception</returns>
     /// <exception cref="ArgumentException">Thrown if invalid payment object</exception>
-    Task<PaymentResult> CreatePaymentAsync(Order order, CancellationToken cancellationToken, string? checkoutUrl = null, string? returnUrl = null, string? termsUrl = null);
+    Task<PaymentResult> CreatePaymentAsync(Order order, Integration integration, CancellationToken cancellationToken, string? checkoutUrl = null, string? returnUrl = null, string? termsUrl = null);
 
     /// <summary>
     /// Get status for a payment

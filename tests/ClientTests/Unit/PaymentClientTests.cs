@@ -21,7 +21,7 @@ public class PaymentClientTests
         var payment = Fakes.MinimalOrderExample;
 
         // Act
-        var create = await client.CreatePaymentAsync(payment, CancellationToken.None);
+        var create = await client.CreatePaymentAsync(payment, Models.Integration.EmbeddedCheckout, CancellationToken.None);
         var result = create.PaymentId != Guid.Empty;
 
         // Assert
@@ -37,7 +37,7 @@ public class PaymentClientTests
         var payment = Fakes.MinimalOrderExample;
 
         // Act
-        var ex = async () => await client.CreatePaymentAsync(payment, CancellationToken.None);
+        var ex = async () => await client.CreatePaymentAsync(payment, Models.Integration.EmbeddedCheckout, CancellationToken.None);
 
         // Assert
         _ = await Assert.ThrowsAsync<HttpRequestException>(ex);
