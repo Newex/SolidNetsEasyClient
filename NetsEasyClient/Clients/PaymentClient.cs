@@ -20,6 +20,7 @@ namespace SolidNetsEasyClient.Clients;
 /// <inheritdoc cref="IPaymentClient" />
 public class PaymentClient : IPaymentClient
 {
+    private readonly string merchantTermsUrl;
     private readonly string checkoutUrl;
     private readonly string termsUrl;
     private readonly string returnUrl;
@@ -50,6 +51,7 @@ public class PaymentClient : IPaymentClient
         checkoutUrl = options.Value.CheckoutUrl;
         termsUrl = options.Value.TermsUrl;
         returnUrl = options.Value.ReturnUrl;
+        merchantTermsUrl = options.Value.PrivacyPolicyUrl;
         apiKey = options.Value.ApiKey;
         CheckoutKey = options.Value.CheckoutKey;
         platformId = options.Value.CommercePlatformTag;
@@ -71,7 +73,8 @@ public class PaymentClient : IPaymentClient
             {
                 Url = checkoutUrl ?? this.checkoutUrl,
                 ReturnUrl = returnUrl ?? this.returnUrl,
-                TermsUrl = termsUrl ?? this.termsUrl
+                TermsUrl = termsUrl ?? this.termsUrl,
+                MerchantTermsUrl = merchantTermsUrl
             }
         };
         var isValid = PaymentValidator.IsValidPaymentObject(payment) && !string.IsNullOrWhiteSpace(apiKey);
