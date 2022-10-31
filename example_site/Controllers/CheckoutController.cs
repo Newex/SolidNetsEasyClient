@@ -19,7 +19,7 @@ public class CheckoutController : Controller
     [HttpPost("/checkout")]
     public async Task<ActionResult> Index(CancellationToken cts)
     {
-        var payment = await client.CreatePaymentAsync(PaymentRequestHelper.MinimalPaymentExample(new()), cts);
+        var payment = await client.CreatePaymentAsync(PaymentRequestHelper.MinimalOrderExample(new()), cts);
         var vm = new CheckoutViewModel
         {
             PaymentID = payment.PaymentId,
