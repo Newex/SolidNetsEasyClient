@@ -68,7 +68,7 @@ public interface IPaymentClient
     /// <param name="integration">The integration type</param>
     /// <param name="cancellationToken">The cancellation token</param>
     /// <param name="checkoutUrl">The optional checkout url, if not specified it will use the value given from configuration</param>
-    /// <param name="returnUrl">The optional return url, if not specified it will use the value given from configuration</param>
+    /// <param name="returnUrl">The optional return url, if not specified it will use the value given from configuration only if <paramref name="integration"/> is set to hosted</param>
     /// <param name="termsUrl">The optional terms url, if not specified it will use the value given from configuration</param>
     /// <returns>A payment result or throws an exception</returns>
     /// <exception cref="ArgumentException">Thrown if invalid payment object</exception>
