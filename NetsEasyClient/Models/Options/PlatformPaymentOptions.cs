@@ -39,7 +39,7 @@ public record PlatformPaymentOptions
     public string TermsUrl { get; init; } = string.Empty;
 
     /// <summary>
-    /// Where to return customer after completed payment
+    /// Where to return customer after completed payment when using a hosted checkout page
     /// </summary>
     public string ReturnUrl { get; init; } = string.Empty;
 

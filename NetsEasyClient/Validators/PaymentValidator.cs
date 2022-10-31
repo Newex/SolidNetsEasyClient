@@ -104,7 +104,11 @@ internal static class PaymentValidator
 
     internal static bool HasReturnUrl(PaymentRequest payment)
     {
-        return !string.IsNullOrWhiteSpace(payment.Checkout.ReturnUrl);
+        return payment.Checkout.IntegrationType switch
+        {
+            Integration.HostedPaymentPage => !string.IsNullOrWhiteSpace(payment.Checkout.ReturnUrl),
+            _ => true
+        };
     }
 
     internal static bool ShippingCountryCodeMustBeISO3166(PaymentRequest payment)
