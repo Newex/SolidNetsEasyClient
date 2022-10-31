@@ -20,6 +20,9 @@ namespace SolidNetsEasyClient.Clients;
 /// <inheritdoc cref="IPaymentClient" />
 public class PaymentClient : IPaymentClient
 {
+    private readonly string checkoutUrl;
+    private readonly string termsUrl;
+    private readonly string returnUrl;
     private readonly string mode;
     private readonly string apiKey;
     private readonly string? platformId;
@@ -44,6 +47,9 @@ public class PaymentClient : IPaymentClient
             ClientMode.Test => ClientConstants.Test,
             _ => throw new NotSupportedException("Client mode must be either in Live or Test mode")
         };
+        checkoutUrl = options.Value.CheckoutUrl;
+        termsUrl = options.Value.TermsUrl;
+        returnUrl = options.Value.ReturnUrl;
         apiKey = options.Value.ApiKey;
         CheckoutKey = options.Value.CheckoutKey;
         platformId = options.Value.CommercePlatformTag;
