@@ -61,7 +61,7 @@ public class PaymentClient : IPaymentClient
     public string CheckoutKey { get; }
 
     /// <inheritdoc />
-    public async Task<PaymentResult> CreatePaymentAsync(PaymentRequest payment, CancellationToken cancellationToken)
+    public async Task<PaymentResult> CreatePaymentAsync(PaymentRequest payment, CancellationToken cancellationToken, string? checkoutUrl = null, string? returnUrl = null, string? termsUrl = null)
     {
         var isValid = PaymentValidator.IsValidPaymentObject(payment) && !string.IsNullOrWhiteSpace(apiKey);
         if (!isValid)
@@ -72,20 +72,30 @@ public class PaymentClient : IPaymentClient
 
         try
         {
-            logger.LogTrace("Creating new {@Payment}", payment);
+            // load optional values
+            var request = payment with
+            {
+                Checkout = payment.Checkout with
+                {
+                    Url = checkoutUrl ?? payment.Checkout.Url,
+                    ReturnUrl = returnUrl ?? payment.Checkout.ReturnUrl,
+                    TermsUrl = termsUrl ?? payment.Checkout.TermsUrl
+                }
+            };
+            logger.LogTrace("Creating new {@Payment}", request);
             var client = httpClientFactory.CreateClient(mode);
 
             AddHeaders(client);
 
             // Body
-            var response = await client.PostAsJsonAsync(NetsEndpoints.Relative.Payment, payment, cancellationToken);
+            var response = await client.PostAsJsonAsync(NetsEndpoints.Relative.Payment, request, cancellationToken);
             var msg = await response.Content.ReadAsStringAsync(cancellationToken);
             logger.LogTrace("Raw content: {@ResponseContent}", msg);
             response.EnsureSuccessStatusCode();
 
             // Response
             var result = await response.Content.ReadFromJsonAsync<PaymentResult>(cancellationToken: cancellationToken);
-            logger.LogInformation("Created {@Payment} with a {@Result}", payment, result);
+            logger.LogInformation("Created {@Payment} with a {@Result}", request, result);
             return result!;
         }
         catch (Exception ex)

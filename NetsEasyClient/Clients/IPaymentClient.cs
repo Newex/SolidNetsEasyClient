@@ -66,15 +66,18 @@ public interface IPaymentClient
     /// </remarks>
     /// <param name="payment">The payment</param>
     /// <param name="cancellationToken">The cancellation token</param>
+    /// <param name="checkoutUrl">The optional checkout url, if not specified it will use the value given from configuration</param>
+    /// <param name="returnUrl">The optional return url, if not specified it will use the value given from configuration</param>
+    /// <param name="termsUrl">The optional terms url, if not specified it will use the value given from configuration</param>
     /// <returns>A payment result or throws an exception</returns>
     /// <exception cref="ArgumentException">Thrown if invalid payment object</exception>
-    Task<PaymentResult> CreatePaymentAsync(PaymentRequest payment, CancellationToken cancellationToken);
+    Task<PaymentResult> CreatePaymentAsync(PaymentRequest payment, CancellationToken cancellationToken, string? checkoutUrl = null, string? returnUrl = null, string? termsUrl = null);
 
     /// <summary>
     /// Get status for a payment
     /// </summary>
     /// <remarks>
-    /// Retrieves the details of an existing payment. The paymentId is obtained from Nets when creating a <see cref="CreatePaymentAsync(PaymentRequest, CancellationToken)"/>
+    /// Retrieves the details of an existing payment. The paymentId is obtained from Nets when creating a <see cref="CreatePaymentAsync(PaymentRequest, CancellationToken, string?, string?, string?)"/>
     /// </remarks>
     /// <param name="paymentID">The payment ID</param>
     /// <param name="cancellationToken">The cancellation token</param>
