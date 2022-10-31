@@ -41,7 +41,7 @@ public record PlatformPaymentOptions
     /// <summary>
     /// Where to return customer after completed payment when using a hosted checkout page
     /// </summary>
-    public string ReturnUrl { get; init; } = string.Empty;
+    public string? ReturnUrl { get; init; }
 
     /// <summary>
     /// The privacy policy url for your site

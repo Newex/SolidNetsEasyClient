@@ -23,7 +23,7 @@ public class PaymentClient : IPaymentClient
     private readonly string merchantTermsUrl;
     private readonly string checkoutUrl;
     private readonly string termsUrl;
-    private readonly string returnUrl;
+    private readonly string? returnUrl;
     private readonly string mode;
     private readonly string apiKey;
     private readonly string? platformId;

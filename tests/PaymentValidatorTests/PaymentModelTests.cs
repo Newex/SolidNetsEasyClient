@@ -448,7 +448,7 @@ public class PaymentModelTests
         var payment = Setup.DefaultPayment().WithCheckout(c => c with
         {
             IntegrationType = Integration.HostedPaymentPage,
-            ReturnUrl = ""
+            ReturnUrl = null
         });
 
         // Act

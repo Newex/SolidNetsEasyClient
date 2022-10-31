@@ -31,8 +31,9 @@ public record Checkout
     /// Specifies where your customer will return after a completed payment when using a hosted checkout page
     /// </summary>
     /// <seealso cref="IntegrationType"/>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("returnUrl")]
-    public string ReturnUrl { get; init; } = string.Empty;
+    public string? ReturnUrl { get; init; }
 
     /// <summary>
     /// Specifies where your customer will return after a canceled payment when using a hosted checkout page
