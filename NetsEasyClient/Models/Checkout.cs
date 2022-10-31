@@ -78,7 +78,7 @@ public record Checkout
     public Shipping? Shipping { get; init; }
 
     /// <summary>
-    /// onfigures which consumer types should be accepted
+    /// Configures which consumer types should be accepted
     /// </summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("consumerType")]

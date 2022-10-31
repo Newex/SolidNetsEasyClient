@@ -20,6 +20,7 @@ namespace SolidNetsEasyClient.Clients;
 /// <inheritdoc cref="IPaymentClient" />
 public class PaymentClient : IPaymentClient
 {
+    private readonly string merchantTermsUrl;
     private readonly string checkoutUrl;
     private readonly string termsUrl;
     private readonly string returnUrl;
@@ -50,6 +51,7 @@ public class PaymentClient : IPaymentClient
         checkoutUrl = options.Value.CheckoutUrl;
         termsUrl = options.Value.TermsUrl;
         returnUrl = options.Value.ReturnUrl;
+        merchantTermsUrl = options.Value.PrivacyPolicyUrl;
         apiKey = options.Value.ApiKey;
         CheckoutKey = options.Value.CheckoutKey;
         platformId = options.Value.CommercePlatformTag;
@@ -61,41 +63,49 @@ public class PaymentClient : IPaymentClient
     public string CheckoutKey { get; }
 
     /// <inheritdoc />
-    public async Task<PaymentResult> CreatePaymentAsync(PaymentRequest payment, CancellationToken cancellationToken, string? checkoutUrl = null, string? returnUrl = null, string? termsUrl = null)
+    public async Task<PaymentResult> CreatePaymentAsync(Order order, Integration integration, CancellationToken cancellationToken, string? checkoutUrl = null, string? returnUrl = null, string? termsUrl = null)
     {
+        // load optional values
+        var hostedReturnUrl = integration switch
+        {
+            Integration.EmbeddedCheckout => string.Empty,
+            Integration.HostedPaymentPage => returnUrl ?? this.returnUrl,
+            _ => throw new NotImplementedException()
+        };
+        var payment = new PaymentRequest
+        {
+            Order = order,
+            Checkout = new Checkout
+            {
+                Url = checkoutUrl ?? this.checkoutUrl,
+                ReturnUrl = hostedReturnUrl,
+                TermsUrl = termsUrl ?? this.termsUrl,
+                MerchantTermsUrl = merchantTermsUrl
+            }
+        };
         var isValid = PaymentValidator.IsValidPaymentObject(payment) && !string.IsNullOrWhiteSpace(apiKey);
         if (!isValid)
         {
-            logger.LogError("Invalid {@Payment} or api key", payment);
-            throw new ArgumentException("Invalid payment object state", nameof(payment));
+            logger.LogError("Invalid {@Order} or api key", payment);
+            throw new ArgumentException("Invalid order object state or api key", nameof(order));
         }
 
         try
         {
-            // load optional values
-            var request = payment with
-            {
-                Checkout = payment.Checkout with
-                {
-                    Url = checkoutUrl ?? payment.Checkout.Url,
-                    ReturnUrl = returnUrl ?? payment.Checkout.ReturnUrl,
-                    TermsUrl = termsUrl ?? payment.Checkout.TermsUrl
-                }
-            };
-            logger.LogTrace("Creating new {@Payment}", request);
+            logger.LogTrace("Creating new {@Payment}", payment);
             var client = httpClientFactory.CreateClient(mode);
 
             AddHeaders(client);
 
             // Body
-            var response = await client.PostAsJsonAsync(NetsEndpoints.Relative.Payment, request, cancellationToken);
+            var response = await client.PostAsJsonAsync(NetsEndpoints.Relative.Payment, payment, cancellationToken);
             var msg = await response.Content.ReadAsStringAsync(cancellationToken);
             logger.LogTrace("Raw content: {@ResponseContent}", msg);
             response.EnsureSuccessStatusCode();
 
             // Response
             var result = await response.Content.ReadFromJsonAsync<PaymentResult>(cancellationToken: cancellationToken);
-            logger.LogInformation("Created {@Payment} with a {@Result}", request, result);
+            logger.LogInformation("Created {@Payment} with a {@Result}", payment, result);
             return result!;
         }
         catch (Exception ex)

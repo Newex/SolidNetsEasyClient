@@ -18,10 +18,10 @@ public class PaymentClientTests
         // Arrange
         const string responseJson = ActualResponses.CreatePaymentResponse;
         var client = Setup.PaymentClient(HttpMethod.Post, NetsEndpoints.Relative.Payment, HttpStatusCode.Created, responseJson);
-        var payment = Fakes.MinimalPaymentExample;
+        var payment = Fakes.MinimalOrderExample;
 
         // Act
-        var create = await client.CreatePaymentAsync(payment, CancellationToken.None);
+        var create = await client.CreatePaymentAsync(payment, Models.Integration.EmbeddedCheckout, CancellationToken.None);
         var result = create.PaymentId != Guid.Empty;
 
         // Assert
@@ -34,10 +34,10 @@ public class PaymentClientTests
         // Arrange
         var responseJson = string.Empty;
         var client = Setup.PaymentClient(HttpMethod.Post, NetsEndpoints.Relative.Payment, HttpStatusCode.BadRequest, responseJson);
-        var payment = Fakes.MinimalPaymentExample;
+        var payment = Fakes.MinimalOrderExample;
 
         // Act
-        var ex = async () => await client.CreatePaymentAsync(payment, CancellationToken.None);
+        var ex = async () => await client.CreatePaymentAsync(payment, Models.Integration.EmbeddedCheckout, CancellationToken.None);
 
         // Assert
         _ = await Assert.ThrowsAsync<HttpRequestException>(ex);

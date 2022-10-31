@@ -27,7 +27,7 @@ public static class Fakes
     /// <param name="paymentMethods">With number of payment methods</param>
     /// <param name="orderItems">With number of order items</param>
     /// <returns>Returns a random payment</returns>
-    public static PaymentRequest RandomPayment(bool company, bool termsUrl, int webHooks, int paymentConfigurations, int paymentMethods, int orderItems)
+    internal static PaymentRequest RandomPayment(bool company, bool termsUrl, int webHooks, int paymentConfigurations, int paymentMethods, int orderItems)
     {
         var faker = new Faker<PaymentRequest>();
 
@@ -333,12 +333,10 @@ public static class Fakes
         return faker.Generate();
     }
 
-    public static PaymentRequest MinimalPaymentExample => new()
+    public static Order MinimalOrderExample => new()
     {
-        Order = new Order
-        {
-            Currency = "DKK",
-            Items = new List<Item>
+        Currency = "DKK",
+        Items = new List<Item>
                 {
                     new()
                     {
@@ -349,13 +347,6 @@ public static class Fakes
                         Reference = Guid.NewGuid().ToString()
                     }
                 },
-            Reference = Guid.NewGuid().ToString()
-        },
-        Checkout = new()
-        {
-            Url = "https://my.checkout.url",
-            TermsUrl = "https://my.terms.url",
-            ReturnUrl = "https://return.to.me"
-        },
+        Reference = Guid.NewGuid().ToString()
     };
 }
