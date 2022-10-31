@@ -78,7 +78,7 @@ public interface IPaymentClient
     /// Get status for a payment
     /// </summary>
     /// <remarks>
-    /// Retrieves the details of an existing payment. The paymentId is obtained from Nets when creating a <see cref="CreatePaymentAsync(Order, CancellationToken, string?, string?, string?)"/>
+    /// Retrieves the details of an existing payment. The paymentId is obtained from Nets when creating a <see cref="CreatePaymentAsync(Order, Integration, CancellationToken, string?, string?, string?)"/>
     /// </remarks>
     /// <param name="paymentID">The payment ID</param>
     /// <param name="cancellationToken">The cancellation token</param>
