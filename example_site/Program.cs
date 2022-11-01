@@ -4,6 +4,8 @@ using SolidNetsEasyClient.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddHealthChecks();
+
 builder.Services.AddControllersWithViews();
 
 // nets easy
@@ -25,6 +27,7 @@ builder
 var app = builder.Build();
 // app.UseCors("MyCorsPolicy");
 
+app.MapHealthChecks("/healthz");
 app.UseStaticFiles();
 app.MapDefaultControllerRoute();
 
