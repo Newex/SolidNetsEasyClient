@@ -68,7 +68,7 @@ public class PaymentClient : IPaymentClient
         // load optional values
         var hostedReturnUrl = integration switch
         {
-            Integration.EmbeddedCheckout => string.Empty,
+            Integration.EmbeddedCheckout => null,
             Integration.HostedPaymentPage => returnUrl ?? this.returnUrl,
             _ => throw new NotImplementedException()
         };
@@ -80,7 +80,8 @@ public class PaymentClient : IPaymentClient
                 Url = checkoutUrl ?? this.checkoutUrl,
                 ReturnUrl = hostedReturnUrl,
                 TermsUrl = termsUrl ?? this.termsUrl,
-                MerchantTermsUrl = merchantTermsUrl
+                MerchantTermsUrl = merchantTermsUrl,
+                IntegrationType = integration
             }
         };
         var isValid = PaymentValidator.IsValidPaymentObject(payment) && !string.IsNullOrWhiteSpace(apiKey);
