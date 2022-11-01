@@ -25,7 +25,7 @@ public record class ProductCola
     /// <summary>
     /// The price per unit
     /// </summary>
-    public int Price => 30_00;
+    public int Price => 40_00;
 
     /// <summary>
     /// The unit designation (each)

@@ -1,4 +1,3 @@
-using System;
 using ExampleSite.Models;
 using Microsoft.AspNetCore.Mvc;
 
@@ -9,7 +8,7 @@ public class ProductController : Controller
     [HttpGet("/products")]
     public IActionResult Index()
     {
-        var cola = new ProductCola();
-        return View(cola);
+        var basket = new BasketViewModel();
+        return View(basket);
     }
 }

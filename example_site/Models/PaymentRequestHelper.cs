@@ -6,7 +6,7 @@ namespace ExampleSite.Models;
 
 public static class PaymentRequestHelper
 {
-    public static Order MinimalOrderExample(ProductCola product) => new()
+    public static Order MinimalOrderExample(ProductCola product, int quantity) => new()
     {
         Currency = product.Currency,
         Items = new List<Item>
@@ -14,7 +14,7 @@ public static class PaymentRequestHelper
                     new()
                     {
                         Name = product.Name,
-                        Quantity = 1,
+                        Quantity = quantity,
                         Unit = product.Unit,
                         UnitPrice = product.Price,
                         Reference = product.ID.ToString()

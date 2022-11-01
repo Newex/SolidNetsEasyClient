@@ -1,4 +1,3 @@
-using System;
 using System.Threading;
 using System.Threading.Tasks;
 using ExampleSite.Models;
@@ -18,13 +17,21 @@ public class CheckoutController : Controller
     }
 
     [HttpPost("/checkout")]
-    public async Task<ActionResult> Index(CancellationToken cts)
+    public async Task<ActionResult> Index(BasketViewModel basket, CancellationToken cts)
     {
-        var payment = await client.CreatePaymentAsync(PaymentRequestHelper.MinimalOrderExample(new()), Integration.EmbeddedCheckout, cts);
+        var payment = await client.CreatePaymentAsync(PaymentRequestHelper.MinimalOrderExample(basket.Item, basket.Quantity), Integration.EmbeddedCheckout, cts);
+        return RedirectToAction("Pay", new
+        {
+            paymentId = payment.PaymentId.ToString("N"),
+        });
+    }
+
+    [HttpGet("/checkout")]
+    public ActionResult Pay([FromQuery] string paymentId)
+    {
         var vm = new CheckoutViewModel
         {
-            PaymentID = payment.PaymentId,
-            CheckoutKey = client.CheckoutKey
+            CheckoutKey = client.CheckoutKey,
         };
 
         return View(vm);
