@@ -22,3 +22,7 @@ COPY --from=build /app ./
 ENTRYPOINT ["./ExampleSite", "--urls", "http://0.0.0.0:80"]
 EXPOSE 80/tcp
 EXPOSE 443/tcp
+
+ENV SolidNetsEasy__ApiKey="<insert-api-key>"
+ENV SolidNetsEasy__CheckoutKey="<insert-checkout-key>"
+ENV SolidNetsEasy__CheckoutUrl="http://my.site/checkout.html"
