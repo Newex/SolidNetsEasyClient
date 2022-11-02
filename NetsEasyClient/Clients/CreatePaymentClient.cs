@@ -104,7 +104,7 @@ public partial class PaymentClient : IPaymentClient
     }
 
     /// <inheritdoc />
-    public async Task<PaymentResult> CreatePaymentAsync(Order order, ConsumerType consumerType, Consumer consumer, CancellationToken cancellationToken, string? checkoutUrl = null, string? termsUrl = null)
+    public async Task<PaymentResult> CreatePaymentAsync(Order order, Consumer consumer, CancellationToken cancellationToken, string? checkoutUrl = null, string? termsUrl = null)
     {
         // Assume: Embedded integration
         var payment = new PaymentRequest
@@ -116,7 +116,6 @@ public partial class PaymentClient : IPaymentClient
                 TermsUrl = termsUrl ?? this.termsUrl,
                 MerchantTermsUrl = merchantTermsUrl,
                 IntegrationType = Integration.EmbeddedCheckout,
-                ConsumerType = consumerType,
                 Consumer = consumer,
                 MerchantHandlesConsumerData = true,
                 Charge = true
