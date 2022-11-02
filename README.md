@@ -15,8 +15,30 @@ Register the service in the startup process:
 
 ```csharp
 // Register TUS services
-builder.Services.AddNetsEasyClient();
+builder
+.Services
+.AddNetsEasyClient()
+.Configure(builder.Configuration);
 ```
+
+Either via appsettings.json or environment variables set the payment option values (or via the `Configure` extension method)
+```json
+// File appsettings.json
+  {
+    ...
+    "SolidNetsEasy": {
+        "ApiKey": "<insert-secret-api-key-here>", // DO NOT EXPOSE to end user
+        "CheckoutKey": "<insert-checkout-key-here>", // Use on the front end
+        "CheckoutUrl": "https://exact.url.to/checkout",
+        "TermsUrl": "http://my.terms.url",
+        "PrivacyPolicyUrl": "http://privacy.url",
+        "CommercePlatformTag": "optional identifier for the ecommerce platform",
+        "ReturnUrl": "http://only-use-when-hosting-checkout-on-nets.com/aka/HostedPaymentPage",
+        "ClientMode": "Test" // Can be Test or Live mode
+    }
+  }
+```
+
 
 # Features (TBD)
 Use the client to make and manage payments, from the backend. Remember that the you still need a frontend for a customer to input payment details.
