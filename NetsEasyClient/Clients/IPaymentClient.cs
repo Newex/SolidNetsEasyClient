@@ -59,7 +59,7 @@ public interface IPaymentClient
     Task<ChargeResult?> ChargePaymentAsync(Guid paymentID, Charge charge, CancellationToken cancellationToken, string? idempotencyKey = null);
 
     /// <summary>
-    /// Create a payment in NETS
+    /// Create a payment in NETS. The payment will be charged immediately.
     /// </summary>
     /// <remarks>
     /// Initializes a new payment object that becomes the object used throughout the checkout flow for a particular customer and order. Creating a payment object is the first step when you intend to accept a payment from your customer. Entering the amount 100 corresponds to 1 unit of the currency entered, such as e.g. 1 NOK
@@ -85,6 +85,22 @@ public interface IPaymentClient
     /// <returns>A payment result or throws an exception</returns>
     /// <exception cref="ArgumentException">Thrown if invalid payment object</exception>
     Task<PaymentResult> CreatePaymentAsync(PaymentRequest payment, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Create a payment in NETS. Assumes that the payment is embedded (as opposed to hosted). The payment will be charged immediately.
+    /// </summary>
+    /// <remarks>
+    /// Initializes a new payment object that becomes the object used throughout the checkout flow for a particular customer and order. Creating a payment object is the first step when you intend to accept a payment from your customer. Entering the amount 100 corresponds to 1 unit of the currency entered, such as e.g. 1 NOK
+    /// </remarks>
+    /// <param name="order">The order</param>
+    /// <param name="consumerType">The consumer type, of either a B2B or B2C</param>
+    /// <param name="consumer">The consumer details</param>
+    /// <param name="cancellationToken">The cancellation token</param>
+    /// <param name="checkoutUrl">The optional checkout url, if not specified it will use the value given from configuration</param>
+    /// <param name="termsUrl">The optional terms url, if not specified it will use the value given from configuration</param>
+    /// <returns>A payment result or throws an exception</returns>
+    /// <exception cref="ArgumentException">Thrown if invalid payment object</exception>
+    Task<PaymentResult> CreatePaymentAsync(Order order, ConsumerType consumerType, Consumer consumer, CancellationToken cancellationToken, string? checkoutUrl = null, string? termsUrl = null);
 
     /// <summary>
     /// Get status for a payment

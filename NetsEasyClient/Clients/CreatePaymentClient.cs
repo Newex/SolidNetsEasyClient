@@ -19,7 +19,7 @@ public partial class PaymentClient : IPaymentClient
         var isValid = PaymentValidator.IsValidPaymentObject(payment) && !string.IsNullOrWhiteSpace(apiKey);
         if (!isValid)
         {
-            logger.LogError("Invalid {@Order} or {ApiKey}", payment);
+            logger.LogError("Invalid {@Payment} or {ApiKey}", payment, apiKey);
             throw new ArgumentException("Invalid payment object state or api key", nameof(payment));
         }
 
@@ -67,13 +67,65 @@ public partial class PaymentClient : IPaymentClient
                 ReturnUrl = hostedReturnUrl,
                 TermsUrl = termsUrl ?? this.termsUrl,
                 MerchantTermsUrl = merchantTermsUrl,
-                IntegrationType = integration
+                IntegrationType = integration,
+                Charge = true
             }
         };
         var isValid = PaymentValidator.IsValidPaymentObject(payment) && !string.IsNullOrWhiteSpace(apiKey);
         if (!isValid)
         {
-            logger.LogError("Invalid {@Order} or {ApiKey}", payment);
+            logger.LogError("Invalid {@Payment} or {ApiKey}", payment, apiKey);
+            throw new ArgumentException("Invalid order object state or api key", nameof(order));
+        }
+
+        try
+        {
+            logger.LogTrace("Creating new {@Payment}", payment);
+            var client = httpClientFactory.CreateClient(mode);
+
+            AddHeaders(client);
+
+            // Body
+            var response = await client.PostAsJsonAsync(NetsEndpoints.Relative.Payment, payment, cancellationToken);
+            var msg = await response.Content.ReadAsStringAsync(cancellationToken);
+            logger.LogTrace("Raw content: {@ResponseContent}", msg);
+            response.EnsureSuccessStatusCode();
+
+            // Response
+            var result = await response.Content.ReadFromJsonAsync<PaymentResult>(cancellationToken: cancellationToken);
+            logger.LogInformation("Created {@Payment} with a {@Result}", payment, result);
+            return result!;
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "An exception occurred trying to create a payment with {@Payment}", payment);
+            throw;
+        }
+    }
+
+    /// <inheritdoc />
+    public async Task<PaymentResult> CreatePaymentAsync(Order order, ConsumerType consumerType, Consumer consumer, CancellationToken cancellationToken, string? checkoutUrl = null, string? termsUrl = null)
+    {
+        // Assume: Embedded integration
+        var payment = new PaymentRequest
+        {
+            Order = order,
+            Checkout = new Checkout
+            {
+                Url = checkoutUrl ?? this.checkoutUrl,
+                TermsUrl = termsUrl ?? this.termsUrl,
+                MerchantTermsUrl = merchantTermsUrl,
+                IntegrationType = Integration.EmbeddedCheckout,
+                ConsumerType = consumerType,
+                Consumer = consumer,
+                MerchantHandlesConsumerData = true,
+                Charge = true
+            }
+        };
+        var isValid = PaymentValidator.IsValidPaymentObject(payment) && !string.IsNullOrWhiteSpace(apiKey);
+        if (!isValid)
+        {
+            logger.LogError("Invalid {@Payment} or {ApiKey}", payment, apiKey);
             throw new ArgumentException("Invalid order object state or api key", nameof(order));
         }
 
