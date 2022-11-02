@@ -65,7 +65,7 @@ public record Checkout
     public string? MerchantTermsUrl { get; init; }
 
     /// <summary>
-    /// n array of countries that limits the set of countries available for shipping. If left unspecified, all countries supported by Easy Checkout will be available for shipping on the checkout page
+    /// An array of countries that limits the set of countries available for shipping. If left unspecified, all countries supported by Easy Checkout will be available for shipping on the checkout page
     /// </summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("shippingCountries")]

@@ -10,15 +10,13 @@ using Microsoft.Extensions.Options;
 using SolidNetsEasyClient.Constants;
 using SolidNetsEasyClient.Models;
 using SolidNetsEasyClient.Models.Options;
-using SolidNetsEasyClient.Models.Requests;
 using SolidNetsEasyClient.Models.Results;
 using SolidNetsEasyClient.Models.Status;
-using SolidNetsEasyClient.Validators;
 
 namespace SolidNetsEasyClient.Clients;
 
 /// <inheritdoc cref="IPaymentClient" />
-public class PaymentClient : IPaymentClient
+public partial class PaymentClient : IPaymentClient
 {
     private readonly string merchantTermsUrl;
     private readonly string checkoutUrl;
@@ -61,60 +59,6 @@ public class PaymentClient : IPaymentClient
 
     /// <inheritdoc />
     public string CheckoutKey { get; }
-
-    /// <inheritdoc />
-    public async Task<PaymentResult> CreatePaymentAsync(Order order, Integration integration, CancellationToken cancellationToken, string? checkoutUrl = null, string? returnUrl = null, string? termsUrl = null)
-    {
-        // load optional values
-        var hostedReturnUrl = integration switch
-        {
-            Integration.EmbeddedCheckout => null,
-            Integration.HostedPaymentPage => returnUrl ?? this.returnUrl,
-            _ => throw new NotImplementedException()
-        };
-        var payment = new PaymentRequest
-        {
-            Order = order,
-            Checkout = new Checkout
-            {
-                Url = checkoutUrl ?? this.checkoutUrl,
-                ReturnUrl = hostedReturnUrl,
-                TermsUrl = termsUrl ?? this.termsUrl,
-                MerchantTermsUrl = merchantTermsUrl,
-                IntegrationType = integration
-            }
-        };
-        var isValid = PaymentValidator.IsValidPaymentObject(payment) && !string.IsNullOrWhiteSpace(apiKey);
-        if (!isValid)
-        {
-            logger.LogError("Invalid {@Order} or api key", payment);
-            throw new ArgumentException("Invalid order object state or api key", nameof(order));
-        }
-
-        try
-        {
-            logger.LogTrace("Creating new {@Payment}", payment);
-            var client = httpClientFactory.CreateClient(mode);
-
-            AddHeaders(client);
-
-            // Body
-            var response = await client.PostAsJsonAsync(NetsEndpoints.Relative.Payment, payment, cancellationToken);
-            var msg = await response.Content.ReadAsStringAsync(cancellationToken);
-            logger.LogTrace("Raw content: {@ResponseContent}", msg);
-            response.EnsureSuccessStatusCode();
-
-            // Response
-            var result = await response.Content.ReadFromJsonAsync<PaymentResult>(cancellationToken: cancellationToken);
-            logger.LogInformation("Created {@Payment} with a {@Result}", payment, result);
-            return result!;
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, "An exception occurred trying to create a payment with {@Payment}", payment);
-            throw;
-        }
-    }
 
     /// <inheritdoc />
     public async Task<PaymentStatus?> GetPaymentStatusAsync(Guid paymentID, CancellationToken cancellationToken)

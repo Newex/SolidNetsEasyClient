@@ -1,9 +1,7 @@
 document.addEventListener('DOMContentLoaded', function () {
-  const urlParams = new URLSearchParams(window.location.search);
-  const paymentId = urlParams.get('paymentId');
     const checkoutOptions = {
         checkoutKey: document.getElementById('checkout').value,
-        paymentId: paymentId,
+        paymentId: document.getElementById('payment').value,
         containerId: "checkout-container-div",
         language: "da-DK"
     };

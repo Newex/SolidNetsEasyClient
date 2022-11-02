@@ -19,21 +19,35 @@ public class CheckoutController : Controller
     [HttpPost("/checkout")]
     public async Task<ActionResult> Index(BasketViewModel basket, CancellationToken cts)
     {
-        var payment = await client.CreatePaymentAsync(PaymentRequestHelper.MinimalOrderExample(basket.Item, basket.Quantity), Integration.EmbeddedCheckout, cts);
-        return RedirectToAction("Pay", new
+        var order = PaymentRequestHelper.MinimalOrderExample(basket.Item, basket.Quantity);
+        var customer = new Consumer
         {
-            paymentId = payment.PaymentId.ToString("N"),
-        });
-    }
-
-    [HttpGet("/checkout")]
-    public ActionResult Pay([FromQuery] string paymentId)
-    {
+            Email = "john@doe.com",
+            PhoneNumber = new()
+            {
+                Number = "54545454",
+                Prefix = "+45"
+            },
+            PrivatePerson = new()
+            {
+                FirstName = "John",
+                LastName = "Doe"
+            },
+            Reference = "jdoe",
+            ShippingAddress = new()
+            {
+                AddressLine1 = "Rådhuspladsen 1",
+                City = "København",
+                Country = "DNK",
+                PostalCode = "1599"
+            },
+        };
+        var payment = await client.CreatePaymentAsync(order, customer, cts);
         var vm = new CheckoutViewModel
         {
             CheckoutKey = client.CheckoutKey,
+            PaymentID = payment.PaymentId.ToString("N")
         };
-
         return View(vm);
     }
 }
