@@ -7,7 +7,7 @@ namespace SolidNetsEasyClient.Models.Requests;
 /// <summary>
 /// A payment request object
 /// </summary>
-internal record PaymentRequest
+public record PaymentRequest
 {
     /// <summary>
     /// Specifies an order associated with a payment. An order must contain at least one order item. The amount of the order must match the sum of the specified order items

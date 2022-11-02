@@ -75,6 +75,18 @@ public interface IPaymentClient
     Task<PaymentResult> CreatePaymentAsync(Order order, Integration integration, CancellationToken cancellationToken, string? checkoutUrl = null, string? returnUrl = null, string? termsUrl = null);
 
     /// <summary>
+    /// Create a payment in NETS
+    /// </summary>
+    /// <remarks>
+    /// Initializes a new payment object that becomes the object used throughout the checkout flow for a particular customer and order. Creating a payment object is the first step when you intend to accept a payment from your customer. Entering the amount 100 corresponds to 1 unit of the currency entered, such as e.g. 1 NOK
+    /// </remarks>
+    /// <param name="payment">The payment request</param>
+    /// <param name="cancellationToken">The cancellation token</param>
+    /// <returns>A payment result or throws an exception</returns>
+    /// <exception cref="ArgumentException">Thrown if invalid payment object</exception>
+    Task<PaymentResult> CreatePaymentAsync(PaymentRequest payment, CancellationToken cancellationToken);
+
+    /// <summary>
     /// Get status for a payment
     /// </summary>
     /// <remarks>

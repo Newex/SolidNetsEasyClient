@@ -63,6 +63,41 @@ public class PaymentClient : IPaymentClient
     public string CheckoutKey { get; }
 
     /// <inheritdoc />
+    public async Task<PaymentResult> CreatePaymentAsync(PaymentRequest payment, CancellationToken cancellationToken)
+    {
+        var isValid = PaymentValidator.IsValidPaymentObject(payment) && !string.IsNullOrWhiteSpace(apiKey);
+        if (!isValid)
+        {
+            logger.LogError("Invalid {@Order} or {ApiKey}", payment);
+            throw new ArgumentException("Invalid payment object state or api key", nameof(payment));
+        }
+
+        try
+        {
+            logger.LogTrace("Creating new {@Payment}", payment);
+            var client = httpClientFactory.CreateClient(mode);
+
+            AddHeaders(client);
+
+            // Body
+            var response = await client.PostAsJsonAsync(NetsEndpoints.Relative.Payment, payment, cancellationToken);
+            var msg = await response.Content.ReadAsStringAsync(cancellationToken);
+            logger.LogTrace("Raw content: {@ResponseContent}", msg);
+            response.EnsureSuccessStatusCode();
+
+            // Response
+            var result = await response.Content.ReadFromJsonAsync<PaymentResult>(cancellationToken: cancellationToken);
+            logger.LogInformation("Created {@Payment} with a {@Result}", payment, result);
+            return result!;
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "An exception occurred trying to create a payment with {@Payment}", payment);
+            throw;
+        }
+    }
+
+    /// <inheritdoc />
     public async Task<PaymentResult> CreatePaymentAsync(Order order, Integration integration, CancellationToken cancellationToken, string? checkoutUrl = null, string? returnUrl = null, string? termsUrl = null)
     {
         // load optional values
@@ -87,7 +122,7 @@ public class PaymentClient : IPaymentClient
         var isValid = PaymentValidator.IsValidPaymentObject(payment) && !string.IsNullOrWhiteSpace(apiKey);
         if (!isValid)
         {
-            logger.LogError("Invalid {@Order} or api key", payment);
+            logger.LogError("Invalid {@Order} or {ApiKey}", payment);
             throw new ArgumentException("Invalid order object state or api key", nameof(order));
         }
 
