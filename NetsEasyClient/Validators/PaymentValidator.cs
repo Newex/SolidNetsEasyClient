@@ -9,14 +9,14 @@ namespace SolidNetsEasyClient.Validators;
 /// <summary>
 /// A payment validator
 /// </summary>
-public static class PaymentValidator
+internal static class PaymentValidator
 {
     /// <summary>
     /// Checks if a payment is valid
     /// </summary>
     /// <param name="payment">The payment</param>
     /// <returns>True if valid otherwise false</returns>
-    public static bool IsValidPaymentObject(PaymentRequest payment)
+    internal static bool IsValidPaymentObject(PaymentRequest payment)
     {
         // Checkout URL must not be empty
         if (string.IsNullOrWhiteSpace(payment.Checkout.Url))
@@ -104,7 +104,11 @@ public static class PaymentValidator
 
     internal static bool HasReturnUrl(PaymentRequest payment)
     {
-        return !string.IsNullOrWhiteSpace(payment.Checkout.ReturnUrl);
+        return payment.Checkout.IntegrationType switch
+        {
+            Integration.HostedPaymentPage => !string.IsNullOrWhiteSpace(payment.Checkout.ReturnUrl),
+            _ => true
+        };
     }
 
     internal static bool ShippingCountryCodeMustBeISO3166(PaymentRequest payment)

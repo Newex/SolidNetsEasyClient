@@ -21,7 +21,7 @@ public record Subscription
     /// The date and time when the subscription expires. It is not possible to charge this subscription after this date
     /// </summary>
     /// <remarks>
-    /// he field has three components: date, time, and time zone (offset from GMT). For example: 2021-07-02T12:00:00.0000+02:00
+    /// The field has three components: date, time, and time zone (offset from GMT). For example: 2021-07-02T12:00:00.0000+02:00
     /// </remarks>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("endDate")]

@@ -15,7 +15,7 @@ public static class Setup
         return new PaymentClient(
             Options.Create<PlatformPaymentOptions>(new()
             {
-                Authorization = key
+                ApiKey = key
             }),
             new HttpClientFactoryStub()
         );

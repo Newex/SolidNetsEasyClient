@@ -440,4 +440,21 @@ public class PaymentModelTests
         // Assert
         Assert.False(result);
     }
+
+    [Fact]
+    public void Hosted_checkout_payment_without_return_url_is_invalid()
+    {
+        // Arrange
+        var payment = Setup.DefaultPayment().WithCheckout(c => c with
+        {
+            IntegrationType = Integration.HostedPaymentPage,
+            ReturnUrl = null
+        });
+
+        // Act
+        var result = PaymentValidator.HasReturnUrl(payment);
+
+        // Assert
+        Assert.False(result);
+    }
 }

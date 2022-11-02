@@ -31,8 +31,9 @@ public record Checkout
     /// Specifies where your customer will return after a completed payment when using a hosted checkout page
     /// </summary>
     /// <seealso cref="IntegrationType"/>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("returnUrl")]
-    public string ReturnUrl { get; init; } = string.Empty;
+    public string? ReturnUrl { get; init; }
 
     /// <summary>
     /// Specifies where your customer will return after a canceled payment when using a hosted checkout page
@@ -64,7 +65,7 @@ public record Checkout
     public string? MerchantTermsUrl { get; init; }
 
     /// <summary>
-    /// n array of countries that limits the set of countries available for shipping. If left unspecified, all countries supported by Easy Checkout will be available for shipping on the checkout page
+    /// An array of countries that limits the set of countries available for shipping. If left unspecified, all countries supported by Easy Checkout will be available for shipping on the checkout page
     /// </summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("shippingCountries")]
@@ -78,7 +79,7 @@ public record Checkout
     public Shipping? Shipping { get; init; }
 
     /// <summary>
-    /// onfigures which consumer types should be accepted
+    /// Configures which consumer types should be accepted
     /// </summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("consumerType")]

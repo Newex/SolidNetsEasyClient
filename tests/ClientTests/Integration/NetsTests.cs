@@ -14,9 +14,9 @@ public class NetsTests
     {
         var nets = Setup.PaymentClient();
         var cancel = CancellationToken.None;
-        var paymentRequest = Fakes.MinimalPaymentExample;
+        var order = Fakes.MinimalOrderExample;
 
-        var create = await nets.CreatePaymentAsync(paymentRequest, cancel);
+        var create = await nets.CreatePaymentAsync(order, Models.Integration.EmbeddedCheckout, cancel);
         Assert.True(create.PaymentId != Guid.Empty);
 
         var status = await nets.GetPaymentStatusAsync(create.PaymentId, cancel);
@@ -60,7 +60,7 @@ public class NetsTests
         var updatedOrder = await nets.UpdateOrderAsync(create.PaymentId, updates, cancel);
         Assert.True(updatedOrder);
 
-        var cancelPayment = await nets.CancelPaymentAsync(create.PaymentId, paymentRequest.Order, cancel);
+        var cancelPayment = await nets.CancelPaymentAsync(create.PaymentId, order, cancel);
 
         var terminated = await nets.TerminatePaymentAsync(create.PaymentId, cancel);
         Assert.True(terminated);

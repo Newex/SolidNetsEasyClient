@@ -10,17 +10,19 @@ using Microsoft.Extensions.Options;
 using SolidNetsEasyClient.Constants;
 using SolidNetsEasyClient.Models;
 using SolidNetsEasyClient.Models.Options;
-using SolidNetsEasyClient.Models.Requests;
 using SolidNetsEasyClient.Models.Results;
 using SolidNetsEasyClient.Models.Status;
-using SolidNetsEasyClient.Validators;
 
 namespace SolidNetsEasyClient.Clients;
 
 /// <inheritdoc cref="IPaymentClient" />
-public class PaymentClient : IPaymentClient
+public partial class PaymentClient : IPaymentClient
 {
-    internal const string HttpPaymentClient = "HttpPaymentClient";
+    private readonly string merchantTermsUrl;
+    private readonly string checkoutUrl;
+    private readonly string termsUrl;
+    private readonly string? returnUrl;
+    private readonly string mode;
     private readonly string apiKey;
     private readonly string? platformId;
     private readonly IHttpClientFactory httpClientFactory;
@@ -38,46 +40,25 @@ public class PaymentClient : IPaymentClient
         ILogger<PaymentClient>? logger = null
     )
     {
-        apiKey = options.Value.Authorization;
+        mode = options.Value.ClientMode switch
+        {
+            ClientMode.Live => ClientConstants.Live,
+            ClientMode.Test => ClientConstants.Test,
+            _ => throw new NotSupportedException("Client mode must be either in Live or Test mode")
+        };
+        checkoutUrl = options.Value.CheckoutUrl;
+        termsUrl = options.Value.TermsUrl;
+        returnUrl = options.Value.ReturnUrl;
+        merchantTermsUrl = options.Value.PrivacyPolicyUrl;
+        apiKey = options.Value.ApiKey;
+        CheckoutKey = options.Value.CheckoutKey;
         platformId = options.Value.CommercePlatformTag;
         this.httpClientFactory = httpClientFactory;
         this.logger = logger ?? NullLogger<PaymentClient>.Instance;
     }
 
     /// <inheritdoc />
-    public async Task<PaymentResult> CreatePaymentAsync(PaymentRequest payment, CancellationToken cancellationToken)
-    {
-        var isValid = PaymentValidator.IsValidPaymentObject(payment) && !string.IsNullOrWhiteSpace(apiKey);
-        if (!isValid)
-        {
-            logger.LogError("Invalid {@Payment} or api key", payment);
-            throw new ArgumentException("Invalid payment object state", nameof(payment));
-        }
-
-        try
-        {
-            logger.LogTrace("Creating new {@Payment}", payment);
-            var client = httpClientFactory.CreateClient(HttpPaymentClient);
-
-            AddHeaders(client);
-
-            // Body
-            var response = await client.PostAsJsonAsync(NetsEndpoints.Relative.Payment, payment, cancellationToken);
-            var msg = await response.Content.ReadAsStringAsync(cancellationToken);
-            logger.LogTrace("Raw content: {@ResponseContent}", msg);
-            response.EnsureSuccessStatusCode();
-
-            // Response
-            var result = await response.Content.ReadFromJsonAsync<PaymentResult>(cancellationToken: cancellationToken);
-            logger.LogInformation("Created {@Payment} with a {@Result}", payment, result);
-            return result!;
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, "An exception occurred trying to create a payment with {@Payment}", payment);
-            throw;
-        }
-    }
+    public string CheckoutKey { get; }
 
     /// <inheritdoc />
     public async Task<PaymentStatus?> GetPaymentStatusAsync(Guid paymentID, CancellationToken cancellationToken)
@@ -93,7 +74,7 @@ public class PaymentClient : IPaymentClient
         {
             logger.LogTrace("Retrieving payment status for {PaymentID}", paymentID);
 
-            var client = httpClientFactory.CreateClient(HttpPaymentClient);
+            var client = httpClientFactory.CreateClient(mode);
 
             // Headers
             AddHeaders(client);
@@ -133,7 +114,7 @@ public class PaymentClient : IPaymentClient
         {
             logger.LogTrace("Updating references for {@Payment} to {CheckoutUrl} and {Reference}", payment, checkoutUrl, reference);
 
-            var client = httpClientFactory.CreateClient(HttpPaymentClient);
+            var client = httpClientFactory.CreateClient(mode);
             AddHeaders(client);
 
             var path = NetsEndpoints.Relative.Payment + $"/{payment.PaymentId}" + "/referenceinformation";
@@ -184,7 +165,7 @@ public class PaymentClient : IPaymentClient
         {
             logger.LogTrace("Updating order for {PaymentID} to {@OrderUpdates}", paymentID, updates);
 
-            var client = httpClientFactory.CreateClient(HttpPaymentClient);
+            var client = httpClientFactory.CreateClient(mode);
             AddHeaders(client);
 
             var path = NetsEndpoints.Relative.Payment + $"/{paymentID}/orderitems";
@@ -217,7 +198,7 @@ public class PaymentClient : IPaymentClient
         {
             logger.LogTrace("Terminating checkout for {PaymentID}", paymentID);
 
-            var client = httpClientFactory.CreateClient(HttpPaymentClient);
+            var client = httpClientFactory.CreateClient(mode);
             AddHeaders(client);
 
             var path = NetsEndpoints.Relative.Payment + $"/{paymentID}/terminate";
@@ -247,7 +228,7 @@ public class PaymentClient : IPaymentClient
         {
             logger.LogTrace("Cancelling checkout for {PaymentID}", paymentID);
 
-            var client = httpClientFactory.CreateClient(HttpPaymentClient);
+            var client = httpClientFactory.CreateClient(mode);
             AddHeaders(client);
 
             var path = NetsEndpoints.Relative.Payment + $"/{paymentID}/cancels";
@@ -284,7 +265,7 @@ public class PaymentClient : IPaymentClient
         {
             logger.LogTrace("Charging payment for {PaymentID}", paymentID);
 
-            var client = httpClientFactory.CreateClient(HttpPaymentClient);
+            var client = httpClientFactory.CreateClient(mode);
             AddHeaders(client);
             if (idempotencyKey is not null)
             {
@@ -321,7 +302,7 @@ public class PaymentClient : IPaymentClient
         {
             logger.LogTrace("Retrieving charge for {ChargeID}", chargeId);
 
-            var client = httpClientFactory.CreateClient(HttpPaymentClient);
+            var client = httpClientFactory.CreateClient(mode);
             AddHeaders(client, withCommercePlatform: false);
 
             var path = NetsEndpoints.Relative.Charge + $"/{chargeId}";
@@ -353,7 +334,7 @@ public class PaymentClient : IPaymentClient
         {
             logger.LogTrace("Refunding charge {ChargeID}", chargeId);
 
-            var client = httpClientFactory.CreateClient(HttpPaymentClient);
+            var client = httpClientFactory.CreateClient(mode);
             AddHeaders(client, withCommercePlatform: false);
 
             var path = NetsEndpoints.Relative.Charge + $"/{chargeId}/refunds";
@@ -385,7 +366,7 @@ public class PaymentClient : IPaymentClient
         {
             logger.LogTrace("Retrieving refund for {RefundId}", refundId);
 
-            var client = httpClientFactory.CreateClient(HttpPaymentClient);
+            var client = httpClientFactory.CreateClient(mode);
             AddHeaders(client, withCommercePlatform: false);
 
             var path = NetsEndpoints.Relative.Refund + $"/{refundId}";
@@ -417,7 +398,7 @@ public class PaymentClient : IPaymentClient
         {
             logger.LogTrace("Cancelling pending refund for {RefundId}", refundId);
 
-            var client = httpClientFactory.CreateClient(HttpPaymentClient);
+            var client = httpClientFactory.CreateClient(mode);
             AddHeaders(client, withCommercePlatform: false);
 
             var path = NetsEndpoints.Relative.PendingRefunds + $"/{refundId}/cancel";
@@ -448,7 +429,7 @@ public class PaymentClient : IPaymentClient
         {
             logger.LogTrace("Updating my reference for {PaymentId}", paymentId);
 
-            var client = httpClientFactory.CreateClient(HttpPaymentClient);
+            var client = httpClientFactory.CreateClient(mode);
             AddHeaders(client);
 
             var path = NetsEndpoints.Relative.Payment + $"/{paymentId}/myreference";
@@ -471,7 +452,7 @@ public class PaymentClient : IPaymentClient
     private void AddHeaders(HttpClient client, bool withCommercePlatform = true)
     {
         // Headers
-        if (platformId is not null && !string.IsNullOrWhiteSpace(platformId) && withCommercePlatform)
+        if (!string.IsNullOrWhiteSpace(platformId) && withCommercePlatform)
         {
             client.DefaultRequestHeaders.Add("CommercePlatformTag", platformId);
         }
