@@ -27,6 +27,12 @@ public record EventNames
     public static implicit operator EventNames(string eventName) => new(eventName);
 
     /// <summary>
+    /// Use a string where an <see cref="EventNames"/> is expected
+    /// </summary>
+    /// <param name="eventName">The event name</param>
+    public static implicit operator string(EventNames eventName) => eventName.@event;
+
+    /// <summary>
     /// Get the name of the event
     /// </summary>
     /// <returns>The name of the event</returns>
