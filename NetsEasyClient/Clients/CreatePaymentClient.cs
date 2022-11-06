@@ -49,7 +49,7 @@ public partial class PaymentClient : IPaymentClient
     }
 
     /// <inheritdoc />
-    public async Task<PaymentResult> CreatePaymentAsync(Order order, Integration integration, CancellationToken cancellationToken, string? checkoutUrl = null, string? returnUrl = null, string? termsUrl = null)
+    public async Task<PaymentResult> CreatePaymentAsync(Order order, Integration integration, CancellationToken cancellationToken, bool charge = true, string? checkoutUrl = null, string? returnUrl = null, string? termsUrl = null)
     {
         // load optional values
         var hostedReturnUrl = integration switch
@@ -68,7 +68,7 @@ public partial class PaymentClient : IPaymentClient
                 TermsUrl = termsUrl ?? this.termsUrl,
                 MerchantTermsUrl = merchantTermsUrl,
                 IntegrationType = integration,
-                Charge = true
+                Charge = charge
             }
         };
         var isValid = PaymentValidator.IsValidPaymentObject(payment) && !string.IsNullOrWhiteSpace(apiKey);
@@ -104,7 +104,7 @@ public partial class PaymentClient : IPaymentClient
     }
 
     /// <inheritdoc />
-    public async Task<PaymentResult> CreatePaymentAsync(Order order, Consumer consumer, CancellationToken cancellationToken, string? checkoutUrl = null, string? termsUrl = null)
+    public async Task<PaymentResult> CreatePaymentAsync(Order order, Consumer consumer, CancellationToken cancellationToken, bool charge = true, string? checkoutUrl = null, string? termsUrl = null)
     {
         // Assume: Embedded integration
         var payment = new PaymentRequest
@@ -118,7 +118,7 @@ public partial class PaymentClient : IPaymentClient
                 IntegrationType = Integration.EmbeddedCheckout,
                 Consumer = consumer,
                 MerchantHandlesConsumerData = true,
-                Charge = true
+                Charge = charge
             }
         };
         var isValid = PaymentValidator.IsValidPaymentObject(payment) && !string.IsNullOrWhiteSpace(apiKey);
