@@ -19,7 +19,7 @@ internal static class PaymentValidator
     internal static bool IsValidPaymentObject(PaymentRequest payment)
     {
         // Checkout URL must not be empty
-        if (string.IsNullOrWhiteSpace(payment.Checkout.Url))
+        if (!EmbeddedCheckoutHasCheckoutUrl(payment))
         {
             return false;
         }
@@ -70,6 +70,15 @@ internal static class PaymentValidator
         }
 
         return true;
+    }
+
+    internal static bool EmbeddedCheckoutHasCheckoutUrl(PaymentRequest payment)
+    {
+        return payment.Checkout.IntegrationType switch
+        {
+            Integration.EmbeddedCheckout => !string.IsNullOrWhiteSpace(payment.Checkout.Url),
+            _ => true
+        };
     }
 
     internal static bool HasMerchantConsumerDataAndNoConsumerType(PaymentRequest payment)

@@ -14,9 +14,9 @@ namespace SolidNetsEasyClient.Clients;
 public partial class PaymentClient : IPaymentClient
 {
     /// <inheritdoc />
-    public async Task<PaymentResult> CreatePaymentAsync(PaymentRequest payment, CancellationToken cancellationToken)
+    public async Task<PaymentResult> CreatePaymentAsync(PaymentRequest payment, CancellationToken cancellationToken, bool validate = true)
     {
-        var isValid = PaymentValidator.IsValidPaymentObject(payment) && !string.IsNullOrWhiteSpace(apiKey);
+        var isValid = !validate || (PaymentValidator.IsValidPaymentObject(payment) && !string.IsNullOrWhiteSpace(apiKey));
         if (!isValid)
         {
             logger.LogError("Invalid {@Payment} or {ApiKey}", payment, apiKey);
@@ -49,7 +49,7 @@ public partial class PaymentClient : IPaymentClient
     }
 
     /// <inheritdoc />
-    public async Task<PaymentResult> CreatePaymentAsync(Order order, Integration integration, CancellationToken cancellationToken, bool charge = true, string? checkoutUrl = null, string? returnUrl = null, string? termsUrl = null)
+    public async Task<PaymentResult> CreatePaymentAsync(Order order, Integration integration, CancellationToken cancellationToken, bool charge = true, string? checkoutUrl = null, string? returnUrl = null, string? termsUrl = null, bool validate = true)
     {
         // load optional values
         var hostedReturnUrl = integration switch
@@ -71,7 +71,7 @@ public partial class PaymentClient : IPaymentClient
                 Charge = charge
             }
         };
-        var isValid = PaymentValidator.IsValidPaymentObject(payment) && !string.IsNullOrWhiteSpace(apiKey);
+        var isValid = !validate || (PaymentValidator.IsValidPaymentObject(payment) && !string.IsNullOrWhiteSpace(apiKey));
         if (!isValid)
         {
             logger.LogError("Invalid {@Payment} or {ApiKey}", payment, apiKey);
@@ -104,7 +104,7 @@ public partial class PaymentClient : IPaymentClient
     }
 
     /// <inheritdoc />
-    public async Task<PaymentResult> CreatePaymentAsync(Order order, Consumer consumer, CancellationToken cancellationToken, bool charge = true, string? checkoutUrl = null, string? termsUrl = null)
+    public async Task<PaymentResult> CreatePaymentAsync(Order order, Consumer consumer, CancellationToken cancellationToken, bool charge = true, string? checkoutUrl = null, string? termsUrl = null, bool validate = true)
     {
         // Assume: Embedded integration
         var payment = new PaymentRequest
@@ -121,7 +121,7 @@ public partial class PaymentClient : IPaymentClient
                 Charge = charge
             }
         };
-        var isValid = PaymentValidator.IsValidPaymentObject(payment) && !string.IsNullOrWhiteSpace(apiKey);
+        var isValid = !validate || (PaymentValidator.IsValidPaymentObject(payment) && !string.IsNullOrWhiteSpace(apiKey));
         if (!isValid)
         {
             logger.LogError("Invalid {@Payment} or {ApiKey}", payment, apiKey);

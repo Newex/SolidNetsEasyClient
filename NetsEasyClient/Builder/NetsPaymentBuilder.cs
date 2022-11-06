@@ -1,8 +1,10 @@
-using System;
 using SolidNetsEasyClient.Models;
 
 namespace SolidNetsEasyClient.Builder;
 
+/// <summary>
+/// A builder for creating a Nets payment request
+/// </summary>
 public sealed class NetsPaymentBuilder
 {
     private readonly Order order;
@@ -18,7 +20,7 @@ public sealed class NetsPaymentBuilder
     /// The checkout page is on my own page. The alternative is to host the page on the Nets servers.
     /// </summary>
     /// <returns>A payment builder</returns>
-    public NetsPaymentBuilder EmbedOnMyPage()
+    public NetsPaymentBuilder EmbedCheckoutOnMyPage()
     {
         checkout = checkout with
         {
@@ -32,7 +34,7 @@ public sealed class NetsPaymentBuilder
     /// The checkout page is hosted on Nets servers. The alternative is to embedd the checkout on your own page.
     /// </summary>
     /// <returns>A payment builder</returns>
-    public NetsPaymentBuilder HostOnNetsServer()
+    public NetsPaymentBuilder HostCheckoutOnNetsServer()
     {
         checkout = checkout with
         {
@@ -64,28 +66,26 @@ public sealed class NetsPaymentBuilder
     /// </summary>
     /// <param name="url">The url for the checkout page</param>
     /// <returns>A payment builder</returns>
-    /// <exception cref="InvalidOperationException">Thrown if the payment is hosted on Nets</exception>
     public NetsPaymentBuilder SetCheckoutUrl(string url)
     {
-        if (checkout.IntegrationType == Integration.HostedPaymentPage)
-        {
-            throw new InvalidOperationException("Cannot set checkout url for a checkout hosted on Nets servers. Use the embedded integration to set the checkout url");
-        }
-
         checkout = checkout with
         {
             Url = url
         };
+
         return this;
     }
 
+    /// <summary>
+    /// Set the return url after completing the checkout on the hosted nets servers
+    /// </summary>
+    /// <remarks>
+    /// Not necessary to set the return url if using the embedded checkout
+    /// </remarks>
+    /// <param name="returnUrl">The return url</param>
+    /// <returns>A payment builder</returns>
     public NetsPaymentBuilder SetReturnUrl(string returnUrl)
     {
-        if (checkout.IntegrationType == Integration.EmbeddedCheckout)
-        {
-            throw new InvalidOperationException("Cannot set the return url for a checkout embedded on your own server. Use the hosted integration to set the return url");
-        }
-
         checkout = checkout with
         {
             ReturnUrl = returnUrl
@@ -94,6 +94,12 @@ public sealed class NetsPaymentBuilder
         return this;
     }
 
+    /// <summary>
+    /// Set the terms url
+    /// </summary>
+    /// <param name="termsUrl">The terms url</param>
+    /// <returns></returns>
+    /// <returns>A payment builder</returns>
     public NetsPaymentBuilder SetTheTermsUrl(string termsUrl)
     {
         checkout = checkout with
@@ -104,13 +110,16 @@ public sealed class NetsPaymentBuilder
         return this;
     }
 
+    /// <summary>
+    /// Set the cancellation url for when customer cancels the checkout on the hosted nets servers
+    /// </summary>
+    /// <remarks>
+    /// Not necessary to set the cancellation url if using the embedded checkout page.
+    /// </remarks>
+    /// <param name="cancellationUrl">The cancellation url</param>
+    /// <returns>A payment builder</returns>
     public NetsPaymentBuilder SetCancellationUrl(string cancellationUrl)
     {
-        if (checkout.IntegrationType == Integration.EmbeddedCheckout)
-        {
-            throw new InvalidOperationException("Cannot set the cancellation url for a checkout embedded on your own server. Use the hosted integration to set the cancellation url");
-        }
-
         checkout = checkout with
         {
             CancelUrl = cancellationUrl
@@ -119,6 +128,11 @@ public sealed class NetsPaymentBuilder
         return this;
     }
 
+    /// <summary>
+    /// Set the privacy and cookie policy url
+    /// </summary>
+    /// <param name="merchantTermsUrl">The url for the privacy and cookie policy</param>
+    /// <returns>A payment builder</returns>
     public NetsPaymentBuilder SetThePrivacyAndCookiePolicyUrl(string merchantTermsUrl)
     {
         checkout = checkout with
@@ -128,6 +142,16 @@ public sealed class NetsPaymentBuilder
         return this;
     }
 
+    /// <summary>
+    /// Set the end user as a private natural person
+    /// </summary>
+    /// <param name="customerId">The user id of the customer</param>
+    /// <param name="person">The person details</param>
+    /// <param name="email">The customer email</param>
+    /// <param name="phone">The customer phone number</param>
+    /// <param name="shippingAddress">The customer shipping address</param>
+    /// <param name="retypeCostumerData">True if you want the customer to retype their details on the checkout page otherwise false</param>
+    /// <returns>A payment builder</returns>
     public NetsPaymentBuilder WithPrivateCustomer(string? customerId, Person person, string? email, PhoneNumber? phone = null, ShippingAddress? shippingAddress = null, bool retypeCostumerData = false)
     {
         checkout = checkout with
@@ -150,6 +174,16 @@ public sealed class NetsPaymentBuilder
         return this;
     }
 
+    /// <summary>
+    /// Set the end user as a business customer
+    /// </summary>
+    /// <param name="customerId">The business customer id</param>
+    /// <param name="company">The company details</param>
+    /// <param name="email">The business email</param>
+    /// <param name="phone">The business phone number</param>
+    /// <param name="shippingAddress">The business shipping address</param>
+    /// <param name="retypeCostumerData">True if you want the customer to retype their details on the checkout page otherwise false</param>
+    /// <returns>A payment builder</returns>
     public NetsPaymentBuilder WithBusinessCustomer(string? customerId, Company company, string? email, PhoneNumber? phone = null, ShippingAddress? shippingAddress = null, bool retypeCostumerData = false)
     {
         checkout = checkout with
