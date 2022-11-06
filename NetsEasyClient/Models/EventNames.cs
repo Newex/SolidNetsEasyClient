@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Text.Json.Serialization;
 using SolidNetsEasyClient.Converters;
 
@@ -7,6 +8,7 @@ namespace SolidNetsEasyClient.Models;
 /// A list of event names
 /// </summary>
 [JsonConverter(typeof(EventNameConverter))]
+[DebuggerDisplay("{@event}")]
 public record EventNames
 {
     private readonly string @event;
