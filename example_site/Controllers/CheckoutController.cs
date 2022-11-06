@@ -34,13 +34,13 @@ public class CheckoutController : Controller
                 LastName = "Doe"
             },
             Reference = "jdoe",
-            ShippingAddress = new()
-            {
-                AddressLine1 = "Rådhuspladsen 1",
-                City = "København",
-                Country = "DNK",
-                PostalCode = "1599"
-            },
+            // ShippingAddress = new()
+            // {
+            //     AddressLine1 = "Rådhuspladsen 1",
+            //     City = "København",
+            //     Country = "DNK",
+            //     PostalCode = "1599"
+            // },
         };
         var payment = await client.CreatePaymentAsync(order, customer, cts);
         var vm = new CheckoutViewModel

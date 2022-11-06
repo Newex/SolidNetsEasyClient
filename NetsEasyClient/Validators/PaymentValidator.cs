@@ -34,7 +34,7 @@ internal static class PaymentValidator
             return false;
         }
 
-        if (!HasReturnUrl(payment))
+        if (!HasHostedReturnUrl(payment))
         {
             return false;
         }
@@ -102,7 +102,7 @@ internal static class PaymentValidator
         return payment.Order.Items.Any();
     }
 
-    internal static bool HasReturnUrl(PaymentRequest payment)
+    internal static bool HasHostedReturnUrl(PaymentRequest payment)
     {
         return payment.Checkout.IntegrationType switch
         {

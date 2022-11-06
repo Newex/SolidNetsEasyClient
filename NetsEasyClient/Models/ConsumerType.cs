@@ -14,7 +14,7 @@ public record ConsumerType
     /// </summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("default")]
-    public string? Default { get; init; }
+    public ConsumerEnumType? Default { get; init; }
 
     /// <summary>
     /// The array of consumer types that should be supported on the checkout page. Allowed values are: 'B2B' and 'B2C'

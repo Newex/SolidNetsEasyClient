@@ -452,7 +452,7 @@ public class PaymentModelTests
         });
 
         // Act
-        var result = PaymentValidator.HasReturnUrl(payment);
+        var result = PaymentValidator.HasHostedReturnUrl(payment);
 
         // Assert
         Assert.False(result);

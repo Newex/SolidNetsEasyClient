@@ -116,7 +116,7 @@ public static class Fakes
     {
         var faker = new Faker<ConsumerType>();
         // var consumerType = faker.PickRandomParam(ConsumerType.B2B, ConsumerType.B2C);
-        faker.RuleFor(f => f.Default, f => f.Random.Word().OrNull(f));
+        faker.RuleFor(f => f.Default, f => f.PickRandom<ConsumerEnumType>().OrNull(f));
         faker.RuleFor(f => f.SupportedTypes, f => new List<ConsumerEnumType> { ConsumerEnumType.B2B }.OrNull(f));
         return faker.Generate();
     }
