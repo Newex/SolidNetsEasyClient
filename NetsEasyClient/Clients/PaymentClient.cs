@@ -22,6 +22,7 @@ public partial class PaymentClient : IPaymentClient
     private readonly string checkoutUrl;
     private readonly string termsUrl;
     private readonly string? returnUrl;
+    private readonly string? cancelUrl;
     private readonly string mode;
     private readonly string apiKey;
     private readonly string? platformId;
@@ -49,6 +50,7 @@ public partial class PaymentClient : IPaymentClient
         checkoutUrl = options.Value.CheckoutUrl;
         termsUrl = options.Value.TermsUrl;
         returnUrl = options.Value.ReturnUrl;
+        cancelUrl = options.Value.CancelUrl;
         merchantTermsUrl = options.Value.PrivacyPolicyUrl;
         apiKey = options.Value.ApiKey;
         CheckoutKey = options.Value.CheckoutKey;
