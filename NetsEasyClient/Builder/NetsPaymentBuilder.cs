@@ -1,4 +1,6 @@
+using System.Collections.Generic;
 using SolidNetsEasyClient.Models;
+using SolidNetsEasyClient.Models.Requests;
 
 namespace SolidNetsEasyClient.Builder;
 
@@ -8,8 +10,8 @@ namespace SolidNetsEasyClient.Builder;
 public sealed class NetsPaymentBuilder
 {
     private readonly Order order;
-
     private Checkout checkout = new();
+    private readonly List<WebHook> webHooks = new();
 
     private NetsPaymentBuilder(Order order)
     {
@@ -146,13 +148,14 @@ public sealed class NetsPaymentBuilder
     /// Set the end user as a private natural person
     /// </summary>
     /// <param name="customerId">The user id of the customer</param>
-    /// <param name="person">The person details</param>
+    /// <param name="firstName">The first given name of the customer</param>
+    /// <param name="lastName">The last family name of the customer</param>
     /// <param name="email">The customer email</param>
     /// <param name="phone">The customer phone number</param>
     /// <param name="shippingAddress">The customer shipping address</param>
     /// <param name="retypeCostumerData">True if you want the customer to retype their details on the checkout page otherwise false</param>
     /// <returns>A payment builder</returns>
-    public NetsPaymentBuilder WithPrivateCustomer(string? customerId, Person person, string? email, PhoneNumber? phone = null, ShippingAddress? shippingAddress = null, bool retypeCostumerData = false)
+    public NetsPaymentBuilder WithPrivateCustomer(string? customerId, string? firstName, string? lastName, string? email, PhoneNumber? phone = null, ShippingAddress? shippingAddress = null, bool retypeCostumerData = false)
     {
         checkout = checkout with
         {
@@ -161,7 +164,11 @@ public sealed class NetsPaymentBuilder
                 Reference = customerId,
                 Email = email,
                 ShippingAddress = shippingAddress,
-                PrivatePerson = person,
+                PrivatePerson = new()
+                {
+                    FirstName = firstName,
+                    LastName = lastName
+                },
                 PhoneNumber = phone
             },
             MerchantHandlesConsumerData = !retypeCostumerData,
@@ -204,6 +211,45 @@ public sealed class NetsPaymentBuilder
         };
 
         return this;
+    }
+
+    /// <summary>
+    /// Subscribe to an event
+    /// </summary>
+    /// <remarks>
+    /// The callback url must be a https endpoint and be acknowledged with a 200 OK status.
+    /// </remarks>
+    /// <param name="eventName">The event name</param>
+    /// <param name="callbackUrl">The callback url</param>
+    /// <param name="authorization">The authorization credentials</param>
+    /// <returns>A payment builder</returns>
+    public NetsPaymentBuilder SubscribeToEvent(EventNames eventName, string callbackUrl, string authorization)
+    {
+        webHooks.Add(new()
+        {
+            Authorization = authorization,
+            EventName = eventName,
+            Url = callbackUrl
+        });
+
+        return this;
+    }
+
+    /// <summary>
+    /// Construct a payment request
+    /// </summary>
+    /// <returns>A payment request</returns>
+    public PaymentRequest BuildPaymentRequest()
+    {
+        return new()
+        {
+            Order = order,
+            Checkout = checkout,
+            Notifications = new()
+            {
+                WebHooks = webHooks
+            }
+        };
     }
 
     /// <summary>
