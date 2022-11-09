@@ -1,6 +1,6 @@
 using Microsoft.Net.Http.Headers;
 using SolidNetsEasyClient.Encryption;
-using SolidNetsEasyClient.Models.WebHooks;
+using SolidNetsEasyClient.Models.DTOs.Responses.Webhooks;
 using SolidNetsEasyClient.Tests.Tools;
 
 namespace SolidNetsEasyClient.Tests.Encryption;

@@ -3,8 +3,8 @@ using System.IO;
 using System.Security.Cryptography;
 using System.Text;
 using Microsoft.AspNetCore.Http;
-using SolidNetsEasyClient.Models;
-using SolidNetsEasyClient.Models.WebHooks;
+using SolidNetsEasyClient.Models.DTOs.Requests.Orders;
+using SolidNetsEasyClient.Models.DTOs.Responses.Webhooks;
 
 namespace SolidNetsEasyClient.Encryption;
 

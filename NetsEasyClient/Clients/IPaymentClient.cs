@@ -1,10 +1,10 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using SolidNetsEasyClient.Models;
-using SolidNetsEasyClient.Models.Requests;
-using SolidNetsEasyClient.Models.Results;
-using SolidNetsEasyClient.Models.Status;
+using SolidNetsEasyClient.Models.DTOs.Requests.Customers;
+using SolidNetsEasyClient.Models.DTOs.Requests.Orders;
+using SolidNetsEasyClient.Models.DTOs.Requests.Payments;
+using SolidNetsEasyClient.Models.DTOs.Responses.Payments;
 
 namespace SolidNetsEasyClient.Clients;
 

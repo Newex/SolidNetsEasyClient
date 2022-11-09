@@ -1,8 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.Threading;
-using SolidNetsEasyClient.Models;
 using SolidNetsEasyClient.Tests.Tools;
+using SolidNetsEasyClient.Models.DTOs.Requests.Orders;
+using SolidNetsEasyClient.Models.DTOs;
+using SolidNetsEasyClient.Models.DTOs.Requests.Payments;
+using T = SolidNetsEasyClient.Models.DTOs.Requests.Payments.Integration;
 
 namespace SolidNetsEasyClient.Tests.ClientTests.Integration;
 
@@ -16,7 +19,7 @@ public class NetsTests
         var cancel = CancellationToken.None;
         var order = Fakes.MinimalOrderExample;
 
-        var create = await nets.CreatePaymentAsync(order, Models.Integration.EmbeddedCheckout, cancel);
+        var create = await nets.CreatePaymentAsync(order, T.EmbeddedCheckout, cancel);
         Assert.True(create.PaymentId != Guid.Empty);
 
         var status = await nets.GetPaymentStatusAsync(create.PaymentId, cancel);

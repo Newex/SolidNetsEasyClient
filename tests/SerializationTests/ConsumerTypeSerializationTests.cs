@@ -1,5 +1,5 @@
 using System.Text.Json;
-using SolidNetsEasyClient.Models;
+using SolidNetsEasyClient.Models.DTOs.Enums;
 
 namespace SolidNetsEasyClient.Tests.SerializationTests;
 
@@ -10,7 +10,7 @@ public class ConsumerTypeSerializationTests
     public void Serialize_enum_to_json_string()
     {
         // Arrange
-        const ConsumerEnumType consumerType = ConsumerEnumType.B2B;
+        const ConsumerTypeEnum consumerType = ConsumerTypeEnum.B2B;
 
         // Act
         var actual = JsonSerializer.Serialize(consumerType);
@@ -27,8 +27,8 @@ public class ConsumerTypeSerializationTests
         const string consumerType = "\"B2B\"";
 
         // Act
-        var actual = JsonSerializer.Deserialize<ConsumerEnumType>(consumerType);
-        const ConsumerEnumType expected = ConsumerEnumType.B2B;
+        var actual = JsonSerializer.Deserialize<ConsumerTypeEnum>(consumerType);
+        const ConsumerTypeEnum expected = ConsumerTypeEnum.B2B;
 
         // Assert
         Assert.Equal(expected, actual);

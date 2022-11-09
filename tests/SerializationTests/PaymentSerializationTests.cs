@@ -1,5 +1,6 @@
 using System.Text.Json;
-using SolidNetsEasyClient.Models;
+using SolidNetsEasyClient.Models.DTOs;
+using SolidNetsEasyClient.Models.DTOs.Requests.Orders;
 
 namespace SolidNetsEasyClient.Tests.SerializationTests;
 

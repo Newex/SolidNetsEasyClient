@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
-using SolidNetsEasyClient.Models;
-using SolidNetsEasyClient.Models.Requests;
+using SolidNetsEasyClient.Models.DTOs.Contacts;
+using SolidNetsEasyClient.Models.DTOs.Requests.Customers;
+using SolidNetsEasyClient.Models.DTOs.Requests.Payments;
+using SolidNetsEasyClient.Models.DTOs.Requests.Webhooks;
 using SolidNetsEasyClient.Tests.Tools;
 
 namespace SolidNetsEasyClient.Tests.PaymentValidatorTests;

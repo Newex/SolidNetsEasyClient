@@ -1,5 +1,3 @@
-using System.Buffers.Text;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using ExampleSite.Models;
@@ -7,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using SolidNetsEasyClient.Builder;
 using SolidNetsEasyClient.Clients;
 using SolidNetsEasyClient.Encryption;
-using SolidNetsEasyClient.Models;
+using SolidNetsEasyClient.Models.DTOs.Enums;
 
 namespace ExampleSite.Controllers;
 

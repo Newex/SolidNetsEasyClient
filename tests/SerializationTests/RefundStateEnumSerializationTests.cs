@@ -1,5 +1,5 @@
 using System.Text.Json;
-using SolidNetsEasyClient.Models.Status;
+using SolidNetsEasyClient.Models.DTOs.Enums;
 
 namespace SolidNetsEasyClient.Tests.SerializationTests;
 
