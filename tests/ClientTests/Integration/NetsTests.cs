@@ -44,7 +44,6 @@ public class NetsTests
             {
                 new()
                 {
-                    Name = PaymentMethodConfigurationType.Methods.EasyInvoice,
                     Fee = new()
                     {
                         Quantity = 12,

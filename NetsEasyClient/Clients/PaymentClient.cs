@@ -143,15 +143,14 @@ public partial class PaymentClient : IPaymentClient
     public async Task<bool> UpdateOrderAsync(Guid paymentID, OrderUpdate updates, CancellationToken cancellationToken)
     {
         // If has payment method the:
-        // * Reference
         // * Name
+        // * Reference
         // * Unit
         // Are required!
         var validPayment = true;
         if (updates.PaymentMethods is not null)
         {
-            validPayment = updates.PaymentMethods.All(x => x.Name == PaymentMethodConfigurationType.Methods.EasyInvoice
-                                                           && !string.IsNullOrWhiteSpace(x.Fee.Name)
+            validPayment = updates.PaymentMethods.All(x => !string.IsNullOrWhiteSpace(x.Fee.Name)
                                                            && !string.IsNullOrWhiteSpace(x.Fee.Reference)
                                                            && !string.IsNullOrWhiteSpace(x.Fee.Unit))
                            || (updates.PaymentMethods is null);

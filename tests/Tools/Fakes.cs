@@ -283,35 +283,13 @@ public static class Fakes
         return faker.Generate();
     }
 
-    public static PaymentMethodConfigurationType RandomPaymentMethodConfigurationType()
+    public static PaymentTypeMethodName RandomPaymentMethodConfigurationType()
     {
         var faker = new Faker();
 
-        var configuration = faker.PickRandom(
-            PaymentMethodConfigurationType.Methods.Visa,
-            PaymentMethodConfigurationType.Methods.MasterCard,
-            PaymentMethodConfigurationType.Methods.Dankort,
-            PaymentMethodConfigurationType.Methods.AmericanExpress,
-            PaymentMethodConfigurationType.Methods.PayPal,
-            PaymentMethodConfigurationType.Methods.Vipps,
-            PaymentMethodConfigurationType.Methods.MobilePay,
-            PaymentMethodConfigurationType.Methods.Swish,
-            PaymentMethodConfigurationType.Methods.Arvato,
-            PaymentMethodConfigurationType.Methods.EasyInvoice,
-            PaymentMethodConfigurationType.Methods.EasyCampaign,
-            PaymentMethodConfigurationType.Methods.RatePayInvoice,
-            PaymentMethodConfigurationType.Methods.RatePayInstallment,
-            PaymentMethodConfigurationType.Methods.RatePaySepa,
-            PaymentMethodConfigurationType.Methods.Sofort,
-            PaymentMethodConfigurationType.Methods.Trustly,
-            PaymentMethodConfigurationType.Types.Card,
-            PaymentMethodConfigurationType.Types.Invoice,
-            PaymentMethodConfigurationType.Types.Installment,
-            PaymentMethodConfigurationType.Types.A2A,
-            PaymentMethodConfigurationType.Types.Wallet
-        );
-
-        return configuration;
+        var paymentType = faker.PickRandom<PaymentTypeEnum>();
+        var paymentMethod = faker.PickRandom<PaymentMethodEnum>();
+        return faker.PickRandomParam<PaymentTypeMethodName>(paymentType, paymentMethod);
     }
 
     public static PaymentMethodConfiguration RandomPaymentConfiguration()

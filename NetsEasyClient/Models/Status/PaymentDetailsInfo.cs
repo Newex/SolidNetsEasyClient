@@ -13,18 +13,16 @@ public record PaymentDetailsInfo
     /// <remarks>
     /// Possible values are: 'CARD', 'INVOICE', 'A2A', 'INSTALLMENT', 'WALLET', and 'PREPAID-INVOICE'
     /// </remarks>
-    /// <seealso cref="PaymentMethodConfigurationType.Types"/>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("paymentType")]
-    public PaymentMethodConfigurationType? PaymentType { get; init; }
+    public PaymentTypeEnum? PaymentType { get; init; }
 
     /// <summary>
     /// The payment method, for example Visa or Mastercard
     /// </summary>
-    /// <seealso cref="PaymentMethodConfigurationType.Methods"/>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("paymentMethod")]
-    public PaymentMethodConfigurationType? PaymentMethod { get; init; }
+    public PaymentMethodEnum? PaymentMethod { get; init; }
 
     /// <summary>
     /// The invoice details information

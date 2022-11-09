@@ -12,7 +12,7 @@ public record PaymentMethodConfiguration
     /// </summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("name")]
-    public PaymentMethodConfigurationType? Name { get; init; }
+    public PaymentTypeMethodName? Name { get; init; }
 
     /// <summary>
     /// Indicates that the specified payment method/type is allowed to be used for this payment, defaults to true. If one or more payment method/type is configured in the parent array then this value will be considered false for any other payment method that the parent array doesn't cover
