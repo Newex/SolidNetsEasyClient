@@ -21,10 +21,9 @@ public record PaymentDetailsInfo
     /// <summary>
     /// The payment method, for example Visa or Mastercard
     /// </summary>
-    /// <seealso cref="PaymentMethodConfigurationType.Methods"/>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("paymentMethod")]
-    public PaymentMethodConfigurationType? PaymentMethod { get; init; }
+    public PaymentMethodEnum? PaymentMethod { get; init; }
 
     /// <summary>
     /// The invoice details information
