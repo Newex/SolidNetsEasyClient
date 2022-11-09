@@ -19,18 +19,12 @@ public class PaymentTypeEnumConverter : JsonConverter<PaymentTypeEnum>
             throw new NotSupportedException("Cannot convert payment type to enum");
         }
 
-        var hasEnum = Enum.TryParse<PaymentTypeEnum>(json, ignoreCase: true, out var paymentType);
-        if (!hasEnum)
-        {
-            throw new NotSupportedException("Cannot convert payment type to enum");
-        }
-
-        return paymentType;
+        return PaymentTypeHelper.Convert(json) ?? throw new NotSupportedException("Cannot convert payment type to enum");
     }
 
     /// <inheritdoc />
     public override void Write(Utf8JsonWriter writer, PaymentTypeEnum value, JsonSerializerOptions options)
     {
-        writer.WriteStringValue(value.ToString());
+        writer.WriteStringValue(value.GetName());
     }
 }

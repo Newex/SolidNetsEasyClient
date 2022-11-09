@@ -84,7 +84,6 @@ public class PaymentClientTests
             {
                 new()
                 {
-                    Name = PaymentMethodConfigurationType.Methods.EasyInvoice,
                     Fee = new()
                     {
                         Quantity = 1,

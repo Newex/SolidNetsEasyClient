@@ -55,7 +55,7 @@ public record ChargedData
     /// The type of payment. Possible values are: 'CARD', 'INVOICE', 'A2A', 'INSTALLMENT', 'WALLET', and 'PREPAID-INVOICE'.
     /// </summary>
     [JsonPropertyName("paymentType")]
-    public PaymentMethodConfigurationType PaymentType { get; init; }
+    public PaymentTypeEnum PaymentType { get; init; }
 
     /// <summary>
     /// The amount of the charge.

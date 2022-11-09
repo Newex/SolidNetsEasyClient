@@ -10,7 +10,7 @@ public class PaymentMethodTypeSerializationTests
     public void Serialize_payment_method_to_json_string()
     {
         // Arrange
-        var dankort = PaymentMethodConfigurationType.Methods.Dankort;
+        const PaymentMethodEnum dankort = PaymentMethodEnum.Dankort;
 
         // Act
         var actual = JsonSerializer.Serialize(dankort);
@@ -27,8 +27,8 @@ public class PaymentMethodTypeSerializationTests
         const string jsonDankort = "\"Dankort\"";
 
         // Act
-        var actual = JsonSerializer.Deserialize<PaymentMethodConfigurationType>(jsonDankort);
-        var expected = PaymentMethodConfigurationType.Methods.Dankort;
+        var actual = JsonSerializer.Deserialize<PaymentMethodEnum>(jsonDankort);
+        const PaymentMethodEnum expected = PaymentMethodEnum.Dankort;
 
         // Assert
         Assert.Equal(expected, actual);

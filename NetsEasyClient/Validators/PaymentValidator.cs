@@ -209,8 +209,8 @@ internal static class PaymentValidator
             return true;
         }
 
-        var allMethods = paymentConfiguration.All(c => c.Name?.PaymentInstance == PaymentInstance.Method);
-        var allTypes = paymentConfiguration.All(c => c.Name?.PaymentInstance == PaymentInstance.Type);
+        var allMethods = paymentConfiguration.All(c => c.Name?.IsMethod == true);
+        var allTypes = paymentConfiguration.All(c => c.Name?.IsType == true);
         return allMethods || allTypes;
     }
 
