@@ -35,7 +35,7 @@ public class ChargeCreatedWebhookSerializationTests
                     "}\n" +
                 "],\n" +
                 "\"paymentMethod\": \"Visa\",\n" +
-                "\"paymentType\": \"CARD\",\n" +
+                "\"paymentType\": \"PREPAID-INVOICE\",\n" +
                 "\"amount\": {\n" +
                     "\"amount\": 5500,\n" +
                     "\"currency\": \"SEK\"\n" +
@@ -68,7 +68,7 @@ public class ChargeCreatedWebhookSerializationTests
                     }
                 },
                 PaymentMethod = PaymentMethodEnum.Visa,
-                PaymentType = PaymentTypeEnum.Card,
+                PaymentType = PaymentTypeEnum.PrepaidInvoice,
                 Amount = new()
                 {
                     Amount = 5500,
