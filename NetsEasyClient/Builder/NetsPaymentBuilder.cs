@@ -1,6 +1,10 @@
 using System.Collections.Generic;
-using SolidNetsEasyClient.Models;
-using SolidNetsEasyClient.Models.Requests;
+using SolidNetsEasyClient.Models.DTOs.Contacts;
+using SolidNetsEasyClient.Models.DTOs.Enums;
+using SolidNetsEasyClient.Models.DTOs.Requests.Customers;
+using SolidNetsEasyClient.Models.DTOs.Requests.Orders;
+using SolidNetsEasyClient.Models.DTOs.Requests.Payments;
+using SolidNetsEasyClient.Models.DTOs.Requests.Webhooks;
 
 namespace SolidNetsEasyClient.Builder;
 
@@ -174,7 +178,7 @@ public sealed class NetsPaymentBuilder
             MerchantHandlesConsumerData = !retypeCostumerData,
             ConsumerType = !retypeCostumerData ? null : new()
             {
-                Default = ConsumerEnumType.B2C
+                Default = ConsumerTypeEnum.B2C
             }
         };
 
@@ -206,7 +210,7 @@ public sealed class NetsPaymentBuilder
             MerchantHandlesConsumerData = !retypeCostumerData,
             ConsumerType = !retypeCostumerData ? null : new()
             {
-                Default = ConsumerEnumType.B2C
+                Default = ConsumerTypeEnum.B2C
             }
         };
 

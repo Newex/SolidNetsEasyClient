@@ -2,8 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text.Json;
-using SolidNetsEasyClient.Models;
-using SolidNetsEasyClient.Models.WebHooks;
+using SolidNetsEasyClient.Models.DTOs;
+using SolidNetsEasyClient.Models.DTOs.Enums;
+using SolidNetsEasyClient.Models.DTOs.Responses.Webhooks;
 
 namespace SolidNetsEasyClient.Tests.SerializationTests.WebHooksTests;
 

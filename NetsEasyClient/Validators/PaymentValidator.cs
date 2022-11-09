@@ -1,8 +1,7 @@
 using System;
 using System.Linq;
 using ISO3166;
-using SolidNetsEasyClient.Models;
-using SolidNetsEasyClient.Models.Requests;
+using SolidNetsEasyClient.Models.DTOs.Requests.Payments;
 
 namespace SolidNetsEasyClient.Validators;
 

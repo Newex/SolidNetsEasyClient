@@ -1,6 +1,8 @@
 using System.Collections.Generic;
 using System.Linq;
-using SolidNetsEasyClient.Models;
+using SolidNetsEasyClient.Models.DTOs.Enums;
+using SolidNetsEasyClient.Models.DTOs.Requests.Payments;
+using SolidNetsEasyClient.Models.DTOs.Requests.Webhooks;
 using SolidNetsEasyClient.Tests.Tools;
 using SolidNetsEasyClient.Validators;
 

@@ -4,9 +4,10 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using SolidNetsEasyClient.Constants;
-using SolidNetsEasyClient.Models;
-using SolidNetsEasyClient.Models.Requests;
-using SolidNetsEasyClient.Models.Results;
+using SolidNetsEasyClient.Models.DTOs.Requests.Customers;
+using SolidNetsEasyClient.Models.DTOs.Requests.Orders;
+using SolidNetsEasyClient.Models.DTOs.Requests.Payments;
+using SolidNetsEasyClient.Models.DTOs.Responses.Payments;
 using SolidNetsEasyClient.Validators;
 
 namespace SolidNetsEasyClient.Clients;

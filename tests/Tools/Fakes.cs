@@ -3,10 +3,17 @@ using System.Collections.Generic;
 using Bogus;
 using Bogus.DataSets;
 using ISO3166;
-using SolidNetsEasyClient.Models;
-using SolidNetsEasyClient.Models.Requests;
-using Company = SolidNetsEasyClient.Models.Company;
-using Person = SolidNetsEasyClient.Models.Person;
+using SolidNetsEasyClient.Models.DTOs;
+using SolidNetsEasyClient.Models.DTOs.Contacts;
+using SolidNetsEasyClient.Models.DTOs.Enums;
+using SolidNetsEasyClient.Models.DTOs.Requests.Customers;
+using SolidNetsEasyClient.Models.DTOs.Requests.Customers.Addresses;
+using SolidNetsEasyClient.Models.DTOs.Requests.Orders;
+using SolidNetsEasyClient.Models.DTOs.Requests.Payments;
+using SolidNetsEasyClient.Models.DTOs.Requests.Styles;
+using SolidNetsEasyClient.Models.DTOs.Requests.Webhooks;
+using Company = SolidNetsEasyClient.Models.DTOs.Requests.Customers.Company;
+using Person = SolidNetsEasyClient.Models.DTOs.Contacts.Person;
 
 namespace SolidNetsEasyClient.Tests.Tools;
 
@@ -116,8 +123,8 @@ public static class Fakes
     {
         var faker = new Faker<ConsumerType>();
         // var consumerType = faker.PickRandomParam(ConsumerType.B2B, ConsumerType.B2C);
-        faker.RuleFor(f => f.Default, f => f.PickRandom<ConsumerEnumType>().OrNull(f));
-        faker.RuleFor(f => f.SupportedTypes, f => new List<ConsumerEnumType> { ConsumerEnumType.B2B }.OrNull(f));
+        faker.RuleFor(f => f.Default, f => f.PickRandom<ConsumerTypeEnum>().OrNull(f));
+        faker.RuleFor(f => f.SupportedTypes, f => new List<ConsumerTypeEnum> { ConsumerTypeEnum.B2B }.OrNull(f));
         return faker.Generate();
     }
 
