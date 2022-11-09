@@ -1,8 +1,12 @@
+using System.Buffers.Text;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using ExampleSite.Models;
 using Microsoft.AspNetCore.Mvc;
+using SolidNetsEasyClient.Builder;
 using SolidNetsEasyClient.Clients;
+using SolidNetsEasyClient.Encryption;
 using SolidNetsEasyClient.Models;
 
 namespace ExampleSite.Controllers;
@@ -20,29 +24,25 @@ public class CheckoutController : Controller
     public async Task<ActionResult> Index(BasketViewModel basket, CancellationToken cts)
     {
         var order = PaymentRequestHelper.MinimalOrderExample(basket.Item, basket.Quantity);
-        var customer = new Consumer
-        {
-            Email = "john@doe.com",
-            PhoneNumber = new()
-            {
-                Number = "54545454",
-                Prefix = "+45"
-            },
-            PrivatePerson = new()
-            {
-                FirstName = "John",
-                LastName = "Doe"
-            },
-            Reference = "jdoe",
-            // ShippingAddress = new()
-            // {
-            //     AddressLine1 = "Rådhuspladsen 1",
-            //     City = "København",
-            //     Country = "DNK",
-            //     PostalCode = "1599"
-            // },
-        };
-        var payment = await client.CreatePaymentAsync(order, customer, cts);
+        var paymentBuilder = NetsPaymentBuilder
+            .CreatePayment(order)
+            .EmbedCheckoutOnMyPage()
+            .WithPrivateCustomer(
+                customerId: "jdoe",
+                firstName: "John",
+                lastName: "Doe",
+                email: "john@doe.com",
+                new()
+                {
+                    Number = "54545454",
+                    Prefix = "+45"
+                },
+                retypeCostumerData: false
+            )
+            .ChargePaymentOnCreation(false)
+            .SubscribeToEvent(EventNames.Payment.ChargeCreated, "https://callback.url/", order.SignOrder("With_my_key_secret123"));
+
+        var payment = await client.CreatePaymentAsync(paymentBuilder.BuildPaymentRequest(), cts);
         var vm = new CheckoutViewModel
         {
             CheckoutKey = client.CheckoutKey,
