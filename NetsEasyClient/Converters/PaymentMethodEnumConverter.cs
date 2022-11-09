@@ -8,7 +8,7 @@ namespace SolidNetsEasyClient.Converters;
 /// <summary>
 /// Converter for the <see cref="PaymentMethodEnum"/>
 /// </summary>
-public class PaymentMethodEnumTypeConverter : JsonConverter<PaymentMethodEnum>
+public class PaymentMethodEnumConverter : JsonConverter<PaymentMethodEnum>
 {
     /// <inheritdoc />
     public override PaymentMethodEnum Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
