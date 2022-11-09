@@ -172,7 +172,7 @@ public sealed class NetsPaymentBuilder
                 PhoneNumber = phone
             },
             MerchantHandlesConsumerData = !retypeCostumerData,
-            ConsumerType = new()
+            ConsumerType = !retypeCostumerData ? null : new()
             {
                 Default = ConsumerEnumType.B2C
             }
@@ -204,9 +204,9 @@ public sealed class NetsPaymentBuilder
                 Company = company
             },
             MerchantHandlesConsumerData = !retypeCostumerData,
-            ConsumerType = new()
+            ConsumerType = !retypeCostumerData ? null : new()
             {
-                Default = ConsumerEnumType.B2B
+                Default = ConsumerEnumType.B2C
             }
         };
 
