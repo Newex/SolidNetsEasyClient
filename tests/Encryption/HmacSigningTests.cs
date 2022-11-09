@@ -1,3 +1,4 @@
+using Microsoft.Net.Http.Headers;
 using SolidNetsEasyClient.Encryption;
 using SolidNetsEasyClient.Models.WebHooks;
 using SolidNetsEasyClient.Tests.Tools;
@@ -34,6 +35,7 @@ public class HmacSigningTests
     public void Validate_signed_order(string key, string reference, string signature)
     {
         // Arrange
+        var request = Mocks.HttpRequest("POST", (HeaderNames.Authorization, signature));
         var created = new PaymentCreated
         {
             Data = new()
@@ -46,7 +48,7 @@ public class HmacSigningTests
         };
 
         // Act
-        var validSignature = created.ValidateOrderReference(key, signature);
+        var validSignature = request.ValidateOrderReference(created, key);
 
         // Assert
         validSignature.Should().BeTrue();

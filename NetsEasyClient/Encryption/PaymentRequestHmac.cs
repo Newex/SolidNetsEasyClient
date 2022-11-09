@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.Security.Cryptography;
 using System.Text;
+using Microsoft.AspNetCore.Http;
 using SolidNetsEasyClient.Models;
 using SolidNetsEasyClient.Models.WebHooks;
 
@@ -37,12 +38,13 @@ public static class PaymentRequestHmac
     /// <summary>
     /// Validate the created payment with a given key and signature
     /// </summary>
+    /// <param name="request">The http request containing the Authorization header</param>
     /// <param name="paymentCreated">The created payment</param>
     /// <param name="key">The signing key</param>
-    /// <param name="signature">The base64 encoded signature</param>
     /// <returns>True if the created payment matches the signature otherwise false</returns>
-    public static bool ValidateOrderReference(this PaymentCreated paymentCreated, string key, string signature)
+    public static bool ValidateOrderReference(this HttpRequest request, PaymentCreated paymentCreated, string key)
     {
+        var signature = request.Headers.Authorization;
         var orderId = Encoding.UTF8.GetBytes(paymentCreated.Data.Order.Reference);
         var byteKey = Encoding.UTF8.GetBytes(key);
         using var hmac = new HMACSHA1(byteKey);
