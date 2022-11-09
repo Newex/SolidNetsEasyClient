@@ -49,7 +49,7 @@ public record ChargedData
     /// The payment method, for example 'Visa' or 'Mastercard'.
     /// </summary>
     [JsonPropertyName("paymentMethod")]
-    public PaymentMethodConfigurationType PaymentMethod { get;init; }
+    public PaymentMethodEnum PaymentMethod { get;init; }
 
     /// <summary>
     /// The type of payment. Possible values are: 'CARD', 'INVOICE', 'A2A', 'INSTALLMENT', 'WALLET', and 'PREPAID-INVOICE'.
