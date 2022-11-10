@@ -91,4 +91,50 @@ public class ReservationCreatedSerializationTests
         // Assert
         actual.Should().BeEquivalentTo(expected);
     }
+
+    [Fact]
+    public void Can_deserialize_expected_v2_string_to_ReservationCreated_object()
+    {
+        // Arrange
+        const string json = "{\n" +
+        "\"id\": \"c25459e92ba54be1925493f987fb05a7\",\n" +
+        "\"timestamp\": \"2021-05-04T22:09:08.4342+02:00\",\n" +
+        "\"merchantNumber\": 100017120,\n" +
+        "\"event\": \"payment.reservation.created.v2\",\n" +
+        "\"data\": {\n" +
+            "\"paymentMethod\": \"Visa\",\n" +
+            "\"paymentType\": \"CARD\",\n" +
+            "\"amount\": {\n" +
+                "\"amount\": 5500,\n" +
+                "\"currency\": \"SEK\"\n" +
+            "},\n" +
+            "\"paymentId\": \"02a900006091a9a96937598058c4e474\"\n" +
+        "}\n" +
+        "}";
+
+        var expected = new ReservationCreated
+        {
+            Id = new("c25459e92ba54be1925493f987fb05a7"),
+            Timestamp = DateTimeOffset.Parse("2021-05-04T22:09:08.4342+02:00"),
+            MerchantNumber = 100017120,
+            Event = EventName.ReservationCreated,
+            Data = new()
+            {
+                PaymentMethod = PaymentMethodEnum.Visa,
+                PaymentType = PaymentTypeEnum.Card,
+                Amount = new()
+                {
+                    Amount = 55_00,
+                    Currency = "SEK"
+                },
+                PaymentId = new("02a900006091a9a96937598058c4e474")
+            }
+        };
+
+        // Act
+        var actual = JsonSerializer.Deserialize<ReservationCreated>(json);
+
+        // Assert
+        actual.Should().BeEquivalentTo(expected);
+    }
 }
