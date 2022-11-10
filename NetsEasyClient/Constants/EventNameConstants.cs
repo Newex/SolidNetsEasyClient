@@ -16,6 +16,11 @@ public static class EventNameConstants
     public const string ReservationCreated = "payment.reservation.created.v2";
 
     /// <summary>
+    /// The amount of the payment has been reserved (version 1)
+    /// </summary>
+    public const string V1ReservationCreated = "payment.reservation.created";
+
+    /// <summary>
     /// A reservation attempt has failed
     /// </summary>
     public const string ReservationFailed = "payment.reservation.failed";

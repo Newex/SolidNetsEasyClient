@@ -67,23 +67,28 @@ public record ReservationCreatedData
     /// The reservation card details
     /// </summary>
     [JsonPropertyName("cardDetails")]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public ReservationCreatedCardDetails? V1CardDetails { get; init; }
 
     /// <summary>
     /// The consumer details
     /// </summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("consumer")]
     public ReservationCreatedConsumer? V1Consumer { get; init; }
 
     /// <summary>
     /// The reservation reference
     /// </summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("reservationReference")]
     public string? V1ReservationReference { get; init; }
 
     /// <summary>
     /// The reserve id
     /// </summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    [JsonConverter(typeof(GuidTypeConverter))]
     [JsonPropertyName("reserveId")]
     public Guid? V1ReserveId { get; init; }
 }

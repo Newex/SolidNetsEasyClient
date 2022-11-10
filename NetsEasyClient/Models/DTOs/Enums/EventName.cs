@@ -23,6 +23,11 @@ public enum EventName
     ReservationCreated,
 
     /// <summary>
+    /// The amount of the payment has been reserved (version 1)
+    /// </summary>
+    V1ReservationCreated,
+
+    /// <summary>
     /// A reservation attempt has failed
     /// </summary>
     ReservationFailed,
@@ -83,6 +88,7 @@ public static class EventNameHelper
         EventName? result = eventName?.ToLowerInvariant() switch
         {
             EventNameConstants.PaymentCreated => EventName.PaymentCreated,
+            EventNameConstants.V1ReservationCreated => EventName.V1ReservationCreated,
             EventNameConstants.ReservationCreated => EventName.ReservationCreated,
             EventNameConstants.ReservationFailed => EventName.ReservationFailed,
             EventNameConstants.CheckoutCompleted => EventName.CheckoutCompleted,
@@ -108,6 +114,7 @@ public static class EventNameHelper
         var result = eventName switch
         {
             EventName.PaymentCreated => EventNameConstants.PaymentCreated,
+            EventName.V1ReservationCreated => EventNameConstants.V1ReservationCreated,
             EventName.ReservationCreated => EventNameConstants.ReservationCreated,
             EventName.ReservationFailed => EventNameConstants.ReservationFailed,
             EventName.CheckoutCompleted => EventNameConstants.CheckoutCompleted,
