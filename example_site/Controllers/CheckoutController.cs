@@ -38,7 +38,7 @@ public class CheckoutController : Controller
                 retypeCostumerData: false
             )
             .ChargePaymentOnCreation(false)
-            .SubscribeToEvent(EventNames.Payment.ChargeCreated, "https://callback.url/", order.SignOrder("With_my_key_secret123"));
+            .SubscribeToEvent(EventName.ChargeCreated, "https://callback.url/", order.SignOrder("With_my_key_secret123"));
 
         var payment = await client.CreatePaymentAsync(paymentBuilder.BuildPaymentRequest(), cts);
         var vm = new CheckoutViewModel

@@ -10,7 +10,7 @@ public class EventNameSerializationTests
     public void Serialize_event_to_json_string()
     {
         // Arrange
-        var eventName = EventNames.Payment.PaymentCreated;
+        var eventName = EventName.PaymentCreated;
 
         // Act
         var actual = JsonSerializer.Serialize(eventName);
@@ -27,8 +27,8 @@ public class EventNameSerializationTests
         const string jsonEventName = "\"payment.created\"";
 
         // Act
-        var actual = JsonSerializer.Deserialize<EventNames>(jsonEventName);
-        var expected = EventNames.Payment.PaymentCreated;
+        var actual = JsonSerializer.Deserialize<EventName>(jsonEventName);
+        var expected = EventName.PaymentCreated;
 
         // Assert
         Assert.Equal(expected, actual);
