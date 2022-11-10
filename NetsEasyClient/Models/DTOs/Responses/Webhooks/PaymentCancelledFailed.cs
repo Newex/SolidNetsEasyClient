@@ -12,7 +12,7 @@ namespace SolidNetsEasyClient.Models.DTOs.Responses.Webhooks;
 /// <remarks>
 /// The payment.cancel.failed event is triggered when a cancellation of a reservation has failed.
 /// </remarks>
-public record PaymentCancelledFailed : Webhook<PaymentCancelledData> { }
+public record PaymentCancelledFailed : Webhook<PaymentCancelledFailedData> { }
 
 /// <summary>
 /// The data associated with this event.
