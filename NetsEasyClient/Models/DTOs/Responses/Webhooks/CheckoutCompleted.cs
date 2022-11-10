@@ -59,7 +59,7 @@ public record CheckoutCompletedConsumer
     /// The billing address
     /// </summary>
     [JsonPropertyName("billingAddress")]
-    public CheckoutCompletedBillingAddress BillingAddress { get; init; } = new();
+    public CheckoutCompletedAddress BillingAddress { get; init; } = new();
 
     /// <summary>
     /// The country
@@ -89,13 +89,13 @@ public record CheckoutCompletedConsumer
     /// The shipping address
     /// </summary>
     [JsonPropertyName("shippingAddress")]
-    public CheckoutCompletedShippingAddress ShippingAddress { get; init; } = new();
+    public CheckoutCompletedAddress ShippingAddress { get; init; } = new();
 }
 
 /// <summary>
-/// The checkout completed billing address
+/// The checkout completed address
 /// </summary>
-public record CheckoutCompletedBillingAddress
+public record CheckoutCompletedAddress
 {
     /// <summary>
     /// The first address line
@@ -124,25 +124,7 @@ public record CheckoutCompletedBillingAddress
     /// <summary>
     /// The post code
     /// </summary>
-    [JsonPropertyName("postCode")]
-    public string PostCode { get; init; } = string.Empty;
-
-    /// <summary>
-    /// The receiver line
-    /// </summary>
-    [JsonPropertyName("receiverLine")]
-    public string ReceiverLine { get; init; } = string.Empty;
-}
-
-/// <summary>
-/// The checkout completed shipping address
-/// </summary>
-public record CheckoutCompletedShippingAddress : ShippingAddress
-{
-    /// <summary>
-    /// The post code
-    /// </summary>
-    [JsonPropertyName("postCode")]
+    [JsonPropertyName("postcode")]
     public string PostCode { get; init; } = string.Empty;
 
     /// <summary>
