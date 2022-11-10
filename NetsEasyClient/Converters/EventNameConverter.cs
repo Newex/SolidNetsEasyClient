@@ -6,25 +6,25 @@ using SolidNetsEasyClient.Models.DTOs.Enums;
 namespace SolidNetsEasyClient.Converters;
 
 /// <summary>
-/// Converter for <see cref="EventNames"/>
+/// Converter for <see cref="EventName"/>
 /// </summary>
-public class EventNameConverter : JsonConverter<EventNames>
+public class EventNameConverter : JsonConverter<EventName>
 {
     /// <inheritdoc />
-    public override EventNames? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+    public override EventName Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
-        var eventName = reader.GetString();
+        var eventName = EventNameHelper.ToEventName(reader.GetString());
         if (eventName is null)
         {
-            return null;
+            throw new NotSupportedException();
         }
 
-        return new(eventName);
+        return eventName.Value;
     }
 
     /// <inheritdoc />
-    public override void Write(Utf8JsonWriter writer, EventNames value, JsonSerializerOptions options)
+    public override void Write(Utf8JsonWriter writer, EventName value, JsonSerializerOptions options)
     {
-        writer.WriteStringValue(value.ToString());
+        writer.WriteStringValue(value.ToStringEventName());
     }
 }

@@ -53,7 +53,7 @@ public class ChargeCreatedWebhookSerializationTests
             Id = new("01ee00006091b2196937598058c4e488"),
             Timestamp = DateTimeOffset.Parse("2021-05-04T22:44:10.1185+02:00"),
             MerchantNumber = 100017120,
-            Event = EventNames.Payment.ChargeCreated,
+            Event = EventName.ChargeCreated,
             Data = new()
             {
                 ChargeId = new("01ee00006091b2196937598058c4e488"),

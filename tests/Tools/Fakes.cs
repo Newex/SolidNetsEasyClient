@@ -250,17 +250,17 @@ public static class Fakes
         var faker = new Faker<WebHook>();
 
         faker.RuleFor(f => f.EventName, f => f.PickRandom(
-            EventNames.Payment.PaymentCreated,
-            EventNames.Payment.ReservationCreated,
-            EventNames.Payment.ReservationFailed,
-            EventNames.Payment.CheckoutCompleted,
-            EventNames.Payment.ChargeCreated,
-            EventNames.Payment.ChargeFailed,
-            EventNames.Payment.RefundInitiated,
-            EventNames.Payment.RefundFailed,
-            EventNames.Payment.RefundCompleted,
-            EventNames.Payment.ReservationCancelled,
-            EventNames.Payment.ReservationCancellationFailed
+            EventName.PaymentCreated,
+            EventName.ReservationCreated,
+            EventName.ReservationFailed,
+            EventName.CheckoutCompleted,
+            EventName.ChargeCreated,
+            EventName.ChargeFailed,
+            EventName.RefundInitiated,
+            EventName.RefundFailed,
+            EventName.RefundCompleted,
+            EventName.ReservationCancelled,
+            EventName.ReservationCancellationFailed
         ).OrNull(f));
 
         faker.RuleFor(f => f.Url, f => f.Internet.UrlWithPath("https").OrNull(f));

@@ -1,4 +1,5 @@
 using System.Text.Json;
+using SolidNetsEasyClient.Constants;
 using SolidNetsEasyClient.Models.DTOs.Enums;
 
 namespace SolidNetsEasyClient.Tests.SerializationTests;
@@ -6,18 +7,28 @@ namespace SolidNetsEasyClient.Tests.SerializationTests;
 [UnitTest, Feature("SerializationTests")]
 public class EventNameSerializationTests
 {
-    [Fact]
-    public void Serialize_event_to_json_string()
+    [Theory]
+    [InlineData(EventName.PaymentCreated, EventNameConstants.PaymentCreated)]
+    [InlineData(EventName.ReservationCreated, EventNameConstants.ReservationCreated)]
+    [InlineData(EventName.ReservationFailed, EventNameConstants.ReservationFailed)]
+    [InlineData(EventName.CheckoutCompleted, EventNameConstants.CheckoutCompleted)]
+    [InlineData(EventName.ChargeCreated, EventNameConstants.ChargeCreated)]
+    [InlineData(EventName.ChargeFailed, EventNameConstants.ChargeFailed)]
+    [InlineData(EventName.RefundInitiated, EventNameConstants.RefundInitiated)]
+    [InlineData(EventName.RefundFailed, EventNameConstants.RefundFailed)]
+    [InlineData(EventName.RefundCompleted, EventNameConstants.RefundCompleted)]
+    [InlineData(EventName.ReservationCancelled, EventNameConstants.ReservationCancelled)]
+    [InlineData(EventName.ReservationCancellationFailed, EventNameConstants.ReservationCancellationFailed)]
+    public void Serialize_event_to_json_string(EventName eventEnum, string expected)
     {
         // Arrange
-        var eventName = EventNames.Payment.PaymentCreated;
+        var quotedEvent = "\"" + expected + "\"";
 
         // Act
-        var actual = JsonSerializer.Serialize(eventName);
-        const string expected = "\"payment.created\"";
+        var actual = JsonSerializer.Serialize(eventEnum);
 
         // Assert
-        Assert.Equal(expected, actual);
+        actual.Should().BeEquivalentTo(quotedEvent);
     }
 
     [Fact]
@@ -27,8 +38,8 @@ public class EventNameSerializationTests
         const string jsonEventName = "\"payment.created\"";
 
         // Act
-        var actual = JsonSerializer.Deserialize<EventNames>(jsonEventName);
-        var expected = EventNames.Payment.PaymentCreated;
+        var actual = JsonSerializer.Deserialize<EventName>(jsonEventName);
+        const EventName expected = EventName.PaymentCreated;
 
         // Assert
         Assert.Equal(expected, actual);

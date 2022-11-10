@@ -41,7 +41,7 @@ where T : new()
     /// </summary>
     [Required]
     [JsonPropertyName("event")]
-    public EventNames Event { get; init; } = EventNames.Payment.PaymentCreated;
+    public EventName Event { get; init; } = EventName.PaymentCreated;
 
     /// <summary>
     /// The data associated with this event

@@ -14,7 +14,7 @@ public record WebHook
     /// </summary>
     [JsonConverter(typeof(EventNameConverter))]
     [JsonPropertyName("eventName")]
-    public EventNames? EventName { get; init; }
+    public EventName? EventName { get; init; }
 
     /// <summary>
     /// The callback is sent to this URL

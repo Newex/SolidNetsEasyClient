@@ -227,7 +227,7 @@ public sealed class NetsPaymentBuilder
     /// <param name="callbackUrl">The callback url</param>
     /// <param name="authorization">The authorization credentials</param>
     /// <returns>A payment builder</returns>
-    public NetsPaymentBuilder SubscribeToEvent(EventNames eventName, string callbackUrl, string authorization)
+    public NetsPaymentBuilder SubscribeToEvent(EventName eventName, string callbackUrl, string authorization)
     {
         webHooks.Add(new()
         {

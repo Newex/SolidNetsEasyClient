@@ -56,7 +56,7 @@ public class PaymentCreatedWebHookSerializationTests
             Id = new Guid("458a4e068f454f768a40b9e576914820"),
             MerchantId = 100017120,
             Timestamp = DateTimeOffset.Parse("2021-05-04T22:08:16.6623+02:00"),
-            Event = EventNames.Payment.PaymentCreated,
+            Event = EventName.PaymentCreated,
             Data = new()
             {
                 Order = new()
