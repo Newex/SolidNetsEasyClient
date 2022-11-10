@@ -30,6 +30,7 @@ public record ReservationCreatedData
     /// <summary>
     /// The payment identifier
     /// </summary>
+    [Required]
     [JsonConverter(typeof(GuidTypeConverter))]
     [JsonPropertyName("paymentId")]
     public Guid PaymentId { get; init; }
