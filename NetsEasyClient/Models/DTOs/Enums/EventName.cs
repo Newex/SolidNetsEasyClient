@@ -15,61 +15,97 @@ public enum EventName
     /// <summary>
     /// A payment has been created
     /// </summary>
+    /// <remarks>
+    /// 'payment.created'
+    /// </remarks>
     PaymentCreated,
 
     /// <summary>
     /// The amount of the payment has been reserved
     /// </summary>
+    /// <remarks>
+    /// payment.reservation.created.v2
+    /// </remarks>
     ReservationCreated,
 
     /// <summary>
     /// The amount of the payment has been reserved (version 1)
     /// </summary>
+    /// <remarks>
+    /// payment.reservation.created
+    /// </remarks>
     V1ReservationCreated,
 
     /// <summary>
     /// A reservation attempt has failed
     /// </summary>
+    /// <remarks>
+    /// payment.reservation.failed
+    /// </remarks>
     ReservationFailed,
 
     /// <summary>
     /// The customer has completed the checkout
     /// </summary>
+    /// <remarks>
+    /// payment.checkout.completed
+    /// </remarks>
     CheckoutCompleted,
 
     /// <summary>
     /// The customer has successfully been charged, partially or fully
     /// </summary>
+    /// <remarks>
+    /// payment.charge.created.v2
+    /// </remarks>
     ChargeCreated,
 
     /// <summary>
     /// A charge attempt has failed
     /// </summary>
+    /// <remarks>
+    /// payment.charge.failed
+    /// </remarks>
     ChargeFailed,
 
     /// <summary>
     /// A refund has been initiated.
     /// </summary>
+    /// <remarks>
+    /// payment.refund.initiated.v2
+    /// </remarks>
     RefundInitiated,
 
     /// <summary>
     /// A refund attempt has failed
     /// </summary>
+    /// <remarks>
+    /// payment.refund.failed
+    /// </remarks>
     RefundFailed,
 
     /// <summary>
     /// A refund has successfully been completed
     /// </summary>
+    /// <remarks>
+    /// payment.refund.completed
+    /// </remarks>
     RefundCompleted,
 
     /// <summary>
     /// A reservation has been canceled
     /// </summary>
+    /// <remarks>
+    /// payment.cancel.created
+    /// </remarks>
     ReservationCancelled,
 
     /// <summary>
     /// A cancellation has failed
     /// </summary>
+    /// <remarks>
+    /// payment.cancel.failed
+    /// </remarks>
     ReservationCancellationFailed
 }
 
