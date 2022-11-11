@@ -4,8 +4,11 @@ using System.Net;
 using System.Net.Http;
 using System.Threading;
 using SolidNetsEasyClient.Constants;
-using SolidNetsEasyClient.Models;
+using SolidNetsEasyClient.Models.DTOs;
+using SolidNetsEasyClient.Models.DTOs.Requests.Orders;
+using SolidNetsEasyClient.Models.DTOs.Requests.Payments;
 using SolidNetsEasyClient.Tests.Tools;
+using T = SolidNetsEasyClient.Models.DTOs.Requests.Payments.Integration;
 
 namespace SolidNetsEasyClient.Tests.ClientTests.Unit;
 
@@ -21,7 +24,7 @@ public class PaymentClientTests
         var payment = Fakes.MinimalOrderExample;
 
         // Act
-        var create = await client.CreatePaymentAsync(payment, Models.Integration.EmbeddedCheckout, CancellationToken.None);
+        var create = await client.CreatePaymentAsync(payment, T.EmbeddedCheckout, CancellationToken.None);
         var result = create.PaymentId != Guid.Empty;
 
         // Assert
@@ -37,7 +40,7 @@ public class PaymentClientTests
         var payment = Fakes.MinimalOrderExample;
 
         // Act
-        var ex = async () => await client.CreatePaymentAsync(payment, Models.Integration.EmbeddedCheckout, CancellationToken.None);
+        var ex = async () => await client.CreatePaymentAsync(payment, T.EmbeddedCheckout, CancellationToken.None);
 
         // Assert
         _ = await Assert.ThrowsAsync<HttpRequestException>(ex);
@@ -84,7 +87,6 @@ public class PaymentClientTests
             {
                 new()
                 {
-                    Name = PaymentMethodConfigurationType.Methods.EasyInvoice,
                     Fee = new()
                     {
                         Quantity = 1,

@@ -1,6 +1,7 @@
 using System;
 using System.Text.Json;
-using SolidNetsEasyClient.Models.Status;
+using SolidNetsEasyClient.Models.DTOs.Responses.Customers;
+using SolidNetsEasyClient.Models.DTOs.Responses.Payments;
 
 namespace SolidNetsEasyClient.Tests.SerializationTests;
 

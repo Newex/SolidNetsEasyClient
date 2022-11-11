@@ -1,8 +1,7 @@
 using System;
 using System.Linq;
 using ISO3166;
-using SolidNetsEasyClient.Models;
-using SolidNetsEasyClient.Models.Requests;
+using SolidNetsEasyClient.Models.DTOs.Requests.Payments;
 
 namespace SolidNetsEasyClient.Validators;
 
@@ -19,7 +18,7 @@ internal static class PaymentValidator
     internal static bool IsValidPaymentObject(PaymentRequest payment)
     {
         // Checkout URL must not be empty
-        if (string.IsNullOrWhiteSpace(payment.Checkout.Url))
+        if (!EmbeddedCheckoutHasCheckoutUrl(payment))
         {
             return false;
         }
@@ -34,7 +33,7 @@ internal static class PaymentValidator
             return false;
         }
 
-        if (!HasReturnUrl(payment))
+        if (!HasHostedReturnUrl(payment))
         {
             return false;
         }
@@ -72,6 +71,15 @@ internal static class PaymentValidator
         return true;
     }
 
+    internal static bool EmbeddedCheckoutHasCheckoutUrl(PaymentRequest payment)
+    {
+        return payment.Checkout.IntegrationType switch
+        {
+            Integration.EmbeddedCheckout => !string.IsNullOrWhiteSpace(payment.Checkout.Url),
+            _ => true
+        };
+    }
+
     internal static bool HasMerchantConsumerDataAndNoConsumerType(PaymentRequest payment)
     {
         if (payment.Checkout.MerchantHandlesConsumerData == true)
@@ -102,7 +110,7 @@ internal static class PaymentValidator
         return payment.Order.Items.Any();
     }
 
-    internal static bool HasReturnUrl(PaymentRequest payment)
+    internal static bool HasHostedReturnUrl(PaymentRequest payment)
     {
         return payment.Checkout.IntegrationType switch
         {
@@ -200,8 +208,8 @@ internal static class PaymentValidator
             return true;
         }
 
-        var allMethods = paymentConfiguration.All(c => c.Name?.PaymentInstance == PaymentInstance.Method);
-        var allTypes = paymentConfiguration.All(c => c.Name?.PaymentInstance == PaymentInstance.Type);
+        var allMethods = paymentConfiguration.All(c => c.Name?.IsMethod == true);
+        var allTypes = paymentConfiguration.All(c => c.Name?.IsType == true);
         return allMethods || allTypes;
     }
 
