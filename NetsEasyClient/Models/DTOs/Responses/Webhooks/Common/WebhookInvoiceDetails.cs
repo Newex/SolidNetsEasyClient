@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 using SolidNetsEasyClient.Converters;
 
-namespace SolidNetsEasyClient.Models.DTOs.Responses.Webhooks;
+namespace SolidNetsEasyClient.Models.DTOs.Responses.Webhooks.Common;
 
 /// <summary>
 /// Invoice details
