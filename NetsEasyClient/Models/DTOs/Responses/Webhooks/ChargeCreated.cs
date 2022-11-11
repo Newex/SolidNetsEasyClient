@@ -7,7 +7,7 @@ namespace SolidNetsEasyClient.Models.DTOs.Responses.Webhooks;
 /// <summary>
 /// The payment.charge.created.v2 event is triggered when the customer has successfully been charged, partially or fully. A use case can be to get notified for successful subscription or unscheduled charges.
 /// </summary>
-public record ChargeCreated : Webhook<ChargedData>
+public record ChargeCreated : Webhook<ChargeData>
 {
     /// <summary>
     /// The merchant number.
