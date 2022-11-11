@@ -2,6 +2,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using ExampleSite.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 using SolidNetsEasyClient.Builder;
 using SolidNetsEasyClient.Clients;
 using SolidNetsEasyClient.Encryption;
@@ -12,10 +13,14 @@ namespace ExampleSite.Controllers;
 public class CheckoutController : Controller
 {
     private readonly PaymentClient client;
+    private readonly string webhookUrl;
+    private readonly string signingKey;
 
-    public CheckoutController(PaymentClient client)
+    public CheckoutController(PaymentClient client, IOptions<MyOptions> options)
     {
         this.client = client;
+        webhookUrl = options.Value.WebhookCallbackUrl;
+        signingKey = options.Value.MySigningKey;
     }
 
     [HttpPost("/checkout")]
@@ -38,7 +43,7 @@ public class CheckoutController : Controller
                 retypeCostumerData: false
             )
             .ChargePaymentOnCreation(false)
-            .SubscribeToEvent(EventName.ChargeCreated, "https://callback.url/", order.SignOrder("With_my_key_secret123"));
+            .SubscribeToEvent(EventName.ChargeCreated, webhookUrl, order.SignOrder(signingKey));
 
         var payment = await client.CreatePaymentAsync(paymentBuilder.BuildPaymentRequest(), cts);
         var vm = new CheckoutViewModel

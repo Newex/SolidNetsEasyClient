@@ -1,3 +1,4 @@
+using ExampleSite.Models;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using SolidNetsEasyClient.Extensions;
@@ -23,6 +24,8 @@ builder
 //     .AllowAnyHeader()
 //     .Build());
 // });
+
+builder.Services.Configure<MyOptions>(builder.Configuration.GetSection(MyOptions.Section));
 
 var app = builder.Build();
 // app.UseCors("MyCorsPolicy");
