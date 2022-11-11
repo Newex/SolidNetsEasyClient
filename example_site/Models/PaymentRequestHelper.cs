@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
-using SolidNetsEasyClient.Models;
+using SolidNetsEasyClient.Models.DTOs;
+using SolidNetsEasyClient.Models.DTOs.Requests.Orders;
 
 namespace ExampleSite.Models;
 

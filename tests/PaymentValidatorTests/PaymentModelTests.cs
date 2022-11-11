@@ -1,6 +1,8 @@
 using System.Collections.Generic;
 using System.Linq;
-using SolidNetsEasyClient.Models;
+using SolidNetsEasyClient.Models.DTOs.Enums;
+using SolidNetsEasyClient.Models.DTOs.Requests.Payments;
+using SolidNetsEasyClient.Models.DTOs.Requests.Webhooks;
 using SolidNetsEasyClient.Tests.Tools;
 using SolidNetsEasyClient.Validators;
 
@@ -369,12 +371,12 @@ public class PaymentModelTests
                 new()
                 {
                     Enabled = true,
-                    Name = PaymentMethodConfigurationType.Methods.MasterCard
+                    Name = PaymentMethodEnum.MasterCard
                 },
                 new()
                 {
                     Enabled = true,
-                    Name = PaymentMethodConfigurationType.Methods.Visa
+                    Name = PaymentMethodEnum.Visa
                 },
             });
 
@@ -397,12 +399,12 @@ public class PaymentModelTests
                 new()
                 {
                     Enabled = true,
-                    Name = PaymentMethodConfigurationType.Types.Invoice
+                    Name = PaymentTypeEnum.Invoice
                 },
                 new()
                 {
                     Enabled = true,
-                    Name = PaymentMethodConfigurationType.Types.Card
+                    Name = PaymentTypeEnum.Card
                 },
             });
 
@@ -425,12 +427,12 @@ public class PaymentModelTests
                 new()
                 {
                     Enabled = true,
-                    Name = PaymentMethodConfigurationType.Methods.PayPal
+                    Name = PaymentMethodEnum.PayPal
                 },
                 new()
                 {
                     Enabled = true,
-                    Name = PaymentMethodConfigurationType.Types.Card
+                    Name = PaymentTypeEnum.Card
                 },
             });
 
@@ -452,7 +454,7 @@ public class PaymentModelTests
         });
 
         // Act
-        var result = PaymentValidator.HasReturnUrl(payment);
+        var result = PaymentValidator.HasHostedReturnUrl(payment);
 
         // Assert
         Assert.False(result);

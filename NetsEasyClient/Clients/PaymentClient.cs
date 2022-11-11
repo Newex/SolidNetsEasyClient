@@ -8,10 +8,10 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 using SolidNetsEasyClient.Constants;
-using SolidNetsEasyClient.Models;
+using SolidNetsEasyClient.Models.DTOs.Requests.Orders;
+using SolidNetsEasyClient.Models.DTOs.Requests.Payments;
+using SolidNetsEasyClient.Models.DTOs.Responses.Payments;
 using SolidNetsEasyClient.Models.Options;
-using SolidNetsEasyClient.Models.Results;
-using SolidNetsEasyClient.Models.Status;
 
 namespace SolidNetsEasyClient.Clients;
 
@@ -22,6 +22,7 @@ public partial class PaymentClient : IPaymentClient
     private readonly string checkoutUrl;
     private readonly string termsUrl;
     private readonly string? returnUrl;
+    private readonly string? cancelUrl;
     private readonly string mode;
     private readonly string apiKey;
     private readonly string? platformId;
@@ -49,6 +50,7 @@ public partial class PaymentClient : IPaymentClient
         checkoutUrl = options.Value.CheckoutUrl;
         termsUrl = options.Value.TermsUrl;
         returnUrl = options.Value.ReturnUrl;
+        cancelUrl = options.Value.CancelUrl;
         merchantTermsUrl = options.Value.PrivacyPolicyUrl;
         apiKey = options.Value.ApiKey;
         CheckoutKey = options.Value.CheckoutKey;
@@ -141,15 +143,14 @@ public partial class PaymentClient : IPaymentClient
     public async Task<bool> UpdateOrderAsync(Guid paymentID, OrderUpdate updates, CancellationToken cancellationToken)
     {
         // If has payment method the:
-        // * Reference
         // * Name
+        // * Reference
         // * Unit
         // Are required!
         var validPayment = true;
         if (updates.PaymentMethods is not null)
         {
-            validPayment = updates.PaymentMethods.All(x => x.Name == PaymentMethodConfigurationType.Methods.EasyInvoice
-                                                           && !string.IsNullOrWhiteSpace(x.Fee.Name)
+            validPayment = updates.PaymentMethods.All(x => !string.IsNullOrWhiteSpace(x.Fee.Name)
                                                            && !string.IsNullOrWhiteSpace(x.Fee.Reference)
                                                            && !string.IsNullOrWhiteSpace(x.Fee.Unit))
                            || (updates.PaymentMethods is null);

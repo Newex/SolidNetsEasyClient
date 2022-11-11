@@ -1,10 +1,10 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using SolidNetsEasyClient.Models;
-using SolidNetsEasyClient.Models.Requests;
-using SolidNetsEasyClient.Models.Results;
-using SolidNetsEasyClient.Models.Status;
+using SolidNetsEasyClient.Models.DTOs.Requests.Customers;
+using SolidNetsEasyClient.Models.DTOs.Requests.Orders;
+using SolidNetsEasyClient.Models.DTOs.Requests.Payments;
+using SolidNetsEasyClient.Models.DTOs.Responses.Payments;
 
 namespace SolidNetsEasyClient.Clients;
 
@@ -67,12 +67,14 @@ public interface IPaymentClient
     /// <param name="order">The order</param>
     /// <param name="integration">The integration type</param>
     /// <param name="cancellationToken">The cancellation token</param>
+    /// <param name="charge">True if the payment should be charged on creation otherwise a separate call to charge the payment must be called</param>
     /// <param name="checkoutUrl">The optional checkout url, if not specified it will use the value given from configuration</param>
     /// <param name="returnUrl">The optional return url, if not specified it will use the value given from configuration only if <paramref name="integration"/> is set to hosted</param>
     /// <param name="termsUrl">The optional terms url, if not specified it will use the value given from configuration</param>
+    /// <param name="validate">True if the payment should be validated before sending the payment request to Nets</param>
     /// <returns>A payment result or throws an exception</returns>
     /// <exception cref="ArgumentException">Thrown if invalid payment object</exception>
-    Task<PaymentResult> CreatePaymentAsync(Order order, Integration integration, CancellationToken cancellationToken, string? checkoutUrl = null, string? returnUrl = null, string? termsUrl = null);
+    Task<PaymentResult> CreatePaymentAsync(Order order, Integration integration, CancellationToken cancellationToken, bool charge = true, string? checkoutUrl = null, string? returnUrl = null, string? termsUrl = null, bool validate = true);
 
     /// <summary>
     /// Create a payment in NETS
@@ -82,9 +84,10 @@ public interface IPaymentClient
     /// </remarks>
     /// <param name="payment">The payment request</param>
     /// <param name="cancellationToken">The cancellation token</param>
+    /// <param name="validate">True if the payment should be validated before sending the payment request to Nets</param>
     /// <returns>A payment result or throws an exception</returns>
     /// <exception cref="ArgumentException">Thrown if invalid payment object</exception>
-    Task<PaymentResult> CreatePaymentAsync(PaymentRequest payment, CancellationToken cancellationToken);
+    Task<PaymentResult> CreatePaymentAsync(PaymentRequest payment, CancellationToken cancellationToken, bool validate = true);
 
     /// <summary>
     /// Create a payment in NETS. Assumes that the payment is embedded (as opposed to hosted). The payment will be charged immediately.
@@ -95,17 +98,19 @@ public interface IPaymentClient
     /// <param name="order">The order</param>
     /// <param name="consumer">The consumer details</param>
     /// <param name="cancellationToken">The cancellation token</param>
+    /// <param name="charge">True if the payment should be charged on creation otherwise a separate call to charge the payment must be called</param>
     /// <param name="checkoutUrl">The optional checkout url, if not specified it will use the value given from configuration</param>
     /// <param name="termsUrl">The optional terms url, if not specified it will use the value given from configuration</param>
+    /// <param name="validate">True if the payment should be validated before sending the payment request to Nets</param>
     /// <returns>A payment result or throws an exception</returns>
     /// <exception cref="ArgumentException">Thrown if invalid payment object</exception>
-    Task<PaymentResult> CreatePaymentAsync(Order order, Consumer consumer, CancellationToken cancellationToken, string? checkoutUrl = null, string? termsUrl = null);
+    Task<PaymentResult> CreatePaymentAsync(Order order, Consumer consumer, CancellationToken cancellationToken, bool charge = true, string? checkoutUrl = null, string? termsUrl = null, bool validate = true);
 
     /// <summary>
     /// Get status for a payment
     /// </summary>
     /// <remarks>
-    /// Retrieves the details of an existing payment. The paymentId is obtained from Nets when creating a <see cref="CreatePaymentAsync(Order, Integration, CancellationToken, string?, string?, string?)"/>
+    /// Retrieves the details of an existing payment. The paymentId is obtained from Nets when creating a <see cref="CreatePaymentAsync(Order, Integration, CancellationToken, bool, string?, string?, string?, bool)"/>
     /// </remarks>
     /// <param name="paymentID">The payment ID</param>
     /// <param name="cancellationToken">The cancellation token</param>

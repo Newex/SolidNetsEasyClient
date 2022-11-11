@@ -3,10 +3,17 @@ using System.Collections.Generic;
 using Bogus;
 using Bogus.DataSets;
 using ISO3166;
-using SolidNetsEasyClient.Models;
-using SolidNetsEasyClient.Models.Requests;
-using Company = SolidNetsEasyClient.Models.Company;
-using Person = SolidNetsEasyClient.Models.Person;
+using SolidNetsEasyClient.Models.DTOs;
+using SolidNetsEasyClient.Models.DTOs.Contacts;
+using SolidNetsEasyClient.Models.DTOs.Enums;
+using SolidNetsEasyClient.Models.DTOs.Requests.Customers;
+using SolidNetsEasyClient.Models.DTOs.Requests.Customers.Addresses;
+using SolidNetsEasyClient.Models.DTOs.Requests.Orders;
+using SolidNetsEasyClient.Models.DTOs.Requests.Payments;
+using SolidNetsEasyClient.Models.DTOs.Requests.Styles;
+using SolidNetsEasyClient.Models.DTOs.Requests.Webhooks;
+using Company = SolidNetsEasyClient.Models.DTOs.Requests.Customers.Company;
+using Person = SolidNetsEasyClient.Models.DTOs.Contacts.Person;
 
 namespace SolidNetsEasyClient.Tests.Tools;
 
@@ -116,8 +123,8 @@ public static class Fakes
     {
         var faker = new Faker<ConsumerType>();
         // var consumerType = faker.PickRandomParam(ConsumerType.B2B, ConsumerType.B2C);
-        faker.RuleFor(f => f.Default, f => f.Random.Word().OrNull(f));
-        faker.RuleFor(f => f.SupportedTypes, f => new List<ConsumerEnumType> { ConsumerEnumType.B2B }.OrNull(f));
+        faker.RuleFor(f => f.Default, f => f.PickRandom<ConsumerTypeEnum>().OrNull(f));
+        faker.RuleFor(f => f.SupportedTypes, f => new List<ConsumerTypeEnum> { ConsumerTypeEnum.B2B }.OrNull(f));
         return faker.Generate();
     }
 
@@ -243,17 +250,17 @@ public static class Fakes
         var faker = new Faker<WebHook>();
 
         faker.RuleFor(f => f.EventName, f => f.PickRandom(
-            EventNames.Payment.PaymentCreated,
-            EventNames.Payment.ReservationCreated,
-            EventNames.Payment.ReservationFailed,
-            EventNames.Payment.CheckoutCompleted,
-            EventNames.Payment.ChargeCreated,
-            EventNames.Payment.ChargeFailed,
-            EventNames.Payment.RefundInitiated,
-            EventNames.Payment.RefundFailed,
-            EventNames.Payment.RefundCompleted,
-            EventNames.Payment.ReservationCancelled,
-            EventNames.Payment.ReservationCancellationFailed
+            EventName.PaymentCreated,
+            EventName.ReservationCreated,
+            EventName.ReservationFailed,
+            EventName.CheckoutCompleted,
+            EventName.ChargeCreated,
+            EventName.ChargeFailed,
+            EventName.RefundInitiated,
+            EventName.RefundFailed,
+            EventName.RefundCompleted,
+            EventName.ReservationCancelled,
+            EventName.ReservationCancellationFailed
         ).OrNull(f));
 
         faker.RuleFor(f => f.Url, f => f.Internet.UrlWithPath("https").OrNull(f));
@@ -283,35 +290,13 @@ public static class Fakes
         return faker.Generate();
     }
 
-    public static PaymentMethodConfigurationType RandomPaymentMethodConfigurationType()
+    public static PaymentTypeMethodName RandomPaymentMethodConfigurationType()
     {
         var faker = new Faker();
 
-        var configuration = faker.PickRandom(
-            PaymentMethodConfigurationType.Methods.Visa,
-            PaymentMethodConfigurationType.Methods.MasterCard,
-            PaymentMethodConfigurationType.Methods.Dankort,
-            PaymentMethodConfigurationType.Methods.AmericanExpress,
-            PaymentMethodConfigurationType.Methods.PayPal,
-            PaymentMethodConfigurationType.Methods.Vipps,
-            PaymentMethodConfigurationType.Methods.MobilePay,
-            PaymentMethodConfigurationType.Methods.Swish,
-            PaymentMethodConfigurationType.Methods.Arvato,
-            PaymentMethodConfigurationType.Methods.EasyInvoice,
-            PaymentMethodConfigurationType.Methods.EasyCampaign,
-            PaymentMethodConfigurationType.Methods.RatePayInvoice,
-            PaymentMethodConfigurationType.Methods.RatePayInstallment,
-            PaymentMethodConfigurationType.Methods.RatePaySepa,
-            PaymentMethodConfigurationType.Methods.Sofort,
-            PaymentMethodConfigurationType.Methods.Trustly,
-            PaymentMethodConfigurationType.Types.Card,
-            PaymentMethodConfigurationType.Types.Invoice,
-            PaymentMethodConfigurationType.Types.Installment,
-            PaymentMethodConfigurationType.Types.A2A,
-            PaymentMethodConfigurationType.Types.Wallet
-        );
-
-        return configuration;
+        var paymentType = faker.PickRandom<PaymentTypeEnum>();
+        var paymentMethod = faker.PickRandom<PaymentMethodEnum>();
+        return faker.PickRandomParam<PaymentTypeMethodName>(paymentType, paymentMethod);
     }
 
     public static PaymentMethodConfiguration RandomPaymentConfiguration()

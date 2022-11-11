@@ -44,6 +44,11 @@ public record PlatformPaymentOptions
     public string? ReturnUrl { get; init; }
 
     /// <summary>
+    /// Where to return customer after cancelled payment when using a hosted checkout page
+    /// </summary>
+    public string? CancelUrl { get; init; } = string.Empty;
+
+    /// <summary>
     /// The privacy policy url for your site
     /// </summary>
     public string PrivacyPolicyUrl { get; init; } = string.Empty;
