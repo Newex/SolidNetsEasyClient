@@ -1,9 +1,23 @@
 using ExampleSite.Models;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using SolidNetsEasyClient.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Logging.ClearProviders();
+builder.Logging.AddConsole();
+builder.Logging.AddFilter((provider, category, level) =>
+{
+    if (!category.Contains("Microsoft.Asp"))
+    {
+        return true;
+    }
+    else
+    {
+        return level >= LogLevel.Warning;
+    }
+});
 
 builder.Services.AddHealthChecks();
 
