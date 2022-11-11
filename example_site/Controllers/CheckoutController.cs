@@ -43,7 +43,18 @@ public class CheckoutController : Controller
                 retypeCostumerData: false
             )
             .ChargePaymentOnCreation(false)
-            .SubscribeToEvent(EventName.ChargeCreated, webhookUrl, order.SignOrder(signingKey));
+            .SubscribeToEvent(EventName.ChargeCreated, webhookUrl, order.SignOrder(signingKey))
+            .SubscribeToEvent(EventName.ChargeFailed, webhookUrl, order.SignOrder(signingKey))
+            .SubscribeToEvent(EventName.CheckoutCompleted, webhookUrl, order.SignOrder(signingKey))
+            .SubscribeToEvent(EventName.PaymentCreated, webhookUrl, order.SignOrder(signingKey))
+            .SubscribeToEvent(EventName.RefundCompleted, webhookUrl, order.SignOrder(signingKey))
+            .SubscribeToEvent(EventName.RefundFailed, webhookUrl, order.SignOrder(signingKey))
+            .SubscribeToEvent(EventName.RefundInitiated, webhookUrl, order.SignOrder(signingKey))
+            .SubscribeToEvent(EventName.ReservationCancellationFailed, webhookUrl, order.SignOrder(signingKey))
+            .SubscribeToEvent(EventName.ReservationCancelled, webhookUrl, order.SignOrder(signingKey))
+            .SubscribeToEvent(EventName.ReservationCreated, webhookUrl, order.SignOrder(signingKey))
+            .SubscribeToEvent(EventName.ReservationFailed, webhookUrl, order.SignOrder(signingKey))
+            .SubscribeToEvent(EventName.V1ReservationCreated, webhookUrl, order.SignOrder(signingKey));
 
         var payment = await client.CreatePaymentAsync(paymentBuilder.BuildPaymentRequest(), cts);
         var vm = new CheckoutViewModel
