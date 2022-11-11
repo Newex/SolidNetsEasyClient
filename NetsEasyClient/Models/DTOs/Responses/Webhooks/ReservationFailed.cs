@@ -51,29 +51,5 @@ public record ReservationFailedData
     /// The error details. (From example)
     /// </summary>
     [JsonPropertyName("error")]
-    public ReservationFailedError Error { get; init; } = new();
-}
-
-/// <summary>
-/// The reservation error details
-/// </summary>
-public record ReservationFailedError
-{
-    /// <summary>
-    /// The error code
-    /// </summary>
-    [JsonPropertyName("code")]
-    public string Code { get; init; } = string.Empty;
-
-    /// <summary>
-    /// The error message
-    /// </summary>
-    [JsonPropertyName("message")]
-    public string Message { get; init; } = string.Empty;
-
-    /// <summary>
-    /// The error source
-    /// </summary>
-    [JsonPropertyName("source")]
-    public string Source { get; init; } = string.Empty;
+    public WebhookError Error { get; init; } = new();
 }
