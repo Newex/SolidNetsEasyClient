@@ -6,14 +6,14 @@ using SolidNetsEasyClient.Converters;
 namespace SolidNetsEasyClient.Models.DTOs.Responses.Webhooks;
 
 /// <summary>
-/// The payment.refund.completed event is triggered when a refund has successfully been completed.
+/// The payment.refund.failed event is triggered when a refund attempt has failed.
 /// </summary>
-public record RefundCompleted : Webhook<RefundCompletedData> { }
+public record RefundFailed : Webhook<RefundFailedData> { }
 
 /// <summary>
-/// Refund completed event payload data
+/// The refund failed payload data
 /// </summary>
-public record RefundCompletedData
+public record RefundFailedData
 {
     /// <summary>
     /// The payment identifier
@@ -32,6 +32,13 @@ public record RefundCompletedData
     public Guid RefundId { get; init; }
 
     /// <summary>
+    /// Contains information about an error (client error or server error).
+    /// </summary>
+    [Required]
+    [JsonPropertyName("error")]
+    public WebhookError Error { get; init; } = new();
+
+    /// <summary>
     /// The amount of the refund.
     /// </summary>
     [Required]
@@ -39,7 +46,7 @@ public record RefundCompletedData
     public WebhookAmount Amount { get; init; } = new();
 
     /// <summary>
-    /// Invoice details
+    /// The invoice details
     /// </summary>
     [JsonPropertyName("invoiceDetails")]
     public WebhookInvoiceDetails InvoiceDetails { get; init; } = new();
