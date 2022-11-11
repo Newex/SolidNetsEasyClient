@@ -7,20 +7,17 @@ using SolidNetsEasyClient.Converters;
 namespace SolidNetsEasyClient.Models.DTOs.Responses.Webhooks;
 
 /// <summary>
-/// The webhook DTO for when a payment has failed to be cancelled
+/// The payment.charge.failed event is triggered when a charge attempt has failed.
 /// </summary>
-/// <remarks>
-/// The payment.cancel.failed event is triggered when a cancellation of a reservation has failed.
-/// </remarks>
-public record PaymentCancelledFailed : Webhook<PaymentCancelledFailedData> { }
+public record ChargeFailed : Webhook<ChargeFailedData> { }
 
 /// <summary>
 /// The data associated with this event.
 /// </summary>
-public record PaymentCancelledFailedData
+public record ChargeFailedData
 {
     /// <summary>
-    /// The payment identifier.
+    /// The payment identifier
     /// </summary>
     [Required]
     [JsonConverter(typeof(GuidTypeConverter))]
@@ -35,19 +32,25 @@ public record PaymentCancelledFailedData
     public WebhookError Error { get; init; } = new();
 
     /// <summary>
-    /// The cancellation id
+    /// The charge identifier.
     /// </summary>
     [Required]
-    [JsonConverter(typeof(GuidTypeConverter))]
-    [JsonPropertyName("cancelId")]
-    public Guid CancelId { get; init; }
+    [JsonPropertyName("chargeId")]
+    public Guid ChargeId { get; init; }
 
     /// <summary>
-    /// The list of order items that are associated with the charge. Contains at least one order item.
+    /// The list of order items that are associated with the canceled payment. Contains at least one order item.
     /// </summary>
     [Required]
     [JsonPropertyName("orderItems")]
     public IList<Item> OrderItems { get; init; } = new List<Item>();
+
+    /// <summary>
+    /// A unique identifier (UUID) for the reservation that can help in diagnostics.
+    /// </summary>
+    [Required]
+    [JsonPropertyName("reservationId")]
+    public Guid ReservationId { get; init; }
 
     /// <summary>
     /// The amount of the charge.
