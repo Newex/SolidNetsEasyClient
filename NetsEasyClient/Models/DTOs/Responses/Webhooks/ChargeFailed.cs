@@ -35,6 +35,7 @@ public record ChargeFailedData
     /// The charge identifier.
     /// </summary>
     [Required]
+    [JsonConverter(typeof(GuidTypeConverter))]
     [JsonPropertyName("chargeId")]
     public Guid ChargeId { get; init; }
 
@@ -49,6 +50,7 @@ public record ChargeFailedData
     /// A unique identifier (UUID) for the reservation that can help in diagnostics.
     /// </summary>
     [Required]
+    [JsonConverter(typeof(GuidTypeConverter))]
     [JsonPropertyName("reservationId")]
     public Guid ReservationId { get; init; }
 
