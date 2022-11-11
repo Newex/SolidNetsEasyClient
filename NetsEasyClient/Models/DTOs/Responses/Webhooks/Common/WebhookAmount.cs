@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 
-namespace SolidNetsEasyClient.Models.DTOs.Responses.Webhooks;
+namespace SolidNetsEasyClient.Models.DTOs.Responses.Webhooks.Common;
 
 /// <summary>
 /// The amount
