@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 
-namespace SolidNetsEasyClient.Models.DTOs.Responses.Webhooks;
+namespace SolidNetsEasyClient.Models.DTOs.Responses.Webhooks.Common;
 
 /// <summary>
 /// An error DTO of a web hook
