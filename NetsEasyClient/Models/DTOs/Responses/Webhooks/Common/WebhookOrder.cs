@@ -1,9 +1,8 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
-using SolidNetsEasyClient.Models.DTOs.Responses.Webhooks.Common;
 
-namespace SolidNetsEasyClient.Models.DTOs.Responses.Webhooks;
+namespace SolidNetsEasyClient.Models.DTOs.Responses.Webhooks.Common;
 
 /// <summary>
 /// The created order details
