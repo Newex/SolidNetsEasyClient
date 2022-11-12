@@ -46,6 +46,9 @@ var app = builder.Build();
 
 app.MapHealthChecks("/healthz");
 app.UseStaticFiles();
-app.MapDefaultControllerRoute();
+app.MapControllerRoute(
+    name: "default",
+    pattern: "{controller=Product}/{action=Index}/{id?}"
+);
 
 app.Run();

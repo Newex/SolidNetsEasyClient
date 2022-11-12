@@ -16,7 +16,6 @@ Modified source code from: https://github.com/ghost1face/base62/blob/38251a54a5f
 using System;
 using System.Collections.Generic;
 using System.Text;
-using Base62;
 
 namespace SolidNetsEasyClient.Encryption;
 
