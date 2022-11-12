@@ -188,4 +188,35 @@ public class ReservationCreatedSerializationTests
         // Assert
         actual.Should().BeEquivalentTo(expected);
     }
+
+    [Fact]
+    public void Can_deserialize_actual_response_to_ReservationCreatedV2_object()
+    {
+        // Arrange
+        const string response = CleanedResponses.ReservationCreatedV2;
+        var expected = new ReservationCreatedV2
+        {
+            Id = new("ffb26a376517427da7236b55e06478d9"),
+            Timestamp = DateTimeOffset.Parse("2022-11-12T06:33:24.3795+00:00"),
+            MerchantNumber = 123456,
+            Event = EventName.ReservationCreatedV2,
+            Data = new()
+            {
+                PaymentMethod = PaymentMethodEnum.Visa,
+                PaymentType = PaymentTypeEnum.Card,
+                Amount = new()
+                {
+                    Amount = 40_00,
+                    Currency = "DKK"
+                },
+                PaymentId = new("023e0000636f3df7e30174516bf6aa48")
+            }
+        };
+
+        // Act
+        var actual = JsonSerializer.Deserialize<ReservationCreatedV2>(response);
+
+        // Assert
+        actual.Should().BeEquivalentTo(expected);
+    }
 }
