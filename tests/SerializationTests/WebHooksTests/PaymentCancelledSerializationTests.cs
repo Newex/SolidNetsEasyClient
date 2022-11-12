@@ -5,6 +5,7 @@ using System.Text.Json;
 using SolidNetsEasyClient.Models.DTOs;
 using SolidNetsEasyClient.Models.DTOs.Enums;
 using SolidNetsEasyClient.Models.DTOs.Responses.Webhooks;
+using SolidNetsEasyClient.Tests.SerializationTests.WebHooksTests.ActualResponses;
 
 namespace SolidNetsEasyClient.Tests.SerializationTests.WebHooksTests;
 
@@ -74,6 +75,48 @@ public class PaymentCancelledSerializationTests
 
         // Act
         var actual = JsonSerializer.Deserialize<PaymentCancelled>(json);
+
+        // Assert
+        actual.Should().BeEquivalentTo(expected);
+    }
+
+    [Fact]
+    public void Can_deserialize_actual_reservation_cancellation_to_PaymentCancelled_object()
+    {
+        // Arrange
+        const string response = CleanedResponses.ReservationCancelled;
+        var expected = new PaymentCancelled
+        {
+            Id = new("78edb53c694944dc83c72277d12181e0"),
+            MerchantId = 123456,
+            Timestamp = DateTimeOffset.Parse("2022-11-12T21:15:14.9378+01:00"),
+            Event = EventName.ReservationCancelled,
+            Data = new()
+            {
+                CancelId = new("78edb53c694944dc83c72277d12181e0"),
+                OrderItems = new List<Item>()
+                {
+                    new()
+                    {
+                        Name = "Nuka-Cola",
+                        Quantity = 1,
+                        Reference = "f32be43c-19f8-4546-bb8b-5fcd273d19a1",
+                        TaxRate = 0,
+                        Unit = "ea",
+                        UnitPrice = 40_00
+                    }
+                },
+                Amount = new()
+                {
+                    Amount = 40_00,
+                    Currency = "DKK"
+                },
+                PaymentId = new("00220000636ffe1c530a07afca5d2b1e")
+            }
+        };
+
+        // Act
+        var actual = JsonSerializer.Deserialize<PaymentCancelled>(response);
 
         // Assert
         actual.Should().BeEquivalentTo(expected);
