@@ -18,7 +18,7 @@ public static class PaymentRequestHmac
     /// </summary>
     /// <param name="order">The order</param>
     /// <param name="key">The signing key</param>
-    /// <returns>A base64 encoded signature</returns>
+    /// <returns>A base62 encoded signature</returns>
     /// <exception cref="ArgumentException">Thrown if order reference is null</exception>
     public static string SignOrder(this Order order, string key)
     {
@@ -31,8 +31,10 @@ public static class PaymentRequestHmac
         var byteKey = Encoding.UTF8.GetBytes(key);
         using var hmac = new HMACSHA1(byteKey);
         using var stream = new MemoryStream(orderId);
-        var result = hmac.ComputeHash(stream);
-        return Convert.ToBase64String(result);
+        var hash = hmac.ComputeHash(stream);
+        var converter = new CustomBase62Converter();
+        var encode = converter.Encode(hash);
+        return encode;
     }
 
     /// <summary>
@@ -50,7 +52,8 @@ public static class PaymentRequestHmac
         using var hmac = new HMACSHA1(byteKey);
         using var stream = new MemoryStream(orderId);
         var actual = hmac.ComputeHash(orderId);
-        var expected = Convert.FromBase64String(signature);
+        var converter = new CustomBase62Converter();
+        var expected = converter.Decode(signature);
 
         var equal = ByteArraysEqual(actual, expected);
         return equal;

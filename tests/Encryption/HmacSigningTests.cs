@@ -29,9 +29,9 @@ public class HmacSigningTests
     }
 
     [Theory]
-    [InlineData("me-and-the-super-secrets-key", "of-references", "AeGoMYhzhBtxTgnfw88nf/CTFZ0=")]
-    [InlineData("another_small", "one", "Zpr3EYdbNDWTgy6Huia9DRXMWDI=")]
-    [InlineData("aoeuaoeuaoeu", "snatoeuhasoeusaoeuaoeusnthjkxqjkxs", "9hJ034fekfoL7hQ5peDRVjiv1FE=")]
+    [InlineData("me-and-the-super-secrets-key", "of-references", "Gdwc1UcUHWfYgFDqGZH26pJx7d")]
+    [InlineData("another_small", "one", "EdgiDYo8kiDrWa14E0Fw3B8UkR0")]
+    [InlineData("aoeuaoeuaoeu", "snatoeuhasoeusaoeuaoeusnthjkxqjkxs", "Z6r02b7mdU5AKNiDeWzWnEqrCXB")]
     public void Validate_signed_order(string key, string reference, string signature)
     {
         // Arrange
