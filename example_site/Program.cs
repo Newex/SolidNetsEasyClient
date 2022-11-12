@@ -32,7 +32,6 @@ builder
 builder.Services.Configure<MyOptions>(builder.Configuration.GetSection(MyOptions.Section));
 
 var app = builder.Build();
-// app.UseCors("MyCorsPolicy");
 
 app.MapHealthChecks("/healthz");
 app.UseStaticFiles();
