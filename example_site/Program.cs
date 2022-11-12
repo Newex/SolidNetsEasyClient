@@ -7,9 +7,9 @@ using SolidNetsEasyClient.Extensions;
 var builder = WebApplication.CreateBuilder(args);
 builder.Logging.ClearProviders();
 builder.Logging.AddConsole();
-builder.Logging.AddFilter((provider, category, level) =>
+builder.Logging.AddFilter((_, category, level) =>
 {
-    if (!category.Contains("Microsoft.Asp"))
+    if (!category.Contains("Microsoft.Asp") || !category.Contains("Microsoft.Extensions"))
     {
         return true;
     }
