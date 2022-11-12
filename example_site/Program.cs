@@ -9,7 +9,7 @@ builder.Logging.ClearProviders();
 builder.Logging.AddConsole();
 builder.Logging.AddFilter((_, category, level) =>
 {
-    if (!category.Contains("Microsoft.Asp") || !category.Contains("Microsoft.Extensions"))
+    if (!category.Contains("Microsoft.Asp") && !category.Contains("Microsoft.Extensions"))
     {
         return true;
     }
