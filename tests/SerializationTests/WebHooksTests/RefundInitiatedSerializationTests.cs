@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Text.Json;
 using SolidNetsEasyClient.Models.DTOs.Enums;
 using SolidNetsEasyClient.Models.DTOs.Responses.Webhooks;
+using SolidNetsEasyClient.Tests.SerializationTests.WebHooksTests.ActualResponses;
 
 namespace SolidNetsEasyClient.Tests.SerializationTests.WebHooksTests;
 
@@ -52,5 +53,36 @@ public class RefundInitiatedSerializationTests
 
         // Assert
         actual.Should().BeEquivalentTo(expected);
+    }
+
+    [Fact]
+    public void Can_deserialize_actual_refund_initiated_response_to_RefundInitiated_object()
+    {
+        // Arrange
+        const string response = CleanedResponses.RefundInitiated;
+        var expected = new RefundInitiated
+        {
+            Id = new("0092000063700099f0284eb68c580030"),
+            Timestamp = DateTimeOffset.Parse("2022-11-12T21:22:50.0230+01:00"),
+            MerchantNumber = 123456,
+            Event = EventName.RefundInitiated,
+            Data = new()
+            {
+                RefundId = new("0092000063700099f0284eb68c580030"),
+                ChargeId = new("01f8000063700078f0284eb68c58002f"),
+                Amount = new()
+                {
+                    Amount = 40_00,
+                    Currency = "DKK"
+                },
+                PaymentId = new("02b900006370000ff0284eb68c58002b")
+            }
+        };
+
+        // Act
+        var actual = JsonSerializer.Deserialize<RefundInitiated>(response);
+
+        // Assert
+        actual.Should().BeEquivalentTo(actual);
     }
 }
