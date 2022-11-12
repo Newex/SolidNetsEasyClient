@@ -1,5 +1,4 @@
 using System;
-using System.Diagnostics;
 using System.Text.Json;
 using SolidNetsEasyClient.Models.DTOs.Enums;
 using SolidNetsEasyClient.Models.DTOs.Responses.Webhooks;
@@ -46,7 +45,7 @@ public class ReservationCreatedSerializationTests
                 "\"paymentId\": \"01d40000632ade184172b85d8cc3f516\"\n" +
             "}\n" +
         "}";
-        var expected = new ReservationCreated
+        var expected = new ReservationCreatedV1
         {
             Id = new("6f081ae39b9846c4bacff88fa2cecc98"),
             MerchantId = 100001234,
@@ -54,7 +53,7 @@ public class ReservationCreatedSerializationTests
             Event = EventName.V1ReservationCreated,
             Data = new()
             {
-                V1CardDetails = new()
+                CardDetails = new()
                 {
                     CreditDebitIndicator = "D",
                     ExpiryMonth = 1,
@@ -70,12 +69,12 @@ public class ReservationCreatedSerializationTests
                 },
                 PaymentMethod = PaymentMethodEnum.Visa,
                 PaymentType = PaymentTypeEnum.Card,
-                V1Consumer = new()
+                Consumer = new()
                 {
                     IP = "10.230.197.32"
                 },
-                V1ReservationReference = "683884",
-                V1ReserveId = new("6f081ae39b9846c4bacff88fa2cecc98"),
+                ReservationReference = "683884",
+                ReserveId = new("6f081ae39b9846c4bacff88fa2cecc98"),
                 Amount = new()
                 {
                     Amount = 10_00,
@@ -86,7 +85,7 @@ public class ReservationCreatedSerializationTests
         };
 
         // Act
-        var actual = JsonSerializer.Deserialize<ReservationCreated>(json);
+        var actual = JsonSerializer.Deserialize<ReservationCreatedV1>(json);
 
         // Assert
         actual.Should().BeEquivalentTo(expected);
@@ -112,7 +111,7 @@ public class ReservationCreatedSerializationTests
         "}\n" +
         "}";
 
-        var expected = new ReservationCreated
+        var expected = new ReservationCreatedV2
         {
             Id = new("c25459e92ba54be1925493f987fb05a7"),
             Timestamp = DateTimeOffset.Parse("2021-05-04T22:09:08.4342+02:00"),
@@ -132,7 +131,7 @@ public class ReservationCreatedSerializationTests
         };
 
         // Act
-        var actual = JsonSerializer.Deserialize<ReservationCreated>(json);
+        var actual = JsonSerializer.Deserialize<ReservationCreatedV2>(json);
 
         // Assert
         actual.Should().BeEquivalentTo(expected);
