@@ -32,7 +32,7 @@ public class CustomBase62Converter
     private readonly string characterSet;
 
     /// <summary>
-    /// Initializes a new instance of <see cref="Base62Converter"/>.
+    /// Initializes a new instance of <see cref="CustomBase62Converter"/>.
     /// </summary>
     public CustomBase62Converter()
     {
@@ -40,7 +40,7 @@ public class CustomBase62Converter
     }
 
     /// <summary>
-    /// Initializes a new instance of <see cref="Base62Converter"/> with the provided <see cref="CharacterSet"/>.
+    /// Initializes a new instance of <see cref="CustomBase62Converter"/> with the provided <see cref="CharacterSet"/>.
     /// </summary>
     /// <param name="charset"></param>
     public CustomBase62Converter(CharacterSet charset)
