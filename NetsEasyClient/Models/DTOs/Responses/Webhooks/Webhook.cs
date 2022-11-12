@@ -41,6 +41,7 @@ where T : new()
     /// </summary>
     [Required]
     [JsonPropertyName("event")]
+    [JsonConverter(typeof(EventNameConverter))]
     public EventName Event { get; init; } = EventName.PaymentCreated;
 
     /// <summary>
