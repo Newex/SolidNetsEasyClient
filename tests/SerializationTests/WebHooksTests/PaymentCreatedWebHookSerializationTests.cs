@@ -4,6 +4,7 @@ using System.Text.Json;
 using SolidNetsEasyClient.Models.DTOs;
 using SolidNetsEasyClient.Models.DTOs.Enums;
 using SolidNetsEasyClient.Models.DTOs.Responses.Webhooks;
+using SolidNetsEasyClient.Tests.SerializationTests.WebHooksTests.ActualResponses;
 
 namespace SolidNetsEasyClient.Tests.SerializationTests.WebHooksTests;
 
@@ -83,6 +84,51 @@ public class PaymentCreatedWebHookSerializationTests
                 PaymentId = new Guid("02a900006091a9a96937598058c4e474")
             }
         };
+
+        // Assert
+        actual.Should().BeEquivalentTo(expected);
+    }
+
+    [Fact]
+    public void Can_deserialize_actual_response_to_PaymentCreated_object()
+    {
+        // Arrange
+        const string response = CleanedResponses.PaymentCreated;
+        var expected = new PaymentCreated
+        {
+            Id = new("484107b70c134d7d8b582354e05cd1f9"),
+            MerchantId = 123456,
+            Timestamp = DateTimeOffset.Parse("2022-11-12T06:33:21.2310+00:00"),
+            Event = EventName.PaymentCreated,
+            Data = new()
+            {
+                Order = new()
+                {
+                    Amount = new()
+                    {
+                        Amount = 40_00,
+                        Currency = "DKK"
+                    },
+                    Reference = "282f89f2-d620-4cc0-91bb-9cce1897f0bc",
+                    OrderItems = new List<Item>
+                    {
+                        new()
+                        {
+                            Name ="Nuka-Cola",
+                            Quantity = 1,
+                            Reference = "f32be43c-19f8-4546-bb8b-5fcd273d19a1",
+                            TaxRate = 0,
+                            Unit = "ea",
+                            UnitPrice = 40_00,
+                        }
+                    },
+                },
+                PaymentId = new("023e0000636f3df7e30174516bf6aa48")
+            }
+        };
+
+        // Act
+        var actual = JsonSerializer.Deserialize<PaymentCreated>(response);
 
         // Assert
         actual.Should().BeEquivalentTo(expected);
