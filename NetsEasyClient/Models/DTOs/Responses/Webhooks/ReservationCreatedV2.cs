@@ -6,7 +6,7 @@ namespace SolidNetsEasyClient.Models.DTOs.Responses.Webhooks;
 /// <summary>
 /// A web hook payment reservation created event DTO
 /// </summary>
-public record ReservationCreated : Webhook<ReservationCreatedData>
+public record ReservationCreatedV2 : Webhook<ReservationCreatedDataV2>
 {
     /// <summary>
     /// The merchant Id
