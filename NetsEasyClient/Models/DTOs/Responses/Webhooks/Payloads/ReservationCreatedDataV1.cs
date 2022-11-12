@@ -44,22 +44,20 @@ public record ReservationCreatedDataV1
     /// </summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("consumer")]
-    public ReservationCreatedConsumer? Consumer { get; init; }
+    public ReservationCreatedConsumer Consumer { get; init; } = new();
 
     /// <summary>
     /// The reservation reference
     /// </summary>
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("reservationReference")]
-    public string? ReservationReference { get; init; }
+    public string ReservationReference { get; init; } = string.Empty;
 
     /// <summary>
     /// The reserve id
     /// </summary>
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonConverter(typeof(GuidTypeConverter))]
     [JsonPropertyName("reserveId")]
-    public Guid? ReserveId { get; init; }
+    public Guid ReserveId { get; init; }
 
     /// <summary>
     /// The reservation amount

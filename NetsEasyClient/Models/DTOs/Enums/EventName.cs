@@ -26,7 +26,7 @@ public enum EventName
     /// <remarks>
     /// payment.reservation.created.v2
     /// </remarks>
-    ReservationCreated,
+    ReservationCreatedV2,
 
     /// <summary>
     /// The amount of the payment has been reserved (version 1)
@@ -34,7 +34,7 @@ public enum EventName
     /// <remarks>
     /// payment.reservation.created
     /// </remarks>
-    V1ReservationCreated,
+    ReservationCreatedV1,
 
     /// <summary>
     /// A reservation attempt has failed
@@ -124,8 +124,8 @@ public static class EventNameHelper
         EventName? result = eventName?.ToLowerInvariant() switch
         {
             EventNameConstants.PaymentCreated => EventName.PaymentCreated,
-            EventNameConstants.V1ReservationCreated => EventName.V1ReservationCreated,
-            EventNameConstants.ReservationCreated => EventName.ReservationCreated,
+            EventNameConstants.ReservationCreatedV1 => EventName.ReservationCreatedV1,
+            EventNameConstants.ReservationCreatedV2 => EventName.ReservationCreatedV2,
             EventNameConstants.ReservationFailed => EventName.ReservationFailed,
             EventNameConstants.CheckoutCompleted => EventName.CheckoutCompleted,
             EventNameConstants.ChargeCreated => EventName.ChargeCreated,
@@ -150,8 +150,8 @@ public static class EventNameHelper
         var result = eventName switch
         {
             EventName.PaymentCreated => EventNameConstants.PaymentCreated,
-            EventName.V1ReservationCreated => EventNameConstants.V1ReservationCreated,
-            EventName.ReservationCreated => EventNameConstants.ReservationCreated,
+            EventName.ReservationCreatedV1 => EventNameConstants.ReservationCreatedV1,
+            EventName.ReservationCreatedV2 => EventNameConstants.ReservationCreatedV2,
             EventName.ReservationFailed => EventNameConstants.ReservationFailed,
             EventName.CheckoutCompleted => EventNameConstants.CheckoutCompleted,
             EventName.ChargeCreated => EventNameConstants.ChargeCreated,

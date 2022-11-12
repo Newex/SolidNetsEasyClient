@@ -251,7 +251,8 @@ public static class Fakes
 
         faker.RuleFor(f => f.EventName, f => f.PickRandom(
             EventName.PaymentCreated,
-            EventName.ReservationCreated,
+            EventName.ReservationCreatedV1,
+            EventName.ReservationCreatedV2,
             EventName.ReservationFailed,
             EventName.CheckoutCompleted,
             EventName.ChargeCreated,

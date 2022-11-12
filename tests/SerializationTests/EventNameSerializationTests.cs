@@ -9,7 +9,8 @@ public class EventNameSerializationTests
 {
     [Theory]
     [InlineData(EventName.PaymentCreated, EventNameConstants.PaymentCreated)]
-    [InlineData(EventName.ReservationCreated, EventNameConstants.ReservationCreated)]
+    [InlineData(EventName.ReservationCreatedV1, EventNameConstants.ReservationCreatedV1)]
+    [InlineData(EventName.ReservationCreatedV2, EventNameConstants.ReservationCreatedV2)]
     [InlineData(EventName.ReservationFailed, EventNameConstants.ReservationFailed)]
     [InlineData(EventName.CheckoutCompleted, EventNameConstants.CheckoutCompleted)]
     [InlineData(EventName.ChargeCreated, EventNameConstants.ChargeCreated)]
