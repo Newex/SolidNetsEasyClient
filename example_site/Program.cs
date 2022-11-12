@@ -29,16 +29,6 @@ builder
 .AddNetsEasyClient()
 .Configure(builder.Configuration);
 
-// builder.Services.AddCors(options =>
-// {
-//     options.AddPolicy("MyCorsPolicy", corsBuilder => corsBuilder.SetIsOriginAllowedToAllowWildcardSubdomains()
-//     .WithOrigins("*")
-//     .AllowAnyMethod()
-//     .AllowCredentials()
-//     .AllowAnyHeader()
-//     .Build());
-// });
-
 builder.Services.Configure<MyOptions>(builder.Configuration.GetSection(MyOptions.Section));
 
 var app = builder.Build();
