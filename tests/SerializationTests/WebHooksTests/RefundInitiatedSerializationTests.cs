@@ -83,6 +83,6 @@ public class RefundInitiatedSerializationTests
         var actual = JsonSerializer.Deserialize<RefundInitiated>(response);
 
         // Assert
-        actual.Should().BeEquivalentTo(actual);
+        actual.Should().BeEquivalentTo(expected);
     }
 }

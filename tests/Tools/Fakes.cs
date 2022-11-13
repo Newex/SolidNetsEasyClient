@@ -95,7 +95,7 @@ public static class Fakes
         var faker = new Faker<Order>();
 
         faker.RuleFor(f => f.Items, f => f.MakeLazy(itemCount, () => RandomItem()));
-        faker.RuleFor(f => f.Currency, f => f.Finance.Currency().Code);
+        faker.RuleFor(f => f.Currency, f => f.PickRandom<Models.DTOs.Enums.Currency>());
         faker.RuleFor(f => f.Reference, f => f.Commerce.Ean8());
         return faker.Generate();
     }
@@ -321,7 +321,7 @@ public static class Fakes
 
     public static Order MinimalOrderExample => new()
     {
-        Currency = "DKK",
+        Currency = Models.DTOs.Enums.Currency.DKK,
         Items = new List<Item>
                 {
                     new()

@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text.Json.Serialization;
+using SolidNetsEasyClient.Models.DTOs.Enums;
 
 namespace SolidNetsEasyClient.Models.DTOs.Requests.Orders;
 
@@ -35,7 +36,7 @@ public record Order
     /// </remarks>
     [Required]
     [JsonPropertyName("currency")]
-    public string Currency { get; init; } = string.Empty;
+    public Currency Currency { get; init; }
 
     /// <summary>
     /// A reference to recognize this order
