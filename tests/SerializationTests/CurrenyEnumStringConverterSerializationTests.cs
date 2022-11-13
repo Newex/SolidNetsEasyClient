@@ -20,4 +20,18 @@ public class CurrenyEnumStringConverterSerializationTests
         // Assert
         actual.Should().Be(expected);
     }
+
+    [Fact]
+    public void USD_enum_serializes_to_uppercase_USD_string()
+    {
+        // Arrange
+        const Currency currency = Currency.USD;
+        const string expected = "\"USD\"";
+
+        // Act
+        var actual = JsonSerializer.Serialize(currency);
+
+        // Assert
+        actual.Should().Be(expected);
+    }
 }
