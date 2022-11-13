@@ -50,7 +50,7 @@ public class RefundFailedSerializationTests
                 Amount = new()
                 {
                     Amount = 5500,
-                    Currency = "SEK"
+                    Currency = Currency.SEK
                 },
                 PaymentId = new("012b000060923cf26937598058c4e7e6")
             }

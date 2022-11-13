@@ -75,7 +75,7 @@ public class ChargeCreatedWebhookSerializationTests
                 Amount = new()
                 {
                     Amount = 5500,
-                    Currency = "SEK",
+                    Currency = Currency.SEK
                 },
                 PaymentId = new("025400006091b1ef6937598058c4e487")
             },
@@ -119,7 +119,7 @@ public class ChargeCreatedWebhookSerializationTests
                 Amount = new()
                 {
                     Amount = 40_00,
-                    Currency = "DKK"
+                    Currency = Currency.DKK
                 },
                 PaymentId = new("023e0000636f3df7e30174516bf6aa48")
             }

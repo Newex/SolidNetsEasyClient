@@ -79,7 +79,7 @@ public class ReservationCreatedSerializationTests
                 Amount = new()
                 {
                     Amount = 10_00,
-                    Currency = "SEK"
+                    Currency = Currency.SEK
                 },
                 PaymentId = new("01d40000632ade184172b85d8cc3f516")
             }
@@ -125,7 +125,7 @@ public class ReservationCreatedSerializationTests
                 Amount = new()
                 {
                     Amount = 55_00,
-                    Currency = "SEK"
+                    Currency = Currency.SEK
                 },
                 PaymentId = new("02a900006091a9a96937598058c4e474")
             }
@@ -176,7 +176,7 @@ public class ReservationCreatedSerializationTests
                 Amount = new()
                 {
                     Amount = 40_00,
-                    Currency = "DKK"
+                    Currency = Currency.DKK
                 },
                 PaymentId = new("023e0000636f3df7e30174516bf6aa48")
             }
@@ -207,7 +207,7 @@ public class ReservationCreatedSerializationTests
                 Amount = new()
                 {
                     Amount = 40_00,
-                    Currency = "DKK"
+                    Currency = Currency.DKK
                 },
                 PaymentId = new("023e0000636f3df7e30174516bf6aa48")
             }

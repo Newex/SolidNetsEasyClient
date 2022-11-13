@@ -75,7 +75,7 @@ public class ReservationFailedSerializationTests
                 Amount = new()
                 {
                     Amount = 133,
-                    Currency = "DKK"
+                    Currency = Currency.DKK
                 },
                 PaymentId = new("020b000062bd64ae0a5e7c95f6055f66")
             }

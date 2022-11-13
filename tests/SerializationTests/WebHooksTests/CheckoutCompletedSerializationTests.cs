@@ -85,7 +85,7 @@ public class CheckoutCompletedSerializationTests
                     Amount = new()
                     {
                         Amount = 55_00,
-                        Currency = "SEK",
+                        Currency = Currency.SEK
                     },
                     Reference = "Hosted Demo Order",
                     OrderItems = new List<Item>()
@@ -161,7 +161,7 @@ public class CheckoutCompletedSerializationTests
                     Amount = new()
                     {
                         Amount = 40_00,
-                        Currency = "DKK"
+                        Currency = Currency.DKK
                     },
                     Reference = "282f89f2-d620-4cc0-91bb-9cce1897f0bc",
                     OrderItems = new List<Item>()

@@ -67,7 +67,7 @@ public class PaymentCancelledSerializationTests
                 Amount = new()
                 {
                     Amount = 5500,
-                    Currency = "SEK"
+                    Currency = Currency.SEK
                 },
                 PaymentId = new("006400006091abfe6937598058c4e47e")
             },
@@ -109,7 +109,7 @@ public class PaymentCancelledSerializationTests
                 Amount = new()
                 {
                     Amount = 40_00,
-                    Currency = "DKK"
+                    Currency = Currency.DKK
                 },
                 PaymentId = new("00220000636ffe1c530a07afca5d2b1e")
             }

@@ -65,7 +65,7 @@ public class PaymentCreatedWebHookSerializationTests
                     Amount = new()
                     {
                         Amount = 5500,
-                        Currency = "SEK",
+                        Currency = Currency.SEK
                     },
                     Reference = "42369",
                     OrderItems = new List<Item>
@@ -107,7 +107,7 @@ public class PaymentCreatedWebHookSerializationTests
                     Amount = new()
                     {
                         Amount = 40_00,
-                        Currency = "DKK"
+                        Currency = Currency.DKK
                     },
                     Reference = "282f89f2-d620-4cc0-91bb-9cce1897f0bc",
                     OrderItems = new List<Item>

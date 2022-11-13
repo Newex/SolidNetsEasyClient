@@ -42,7 +42,7 @@ public class RefundInitiatedSerializationTests
                 Amount = new()
                 {
                     Amount = 5500,
-                    Currency = "SEK",
+                    Currency = Currency.SEK
                 },
                 PaymentId = new("012b000060923cf26937598058c4e7e6")
             }
@@ -73,7 +73,7 @@ public class RefundInitiatedSerializationTests
                 Amount = new()
                 {
                     Amount = 40_00,
-                    Currency = "DKK"
+                    Currency = Currency.DKK
                 },
                 PaymentId = new("02b900006370000ff0284eb68c58002b")
             }
