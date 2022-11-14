@@ -147,6 +147,27 @@ public sealed class WebhookIPFilterAttribute : ActionFilterAttribute, IAuthoriza
         }
     }
 
+    /// <summary>
+    /// If successfully executed the action, then change the response to 200 OK if not
+    /// </summary>
+    /// <param name="context">The context</param>
+    public override void OnActionExecuted(ActionExecutedContext context)
+    {
+        var logger = GetLogger(context.HttpContext.RequestServices);
+        var status = context.HttpContext.Response.StatusCode;
+        if (status == StatusCodes.Status200OK)
+        {
+            return;
+        }
+
+        if (status > 200 && status <= 299)
+        {
+            logger.LogWarning("Webhook success response must be 200 OK - instead found {StatusCode} for {@Request}", status, context.HttpContext.Request);
+            context.HttpContext.Response.StatusCode = StatusCodes.Status200OK;
+            return;
+        }
+    }
+
     private static ILogger<WebhookIPFilterAttribute> GetLogger(IServiceProvider services)
     {
         // Reason for this is to circumvent extension method to make this class testable
