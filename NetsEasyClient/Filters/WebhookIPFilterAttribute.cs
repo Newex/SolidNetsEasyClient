@@ -47,8 +47,17 @@ public sealed class WebhookIPFilterAttribute : ActionFilterAttribute, IAuthoriza
     /// <param name="context">The context</param>
     public void OnAuthorization(AuthorizationFilterContext context)
     {
-        // Load settings
         var logger = GetLogger(context.HttpContext.RequestServices);
+        if (!HttpMethods.IsPost(context.HttpContext.Request.Method))
+        {
+            logger.LogWarning("Webhook request is not a POST {@Request}", context.HttpContext.Request);
+
+            // 400 user error
+            context.Result = new BadRequestResult();
+            return;
+        }
+
+        // Load settings
         var options = GetOptions(context.HttpContext.RequestServices);
         var ipWhitelist = options?.Value.NetsIPWebhookEndpoints?.Split(";") ?? new string[] { NetsEndpoints.WebhookIPs.LiveIPRange, NetsEndpoints.WebhookIPs.TestIPRange };
         var ipBlacklist = BlacklistIPs?.Split(";") ?? options?.Value.BlacklistIPsForWebhook?.Split(";") ?? Array.Empty<string>();
@@ -108,14 +117,6 @@ public sealed class WebhookIPFilterAttribute : ActionFilterAttribute, IAuthoriza
         }
 
         var logger = GetLogger(context.HttpContext.RequestServices);
-        if (!HttpMethods.IsPost(context.HttpContext.Request.Method))
-        {
-            logger.LogWarning("Webhook request is not a POST {@Request}", context.HttpContext.Request);
-
-            // 400 user error
-            context.Result = new BadRequestResult();
-            return;
-        }
 
         // Must have orderId!
         var hasOrderId = context.ActionArguments.TryGetValue("orderId", out var orderObject);

@@ -78,12 +78,15 @@ public static class Mocks
         return mock.Object;
     }
 
-    public static HttpContext HttpContext(IPAddress fromIp, params (Type type, object value)[] serviceDefinitions)
+    public static HttpContext HttpContext(IPAddress fromIp, string method, params (Type type, object value)[] serviceDefinitions)
     {
         var mock = new Mock<HttpContext>();
 
         mock.Setup(c => c.Connection.RemoteIpAddress)
         .Returns(fromIp);
+
+        mock.Setup(c => c.Request.Method)
+        .Returns(method);
 
         foreach (var (type, value) in serviceDefinitions)
         {

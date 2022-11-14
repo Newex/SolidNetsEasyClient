@@ -26,7 +26,7 @@ public class WebhookIPFilterTests
         {
             BlacklistIPsForWebhook = $"127.0.0.1;{ipString}"
         });
-        var httpContext = Mocks.HttpContext(IPAddress.Parse(ipString), serviceDefinitions: (typeof(IOptions<PlatformPaymentOptions>), options));
+        var httpContext = Mocks.HttpContext(IPAddress.Parse(ipString), "POST", serviceDefinitions: (typeof(IOptions<PlatformPaymentOptions>), options));
         var actionContext = new ActionContext(
             httpContext,
             new Microsoft.AspNetCore.Routing.RouteData(),
@@ -53,7 +53,7 @@ public class WebhookIPFilterTests
         {
             NetsIPWebhookEndpoints = $"{ipString}/24"
         });
-        var httpContext = Mocks.HttpContext(IPAddress.Parse(ipString), serviceDefinitions: (typeof(IOptions<PlatformPaymentOptions>), options));
+        var httpContext = Mocks.HttpContext(IPAddress.Parse(ipString), "POST", serviceDefinitions: (typeof(IOptions<PlatformPaymentOptions>), options));
         var actionContext = new ActionContext(
             httpContext,
             new Microsoft.AspNetCore.Routing.RouteData(),
