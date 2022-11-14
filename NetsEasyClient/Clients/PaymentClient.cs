@@ -54,6 +54,7 @@ public partial class PaymentClient : IPaymentClient
         merchantTermsUrl = options.Value.PrivacyPolicyUrl;
         apiKey = options.Value.ApiKey;
         CheckoutKey = options.Value.CheckoutKey;
+        WebhookAuthorizationKey = options.Value.WebhookAuthorizationKey;
         platformId = options.Value.CommercePlatformTag;
         this.httpClientFactory = httpClientFactory;
         this.logger = logger ?? NullLogger<PaymentClient>.Instance;
@@ -61,6 +62,9 @@ public partial class PaymentClient : IPaymentClient
 
     /// <inheritdoc />
     public string CheckoutKey { get; }
+
+    /// <inheritdoc />
+    public string? WebhookAuthorizationKey { get; }
 
     /// <inheritdoc />
     public async Task<PaymentStatus?> GetPaymentStatusAsync(Guid paymentID, CancellationToken cancellationToken)

@@ -59,6 +59,28 @@ public static class PaymentRequestHmac
         return equal;
     }
 
+    /// <summary>
+    /// Validate a string with a given order reference
+    /// </summary>
+    /// <param name="request">The http request</param>
+    /// <param name="orderReference">The order reference</param>
+    /// <param name="key">The corresponding signing key</param>
+    /// <returns>True if the created payment matches the signature otherwise false</returns>
+    public static bool ValidateOrderReference(this HttpRequest request, string orderReference, string key)
+    {
+        var signature = request.Headers.Authorization;
+        var orderId = Encoding.UTF8.GetBytes(orderReference);
+        var byteKey = Encoding.UTF8.GetBytes(key);
+        using var hmac = new HMACSHA1(byteKey);
+        using var stream = new MemoryStream(orderId);
+        var actual = hmac.ComputeHash(orderId);
+        var converter = new CustomBase62Converter();
+        var expected = converter.Decode(signature);
+
+        var equal = ByteArraysEqual(actual, expected);
+        return equal;
+    }
+
     private static bool ByteArraysEqual(byte[] b1, byte[] b2)
     {
         if (b1 == b2) return true;

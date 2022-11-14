@@ -7,9 +7,9 @@ using SolidNetsEasyClient.Models.DTOs.Responses.Webhooks.Common;
 namespace SolidNetsEasyClient.Models.DTOs.Responses.Webhooks.Payloads;
 
 /// <summary>
-/// The refund initiated payload
+/// Refund completed event payload data
 /// </summary>
-public record RefundInitiatedData : IWebhookData
+public record RefundCompletedData : IWebhookData
 {
     /// <summary>
     /// The payment identifier
@@ -28,17 +28,15 @@ public record RefundInitiatedData : IWebhookData
     public Guid RefundId { get; init; }
 
     /// <summary>
-    /// The charge identifier.
-    /// </summary>
-    [Required]
-    [JsonConverter(typeof(GuidTypeConverter))]
-    [JsonPropertyName("chargeId")]
-    public Guid ChargeId { get; init; }
-
-    /// <summary>
     /// The amount of the refund.
     /// </summary>
     [Required]
     [JsonPropertyName("amount")]
     public WebhookAmount Amount { get; init; } = new();
+
+    /// <summary>
+    /// Invoice details
+    /// </summary>
+    [JsonPropertyName("invoiceDetails")]
+    public WebhookInvoiceDetails InvoiceDetails { get; init; } = new();
 }

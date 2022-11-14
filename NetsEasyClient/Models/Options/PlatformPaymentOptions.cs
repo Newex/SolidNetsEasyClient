@@ -84,6 +84,11 @@ public record PlatformPaymentOptions
     public string? BlacklistIPRangesForWebhook { get; init; }
 
     /// <summary>
+    /// The webhook authorization key used to sign and validate webhook requests
+    /// </summary>
+    public string? WebhookAuthorizationKey { get; init; }
+
+    /// <summary>
     /// The nets easy configuration section
     /// </summary>
     internal const string NetsEasyConfigurationSection = "SolidNetsEasy";

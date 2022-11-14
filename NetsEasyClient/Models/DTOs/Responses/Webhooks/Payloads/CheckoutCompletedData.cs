@@ -9,7 +9,7 @@ namespace SolidNetsEasyClient.Models.DTOs.Responses.Webhooks.Payloads;
 /// <summary>
 /// The checkout completed data payload
 /// </summary>
-public record CheckoutCompletedData
+public record CheckoutCompletedData : IWebhookData
 {
     /// <summary>
     /// The payment identifier

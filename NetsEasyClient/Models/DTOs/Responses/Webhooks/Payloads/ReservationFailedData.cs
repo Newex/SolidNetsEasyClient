@@ -10,7 +10,7 @@ namespace SolidNetsEasyClient.Models.DTOs.Responses.Webhooks.Payloads;
 /// <summary>
 /// The failed reservation data
 /// </summary>
-public record ReservationFailedData
+public record ReservationFailedData : IWebhookData
 {
     /// <summary>
     /// The payment identifier.

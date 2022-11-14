@@ -1,12 +1,15 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Abstractions;
 using Microsoft.AspNetCore.Mvc.Filters;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.Extensions.Options;
 using SolidNetsEasyClient.Filters;
 using SolidNetsEasyClient.Models.Options;
 using SolidNetsEasyClient.Tests.Tools;
+
 using static Microsoft.AspNetCore.Http.StatusCodes;
 
 namespace SolidNetsEasyClient.Tests.Attributes.Webhook;
@@ -28,11 +31,12 @@ public class WebhookIPFilterTests
             httpContext,
             new Microsoft.AspNetCore.Routing.RouteData(),
             new ActionDescriptor());
-        var context = new ActionExecutedContext(actionContext, new List<IFilterMetadata>(), controller: null!);
+        var filters = new List<IFilterMetadata>();
+        var context = new ResourceExecutingContext(actionContext, filters, Enumerable.Empty<IValueProviderFactory>().ToList());
         var attribute = new WebhookIPFilterAttribute();
 
         // Act
-        attribute.OnActionExecuted(context);
+        attribute.OnResourceExecuting(context);
         var actual = context.Result;
 
         // Assert
@@ -53,11 +57,12 @@ public class WebhookIPFilterTests
             httpContext,
             new Microsoft.AspNetCore.Routing.RouteData(),
             new ActionDescriptor());
-        var context = new ActionExecutedContext(actionContext, new List<IFilterMetadata>(), controller: null!);
+        var filters = new List<IFilterMetadata>();
+        var context = new ResourceExecutingContext(actionContext, filters, Enumerable.Empty<IValueProviderFactory>().ToList());
         var attribute = new WebhookIPFilterAttribute();
 
         // Act
-        attribute.OnActionExecuted(context);
+        attribute.OnResourceExecuting(context);
         var actual = context.Result;
 
         // Assert

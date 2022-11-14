@@ -17,7 +17,7 @@ public class WebhookController : Controller
         this.logger = logger ?? NullLogger<WebhookController>.Instance;
     }
 
-    [WebhookIPFilter]
+    [WebhookIPFilter(VerifyAuthorization = false)]
     [HttpPost("/webhook")]
     public ActionResult Post([FromBody] dynamic jsonData)
     {
