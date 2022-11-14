@@ -20,7 +20,7 @@ namespace SolidNetsEasyClient.Filters;
 /// <remarks>
 /// Remember to add the authorization middleware to the pipeline. If there are calls to app.UseRouting() and app.UseEndpoints(...), the call to app.UseAuthorization() must go between them.
 /// </remarks>
-public sealed class WebhookIPFilterAttribute : ActionFilterAttribute, IResourceFilter
+public sealed class WebhookIPFilterAttribute : ActionFilterAttribute, IAuthorizationFilter
 {
     /// <summary>
     /// Override the configured blacklist of single IPs separated by a semi-colon (;)
@@ -42,61 +42,10 @@ public sealed class WebhookIPFilterAttribute : ActionFilterAttribute, IResourceF
     public bool VerifyAuthorization { get; set; } = true;
 
     /// <summary>
-    /// Validate the request and verify the authorization signature. If it is a Nets Easy webhook callback
-    /// </summary>
-    /// <param name="context">The action executing context</param>
-    public override void OnActionExecuting(ActionExecutingContext context)
-    {
-        if (!VerifyAuthorization)
-        {
-            // Continue
-            return;
-        }
-
-        var logger = GetLogger(context.HttpContext.RequestServices);
-        if (!HttpMethods.IsPost(context.HttpContext.Request.Method))
-        {
-            logger.LogWarning("Webhook request is not a POST {@Request}", context.HttpContext.Request);
-
-            // 400 user error
-            context.Result = new BadRequestResult();
-            return;
-        }
-
-        // Must have orderId!
-        var hasOrderId = context.ActionArguments.TryGetValue("orderId", out var orderObject);
-        if (!hasOrderId || orderObject is not string)
-        {
-            logger.LogWarning("Webhook must have an order id to validate the request {@Context}", context);
-            context.Result = new StatusCodeResult(StatusCodes.Status500InternalServerError);
-            return;
-        }
-
-        var orderId = (string)orderObject;
-
-        // Must have key
-        var options = GetOptions(context.HttpContext.RequestServices);
-        var key = options?.Value.WebhookAuthorizationKey;
-        if (key is null)
-        {
-            logger.LogWarning("Webhook must have a signing key defined in the options startup or in configuration settings. Currently found: {@Options}", options);
-            context.Result = new StatusCodeResult(StatusCodes.Status500InternalServerError);
-            return;
-        }
-
-        var isValid = context.HttpContext.Request.ValidateOrderReference(orderId, key);
-        if (!isValid)
-        {
-            logger.LogWarning("Webhook request does not have a valid authorization {@Header} in the {@Context}", context.HttpContext.Request.Headers, context);
-            context.Result = new StatusCodeResult(StatusCodes.Status403Forbidden);
-        }
-    }
-
-    /// <summary>
     /// Check the client IP against the blacklist and known Nets Easy endpoint IPs
     /// </summary>
     /// <param name="context">The context</param>
-    public void OnResourceExecuting(ResourceExecutingContext context)
+    public void OnAuthorization(AuthorizationFilterContext context)
     {
         // Load settings
         var logger = GetLogger(context.HttpContext.RequestServices);
@@ -147,12 +96,54 @@ public sealed class WebhookIPFilterAttribute : ActionFilterAttribute, IResourceF
     }
 
     /// <summary>
-    /// Does nothing
+    /// Validate the request and verify the authorization signature. If it is a Nets Easy webhook callback
     /// </summary>
-    /// <param name="context">The context</param>
-    public void OnResourceExecuted(ResourceExecutedContext context)
+    /// <param name="context">The action executing context</param>
+    public override void OnActionExecuting(ActionExecutingContext context)
     {
-        // Intentionally left blank
+        if (!VerifyAuthorization)
+        {
+            // Continue
+            return;
+        }
+
+        var logger = GetLogger(context.HttpContext.RequestServices);
+        if (!HttpMethods.IsPost(context.HttpContext.Request.Method))
+        {
+            logger.LogWarning("Webhook request is not a POST {@Request}", context.HttpContext.Request);
+
+            // 400 user error
+            context.Result = new BadRequestResult();
+            return;
+        }
+
+        // Must have orderId!
+        var hasOrderId = context.ActionArguments.TryGetValue("orderId", out var orderObject);
+        if (!hasOrderId || orderObject is not string)
+        {
+            logger.LogWarning("Webhook must have an order id to validate the request {@Context}", context);
+            context.Result = new StatusCodeResult(StatusCodes.Status500InternalServerError);
+            return;
+        }
+
+        var orderId = (string)orderObject;
+
+        // Must have key
+        var options = GetOptions(context.HttpContext.RequestServices);
+        var key = options?.Value.WebhookAuthorizationKey;
+        if (key is null)
+        {
+            logger.LogWarning("Webhook must have a signing key defined in the options startup or in configuration settings. Currently found: {@Options}", options);
+            context.Result = new StatusCodeResult(StatusCodes.Status500InternalServerError);
+            return;
+        }
+
+        var isValid = context.HttpContext.Request.ValidateOrderReference(orderId, key);
+        if (!isValid)
+        {
+            logger.LogWarning("Webhook request does not have a valid authorization {@Header} in the {@Context}", context.HttpContext.Request.Headers, context);
+            context.Result = new StatusCodeResult(StatusCodes.Status403Forbidden);
+        }
     }
 
     private static ILogger<WebhookIPFilterAttribute> GetLogger(IServiceProvider services)
