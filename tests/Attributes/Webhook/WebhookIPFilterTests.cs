@@ -32,7 +32,6 @@ public class WebhookIPFilterTests
             new Microsoft.AspNetCore.Routing.RouteData(),
             new ActionDescriptor());
         var filters = new List<IFilterMetadata>();
-        // var context = new ResourceExecutingContext(actionContext, filters, Enumerable.Empty<IValueProviderFactory>().ToList());
         var context = new AuthorizationFilterContext(actionContext, filters);
         var attribute = new WebhookIPFilterAttribute();
 
@@ -59,7 +58,6 @@ public class WebhookIPFilterTests
             new Microsoft.AspNetCore.Routing.RouteData(),
             new ActionDescriptor());
         var filters = new List<IFilterMetadata>();
-        // var context = new ResourceExecutingContext(actionContext, filters, Enumerable.Empty<IValueProviderFactory>().ToList());
         var context = new AuthorizationFilterContext(actionContext, filters);
         var attribute = new WebhookIPFilterAttribute();
 
