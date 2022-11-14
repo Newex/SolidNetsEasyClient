@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using System.Net;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
@@ -33,6 +34,16 @@ public sealed class WebhookIPFilterAttribute : ActionFilterAttribute, IAuthoriza
     public string? BlacklistIPRanges { get; set; }
 
     /// <summary>
+    /// Override the configured Nets Easy endpoint IPs. Each IP must be separated by a semi-colon (;).
+    /// </summary>
+    public string? WhitelistIPs { get; set; }
+
+    /// <summary>
+    /// Override the configured Nets Easy endpoints of IP ranges separated by a semi-colon (;). The ranges must be specified in the CIDR format e.g. 192.168.0.1/24
+    /// </summary>
+    public string? WhitelistIPRanges { get; set; }
+
+    /// <summary>
     /// Verify the authorization header using the in-built encryption and key
     /// </summary>
     /// <remarks>
@@ -59,7 +70,7 @@ public sealed class WebhookIPFilterAttribute : ActionFilterAttribute, IAuthoriza
 
         // Load settings
         var options = GetOptions(context.HttpContext.RequestServices);
-        var ipWhitelist = options?.Value.NetsIPWebhookEndpoints?.Split(";") ?? new string[] { NetsEndpoints.WebhookIPs.LiveIPRange, NetsEndpoints.WebhookIPs.TestIPRange };
+        var ipWhitelistRange = WhitelistIPRanges?.Split(";") ?? options?.Value.NetsIPWebhookEndpoints?.Split(";") ?? new string[] { NetsEndpoints.WebhookIPs.LiveIPRange, NetsEndpoints.WebhookIPs.TestIPRange };
         var ipBlacklist = BlacklistIPs?.Split(";") ?? options?.Value.BlacklistIPsForWebhook?.Split(";") ?? Array.Empty<string>();
         var ipRangeBlacklist = BlacklistIPRanges?.Split(";") ?? options?.Value.BlacklistIPRangesForWebhook?.Split(";") ?? Array.Empty<string>();
 
@@ -96,7 +107,8 @@ public sealed class WebhookIPFilterAttribute : ActionFilterAttribute, IAuthoriza
             return;
         }
 
-        var allowed = ipWhitelist.Select(w => IPAddressRange.Parse(w)).Any(x => x.Contains(remoteIp));
+        var allowedSingle = WhitelistIPs?.Split(";").Select(x => IPAddress.Parse(x)).Any(x => x.Equals(remoteIp)) ?? false;
+        var allowed = allowedSingle || ipWhitelistRange.Select(w => IPAddressRange.Parse(w)).Any(x => x.Contains(remoteIp));
         if (!allowed)
         {
             logger.LogWarning("Webhook request IP {@IP} not specified as Nets Easy endpoint", remoteIp);
@@ -145,27 +157,33 @@ public sealed class WebhookIPFilterAttribute : ActionFilterAttribute, IAuthoriza
             logger.LogWarning("Webhook request does not have a valid authorization {@Header} in the {@Context}", context.HttpContext.Request.Headers, context);
             context.Result = new StatusCodeResult(StatusCodes.Status403Forbidden);
         }
+
     }
 
     /// <summary>
     /// If successfully executed the action, then change the response to 200 OK if not
     /// </summary>
     /// <param name="context">The context</param>
-    public override void OnActionExecuted(ActionExecutedContext context)
+    public override void OnResultExecuting(ResultExecutingContext context)
     {
-        var logger = GetLogger(context.HttpContext.RequestServices);
-        var status = context.HttpContext.Response.StatusCode;
-        if (status == StatusCodes.Status200OK)
+        context.HttpContext.Response.OnStarting(obj =>
         {
-            return;
-        }
+            var ctx = (ResultExecutingContext)obj;
+            var logger = GetLogger(ctx.HttpContext.RequestServices);
+            var status = ctx.HttpContext.Response.StatusCode;
+            if (status == StatusCodes.Status200OK)
+            {
+                return Task.CompletedTask;
+            }
 
-        if (status > 200 && status <= 299)
-        {
-            logger.LogWarning("Webhook success response must be 200 OK - instead found {StatusCode} for {@Request}", status, context.HttpContext.Request);
-            context.HttpContext.Response.StatusCode = StatusCodes.Status200OK;
-            return;
-        }
+            if (status > 200 && status <= 299)
+            {
+                logger.LogWarning("Webhook success response must be 200 OK - instead found {StatusCode} for {@Request}", status, ctx.HttpContext.Request);
+                ctx.HttpContext.Response.StatusCode = StatusCodes.Status200OK;
+                return Task.CompletedTask;
+            }
+            return Task.CompletedTask;
+        }, context);
     }
 
     private static ILogger<WebhookIPFilterAttribute> GetLogger(IServiceProvider services)
