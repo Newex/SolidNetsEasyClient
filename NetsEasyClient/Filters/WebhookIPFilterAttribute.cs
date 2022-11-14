@@ -157,7 +157,6 @@ public sealed class WebhookIPFilterAttribute : ActionFilterAttribute, IAuthoriza
             logger.LogWarning("Webhook request does not have a valid authorization {@Header} in the {@Context}", context.HttpContext.Request.Headers, context);
             context.Result = new StatusCodeResult(StatusCodes.Status403Forbidden);
         }
-
     }
 
     /// <summary>
