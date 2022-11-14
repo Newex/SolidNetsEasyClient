@@ -57,10 +57,7 @@ public class WebhookIPFilterTests
         const string ipString = "192.168.1.1";
         var builder = Auth
             .Create(fromIP: ipString)
-            .AddOptions(new()
-            {
-                NetsIPWebhookEndpoints = $"{ipString}/24",
-            });
+            .AddOptions(new() { NetsIPWebhookEndpoints = $"{ipString}/24", });
         var context = builder.Build();
         var attribute = new WebhookIPFilterAttribute();
 
