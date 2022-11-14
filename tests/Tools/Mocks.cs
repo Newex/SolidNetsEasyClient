@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
 using Microsoft.AspNetCore.Http;
+// using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using RichardSzalay.MockHttp;
 using SolidNetsEasyClient.Constants;
@@ -65,5 +66,31 @@ public static class Mocks
         }
 
         return result;
+    }
+
+    public static IServiceProvider ServiceProvider<T>(T service)
+    {
+        var mock = new Mock<IServiceProvider>();
+
+        mock.Setup(s => s.GetService(typeof(T)))
+        .Returns(service);
+
+        return mock.Object;
+    }
+
+    public static HttpContext HttpContext(IPAddress fromIp, params (Type type, object value)[] serviceDefinitions)
+    {
+        var mock = new Mock<HttpContext>();
+
+        mock.Setup(c => c.Connection.RemoteIpAddress)
+        .Returns(fromIp);
+
+        foreach (var (type, value) in serviceDefinitions)
+        {
+            mock.Setup(c => c.RequestServices.GetService(type))
+            .Returns(value);
+        }
+
+        return mock.Object;
     }
 }

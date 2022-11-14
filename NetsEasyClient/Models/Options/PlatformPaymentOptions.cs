@@ -62,14 +62,26 @@ public record PlatformPaymentOptions
     /// A semi-colon ";" separated string of IPs for the Nets Easy webhook endpoints.
     /// </summary>
     /// <remarks>
-    /// If empty these values will be used: 20.103.218.104/30 and 20.31.57.60/30 for the Live and Test mode respectively
+    /// If empty these values will be used: 20.103.218.104/30 and 20.31.57.60/30 for the Live and Test mode respectively.
+    /// Must be in CIDR format.
     /// </remarks>
     public string? NetsIPWebhookEndpoints { get; init; }
 
     /// <summary>
-    /// Blacklist for IP requests sent to the webhook endpoint
+    /// Blacklist single IPs requests sent to the webhook endpoint
     /// </summary>
+    /// <remarks>
+    /// Each IP should be separated by a semi-colon (;)
+    /// </remarks>
     public string? BlacklistIPsForWebhook { get; init; }
+
+    /// <summary>
+    /// Blacklist a range of IPs separated by a semi-colon (;)
+    /// </summary>
+    /// <remarks>
+    /// Each range should be in CIDR format.
+    /// </remarks>
+    public string? BlacklistIPRangesForWebhook { get; init; }
 
     /// <summary>
     /// The nets easy configuration section

@@ -1,8 +1,9 @@
+using System;
 using System.Linq;
+using System.Net;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
@@ -13,23 +14,29 @@ using SolidNetsEasyClient.Models.Options;
 namespace SolidNetsEasyClient.Filters;
 
 /// <summary>
-/// Either whitelist or blacklist IPs that webhook should originate from
+/// An IP filter which first checks the blacklist and then lastly checks if the request comes from the configured Nets IP range. If the request is on a blacklist or not found in any list the http request will be denied with a status 403 forbidden response.
 /// </summary>
 public sealed class WebhookIPFilterAttribute : ActionFilterAttribute
 {
     /// <summary>
-    /// Override the blacklist defined in the configuration
+    /// Override the configured blacklist of single IPs separated by a semi-colon (;)
     /// </summary>
-    public string Blacklist { get; set; } = string.Empty;
+    public string? BlacklistIPs { get; set; }
+
+    /// <summary>
+    /// Override the configured blacklist of IP ranges separated by a semi-colon (;). The ranges must be specified in the CIDR format e.g. 192.168.0.1/24
+    /// </summary>
+    public string? BlacklistIPRanges { get; set; }
 
     /// <inheritdoc />
     public override void OnActionExecuted(ActionExecutedContext context)
     {
         // Load settings
-        var logger = context.HttpContext.RequestServices.GetService<ILogger<WebhookIPFilterAttribute>>() ?? NullLogger<WebhookIPFilterAttribute>.Instance;
-        var options = context.HttpContext.RequestServices.GetService<IOptions<PlatformPaymentOptions>>();
+        var logger = GetLogger(context.HttpContext.RequestServices);
+        var options = GetOptions(context.HttpContext.RequestServices);
         var ipWhitelist = options?.Value.NetsIPWebhookEndpoints?.Split(";") ?? new string[] { NetsEndpoints.WebhookIPs.LiveIPRange, NetsEndpoints.WebhookIPs.TestIPRange };
-        var ipBlacklist = options?.Value.NetsIPWebhookEndpoints?.Split(";") ?? Blacklist.Split(";");
+        var ipBlacklist = BlacklistIPs?.Split(";") ?? options?.Value.BlacklistIPsForWebhook?.Split(";") ?? Array.Empty<string>();
+        var ipRangeBlacklist = BlacklistIPRanges?.Split(";") ?? options?.Value.BlacklistIPRangesForWebhook?.Split(";") ?? Array.Empty<string>();
 
         var remoteIp = context.HttpContext.Connection.RemoteIpAddress;
         logger.LogTrace("Remote IP address: {@IP}", remoteIp);
@@ -41,42 +48,31 @@ public sealed class WebhookIPFilterAttribute : ActionFilterAttribute
             return;
         }
 
-        // var combinedWhite = new string[ipWhitelist.Length + Whitelist.Length];
-        // ipWhitelist.CopyTo(combinedWhite, 0);
-        // Whitelist.CopyTo(combinedWhite, ipWhitelist.Length);
-        var safelist = ipWhitelist.Select(w => IPAddressRange.Parse(w));
-
-        // var combinedBlack = new string[ipBlacklist.Length + Blacklist.Length];
-        // ipBlacklist.CopyTo(combinedBlack, 0);
-        // Blacklist.CopyTo(combinedBlack, ipBlacklist.Length);
-        var blacklist = ipBlacklist.Select(b => IPAddressRange.Parse(b));
-
         if (remoteIp.IsIPv4MappedToIPv6)
         {
             remoteIp = remoteIp.MapToIPv4();
         }
 
-        foreach (var deny in blacklist)
+        var deny = ipBlacklist.Select(b => IPAddress.Parse(b)).Any(x => x.Equals(remoteIp));
+        if (deny)
         {
-            if (deny.Contains(remoteIp))
-            {
-                logger.LogWarning("Blacklisted {@IP} in {@BlacklistRange}", remoteIp, deny);
-                context.Result = new StatusCodeResult(StatusCodes.Status403Forbidden);
-                return;
-            }
+            logger.LogWarning("Blacklisted {@IP} in {@Blacklist}", remoteIp, ipBlacklist);
+            context.Result = new StatusCodeResult(StatusCodes.Status403Forbidden);
+            return;
         }
 
-        var whitelisted = false;
-        foreach (var allow in safelist)
+        deny = ipRangeBlacklist
+            .Select(x => IPAddressRange.Parse(x))
+            .Any(x => x.Contains(remoteIp));
+        if (deny)
         {
-            if (allow.Contains(remoteIp))
-            {
-                whitelisted = true;
-                break;
-            }
+            logger.LogWarning("Blacklisted {@IP} in {@Blacklist}", remoteIp, ipRangeBlacklist);
+            context.Result = new StatusCodeResult(StatusCodes.Status403Forbidden);
+            return;
         }
 
-        if (!whitelisted)
+        var allowed = ipWhitelist.Select(w => IPAddressRange.Parse(w)).Any(x => x.Contains(remoteIp));
+        if (!allowed)
         {
             logger.LogWarning("IP {@IP} not specified as Nets Easy endpoint", remoteIp);
             context.Result = new StatusCodeResult(StatusCodes.Status403Forbidden);
@@ -84,5 +80,17 @@ public sealed class WebhookIPFilterAttribute : ActionFilterAttribute
         }
 
         base.OnActionExecuted(context);
+    }
+
+    private static ILogger<WebhookIPFilterAttribute> GetLogger(IServiceProvider services)
+    {
+        // Reason for this is to circumvent extension method to make this class testable
+        return (services.GetService(typeof(ILogger<WebhookIPFilterAttribute>)) as ILogger<WebhookIPFilterAttribute>) ?? NullLogger<WebhookIPFilterAttribute>.Instance;
+    }
+
+    private static IOptions<PlatformPaymentOptions>? GetOptions(IServiceProvider services)
+    {
+        // Reason for this is to circumvent extension method to make this class testable
+        return services.GetService(typeof(IOptions<PlatformPaymentOptions>)) as IOptions<PlatformPaymentOptions>;
     }
 }
