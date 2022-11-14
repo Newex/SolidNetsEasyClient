@@ -1,16 +1,8 @@
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Abstractions;
-using Microsoft.AspNetCore.Mvc.Filters;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
-using Microsoft.Extensions.Options;
 using SolidNetsEasyClient.Filters;
-using SolidNetsEasyClient.Models.Options;
-using SolidNetsEasyClient.Tests.Tools;
 
 using static Microsoft.AspNetCore.Http.StatusCodes;
+using Auth = SolidNetsEasyClient.Tests.Attributes.Webhook.AuthorizationFilterContextBuilder;
 
 namespace SolidNetsEasyClient.Tests.Attributes.Webhook;
 
@@ -22,18 +14,33 @@ public class WebhookIPFilterTests
     {
         // Arrange
         const string ipString = "192.168.1.1";
-        var options = Options.Create<PlatformPaymentOptions>(new()
-        {
-            BlacklistIPsForWebhook = $"127.0.0.1;{ipString}"
-        });
-        var httpContext = Mocks.HttpContext(IPAddress.Parse(ipString), "POST", serviceDefinitions: (typeof(IOptions<PlatformPaymentOptions>), options));
-        var actionContext = new ActionContext(
-            httpContext,
-            new Microsoft.AspNetCore.Routing.RouteData(),
-            new ActionDescriptor());
-        var filters = new List<IFilterMetadata>();
-        var context = new AuthorizationFilterContext(actionContext, filters);
+        var builder = Auth
+            .Create(fromIP: ipString)
+            .AddOptions(new() { BlacklistIPsForWebhook = $"127.0.0.1;{ipString}" });
+        var context = builder.Build();
         var attribute = new WebhookIPFilterAttribute();
+
+        // Act
+        attribute.OnAuthorization(context);
+        var actual = context.Result;
+
+        // Assert
+        actual.Should().Match<StatusCodeResult>(x => x.StatusCode == Status403Forbidden);
+    }
+
+    [Fact]
+    public void Property_blacklist_should_take_precedence_over_configured_blacklist()
+    {
+        // Arrange
+        const string ipString = "192.168.1.1";
+        var builder = Auth
+            .Create(fromIP: ipString)
+            .AddOptions(new() { BlacklistIPsForWebhook = "127.0.0.1" });
+        var context = builder.Build();
+        var attribute = new WebhookIPFilterAttribute()
+        {
+            BlacklistIPs = ipString
+        };
 
         // Act
         attribute.OnAuthorization(context);
@@ -48,17 +55,13 @@ public class WebhookIPFilterTests
     {
         // Arrange
         const string ipString = "192.168.1.1";
-        var options = Options.Create<PlatformPaymentOptions>(new()
-        {
-            NetsIPWebhookEndpoints = $"{ipString}/24"
-        });
-        var httpContext = Mocks.HttpContext(IPAddress.Parse(ipString), "POST", serviceDefinitions: (typeof(IOptions<PlatformPaymentOptions>), options));
-        var actionContext = new ActionContext(
-            httpContext,
-            new Microsoft.AspNetCore.Routing.RouteData(),
-            new ActionDescriptor());
-        var filters = new List<IFilterMetadata>();
-        var context = new AuthorizationFilterContext(actionContext, filters);
+        var builder = Auth
+            .Create(fromIP: ipString)
+            .AddOptions(new()
+            {
+                NetsIPWebhookEndpoints = $"{ipString}/24",
+            });
+        var context = builder.Build();
         var attribute = new WebhookIPFilterAttribute();
 
         // Act
