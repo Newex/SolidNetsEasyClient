@@ -68,4 +68,30 @@ public class WebhookIPFilterTests
         // Assert
         actual.Should().BeNull();
     }
+
+    [Fact]
+    public void Blaclist_takes_precedence_over_the_whitelist()
+    {
+        // Arrange
+        const string ipString = "192.168.1.1";
+        var builder = Auth
+            .Create(fromIP: ipString)
+            .AddOptions(new()
+            {
+                BlacklistIPsForWebhook = ipString,
+                NetsIPWebhookEndpoints = $"{ipString}/24",
+            });
+        var context = builder.Build();
+        var attribute = new WebhookIPFilterAttribute()
+        {
+            WhitelistIPs = ipString
+        };
+
+        // Act
+        attribute.OnAuthorization(context);
+        var actual = context.Result;
+
+        // Assert
+        actual.Should().Match<StatusCodeResult>(x => x.StatusCode == Status403Forbidden);
+    }
 }
