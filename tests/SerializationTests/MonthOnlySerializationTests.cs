@@ -20,4 +20,18 @@ public class MonthOnlySerializationTests
         // Assert
         actual.Should().BeEquivalentTo(expected);
     }
+
+    [Fact]
+    public void Serialize_MonthOnly_to_a_json_string_in_the_MMYY_format()
+    {
+        // Arrange
+        var time = new MonthOnly(2023, 06);
+        const string expected = "\"0623\"";
+
+        // Act
+        var actual = JsonSerializer.Serialize(time);
+
+        // Assert
+        actual.Should().BeEquivalentTo(expected);
+    }
 }
