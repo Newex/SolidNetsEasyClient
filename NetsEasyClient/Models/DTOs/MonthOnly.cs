@@ -107,6 +107,6 @@ public record struct MonthOnly
     {
         var yearText = (Year % 100).ToString("D2");
         var monthText = Month.ToString("D2");
-        return yearText + monthText;
+        return monthText + yearText;
     }
 }
