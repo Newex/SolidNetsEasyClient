@@ -18,6 +18,8 @@ public record struct MonthOnly
     /// Split between 2000's and 1900's, e.g. lower than this is the 2000's and higher (up to 100) is the 1900's
     /// </summary>
     private const int split = 60;
+    private readonly int? year;
+    private readonly int? month;
 
     /// <summary>
     /// Instantiate a new month only struct
@@ -54,19 +56,25 @@ public record struct MonthOnly
             year += 1900;
         }
 
-        Year = year;
-        Month = month;
+        this.year = year;
+        this.month = month;
     }
 
     /// <summary>
     /// The year from 1 through 9999
     /// </summary>
-    public int Year { get; }
+    public int Year
+    {
+        get { return year ?? 1; }
+    }
 
     /// <summary>
     /// The month
     /// </summary>
-    public int Month { get; }
+    public int Month
+    {
+        get { return month ?? 1; }
+    }
 
     /// <summary>
     /// Convert this month only to a date time
@@ -89,7 +97,7 @@ public record struct MonthOnly
     /// <param name="left">The left argument</param>
     /// <param name="right">The right argument</param>
     /// <returns>True if left is less than the right</returns>
-    public static bool operator <(MonthOnly left, MonthOnly right) => (left.Year < right.Year) || ((left.Year == right.Year) && (left.Month < right.Month));
+    public static bool operator <(MonthOnly left, MonthOnly right) => (left.year < right.year) || ((left.year == right.year) && (left.month < right.month));
 
     /// <summary>
     /// The greater than operator. Time is measured forward in time starting from Year 1, where a year closer to zero is smaller than a year further away from zero.
@@ -97,7 +105,7 @@ public record struct MonthOnly
     /// <param name="left">The left argument</param>
     /// <param name="right">The right argument</param>
     /// <returns>True if left is greater than the right</returns>
-    public static bool operator >(MonthOnly left, MonthOnly right) => (left.Year > right.Year) || ((left.Year == right.Year) && (left.Month > right.Month));
+    public static bool operator >(MonthOnly left, MonthOnly right) => (left.year > right.year) || ((left.year == right.year) && (left.month > right.month));
 
     /// <summary>
     /// The string representation of month only
