@@ -47,6 +47,11 @@ public static class NetsEndpoints
         /// The pending refunds endpoint
         /// </summary>
         public const string PendingRefunds = "/v1/pending-refunds";
+
+        /// <summary>
+        /// The subscription endpoint
+        /// </summary>
+        public const string Subscription = "/v1/subscriptions";
     }
 
     /// <summary>
