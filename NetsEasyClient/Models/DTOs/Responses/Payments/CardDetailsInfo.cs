@@ -1,6 +1,4 @@
-using System;
 using System.Text.Json.Serialization;
-using SolidNetsEasyClient.Converters;
 
 namespace SolidNetsEasyClient.Models.DTOs.Responses.Payments;
 
@@ -17,10 +15,9 @@ public record CardDetailsInfo
     public string? MaskedPan { get; init; }
 
     /// <summary>
-    /// The four-digit expiration date of the payment card. The format should be: YYMM
+    /// The four-digit expiration date of the payment card. The format should be: MMYY
     /// </summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("expiryDate")]
-    [JsonConverter(typeof(DateOnlyConverter))]
-    public DateOnly? ExpiryDate { get; init; }
+    public MonthOnly? ExpiryDate { get; init; }
 }
