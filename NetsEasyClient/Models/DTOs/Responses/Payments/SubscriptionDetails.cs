@@ -50,6 +50,7 @@ public record SubscriptionDetails
     /// Represents an error that occurred during the import of a subscription from an external ecommerce system.
     /// </summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    [JsonPropertyName("importError")]
     public ImportError? ImportError { get; init; }
 }
 
@@ -76,6 +77,7 @@ public record PaymentDetails
     /// The card details
     /// </summary>
     [Required]
+    [JsonPropertyName("cardDetails")]
     public CardDetailsInfo CardDetails { get; init; } = new();
 }
 
