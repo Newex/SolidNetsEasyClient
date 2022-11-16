@@ -2,6 +2,7 @@ using System;
 using System.Text.Json;
 using SolidNetsEasyClient.Models.DTOs.Enums;
 using SolidNetsEasyClient.Models.DTOs.Responses.Payments;
+using SolidNetsEasyClient.Tests.Tools;
 
 namespace SolidNetsEasyClient.Tests.SerializationTests;
 
@@ -12,25 +13,7 @@ public class SubscriptionDetailsSerializationTests
     public void Can_deserialize_retrieved_subscription_to_SubscriptionDetails_object()
     {
         // Arrange
-        const string json = @"{
-            ""subscriptionId"": ""d079718b-ff63-45dd-947b-4950c023750f"",
-            ""frequency"": 0,
-            ""interval"": 0,
-            ""endDate"": ""2019-08-24T14:15:22Z"",
-            ""paymentDetails"": {
-                ""paymentType"": ""CARD"",
-                ""paymentMethod"": ""Visa"",
-                ""cardDetails"": {
-                    ""expiryDate"": ""1223"",
-                    ""maskedPan"": ""string""
-                }
-            },
-            ""importError"": {
-                ""importStepsResponseCode"": ""string"",
-                ""importStepsResponseSource"": ""string"",
-                ""importStepsResponseText"": ""string""
-            }
-        }";
+        const string json = TestResponses.SubscriptionStatus;
         var expected = new SubscriptionDetails
         {
             SubscriptionId = new("d079718b-ff63-45dd-947b-4950c023750f"),
