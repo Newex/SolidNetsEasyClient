@@ -40,4 +40,21 @@ public class SubscriptionValidatorTests
         // Assert
         result.Should().BeTrue();
     }
+
+    [Fact]
+    public void Subscription_with_only_external_ref_is_valid()
+    {
+        // Arrange
+        var subscription = new SubscriptionCharge
+        {
+            SubscriptionId = null,
+            ExternalReference = "an_external_ref"
+        };
+
+        // Act
+        var result = SubscriptionValidator.OnlyEitherSubscriptionIdOrExternalRef(subscription);
+
+        // Assert
+        result.Should().BeTrue();
+    }
 }
