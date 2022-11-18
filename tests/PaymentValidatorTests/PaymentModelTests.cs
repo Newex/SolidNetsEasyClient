@@ -321,7 +321,7 @@ public class PaymentModelTests
                 {
                     Fakes.RandomWebHook() with
                     {
-                        Authorization = "this_is_a_32_length_string_authz",
+                        Authorization = "thisisa32lengthstringauthz123456",
                         Url = "https://somesite.org/callback/endpoint"
                     }
                 }.AsEnumerable()
@@ -346,7 +346,7 @@ public class PaymentModelTests
                 {
                     Fakes.RandomWebHook() with
                     {
-                        Authorization = "this_is_a_33_length_string_authz_",
+                        Authorization = "thisisa33lengthstringauthz1234567",
                         Url = "https://somesite.org/callback/endpoint"
                     }
                 }.AsEnumerable()
