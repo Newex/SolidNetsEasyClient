@@ -6,7 +6,7 @@ using SolidNetsEasyClient.Models.DTOs.Requests.Webhooks;
 using SolidNetsEasyClient.Tests.Tools;
 using SolidNetsEasyClient.Validators;
 
-namespace SolidNetsEasyClient.Tests.PaymentValidatorTests;
+namespace SolidNetsEasyClient.Tests.ValidatorTests;
 
 [UnitTest, Feature("ModelTests")]
 public class PaymentModelTests
