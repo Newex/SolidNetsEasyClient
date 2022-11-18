@@ -23,4 +23,21 @@ public class SubscriptionValidatorTests
         // Assert
         result.Should().BeFalse();
     }
+
+    [Fact]
+    public void Subscription_with_only_subscriptionId_is_valid()
+    {
+        // Arrange
+        var subscription = new SubscriptionCharge
+        {
+            SubscriptionId = Guid.NewGuid(),
+            ExternalReference = null
+        };
+
+        // Act
+        var result = SubscriptionValidator.OnlyEitherSubscriptionIdOrExternalRef(subscription);
+
+        // Assert
+        result.Should().BeTrue();
+    }
 }
