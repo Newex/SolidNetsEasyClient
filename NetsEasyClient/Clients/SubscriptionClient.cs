@@ -11,6 +11,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.Net.Http.Headers;
 using SolidNetsEasyClient.Constants;
 using SolidNetsEasyClient.Models.DTOs.Requests.Orders;
+using SolidNetsEasyClient.Models.DTOs.Requests.Payments;
 using SolidNetsEasyClient.Models.DTOs.Requests.Webhooks;
 using SolidNetsEasyClient.Models.DTOs.Responses.Payments;
 using SolidNetsEasyClient.Models.Options;
@@ -161,24 +162,4 @@ public class SubscriptionClient
     {
         client.DefaultRequestHeaders.Add(HeaderNames.Authorization, apiKey);
     }
-}
-
-public record BulkCharge
-{
-    public string? ExternalBulkChargeId { get; init; }
-    public Notification? Notifications { get; init; }
-    public IList<SubscriptionCharge> Subscriptions { get; init; } = Enumerable.Empty<SubscriptionCharge>().ToList();
-}
-
-public record SubscriptionCharge
-{
-    public Guid? SubscriptionId { get; init; }
-    public string? ExternalReference { get; init; }
-
-    public Order Order { get; init; }
-}
-
-public record BulkId
-{
-    public Guid Id { get; init; }
 }

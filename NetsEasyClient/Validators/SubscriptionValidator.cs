@@ -1,4 +1,4 @@
-using SolidNetsEasyClient.Clients;
+using SolidNetsEasyClient.Models.DTOs.Requests.Payments;
 
 namespace SolidNetsEasyClient.Validators;
 
