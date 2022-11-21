@@ -7,14 +7,12 @@ using System.Text;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Web;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 using Microsoft.Net.Http.Headers;
 using SolidNetsEasyClient.Constants;
-using SolidNetsEasyClient.Models.DTOs.Enums;
 using SolidNetsEasyClient.Models.DTOs.Requests.Payments;
 using SolidNetsEasyClient.Models.DTOs.Requests.Webhooks;
 using SolidNetsEasyClient.Models.DTOs.Responses.Payments;
@@ -307,25 +305,6 @@ public class SubscriptionClient
         var path = sb.ToString();
         var response = await client.GetAsync(path, cancellationToken);
         return response;
-    }
-
-    public record PaginatedSubscriptions
-    {
-        public IList<Page>? Page { get; init; }
-        public bool More { get; init; }
-        public BulkStatus? Status { get; init; }
-    }
-
-    public record Page
-    {
-        public Guid SubscriptionId { get; init; }
-        public Guid? PaymentId { get; init; }
-        public Guid? ChargeId { get; init; }
-        public SubscriptionStatus Status { get; init; }
-        public string? Message { get; init; }
-        public string? Code { get; init; }
-        public string? Source { get; init; }
-        public string? ExternalReference { get; init; }
     }
 
     public Task<object> RetrieveBulkVerificationForUnscheduledSubscriptionsAsync(Guid bulkId)
