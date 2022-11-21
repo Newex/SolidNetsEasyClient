@@ -3,14 +3,18 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Json;
+using System.Text;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Web;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 using Microsoft.Net.Http.Headers;
 using SolidNetsEasyClient.Constants;
-using SolidNetsEasyClient.Models.DTOs.Requests.Orders;
+using SolidNetsEasyClient.Models.DTOs.Enums;
 using SolidNetsEasyClient.Models.DTOs.Requests.Payments;
 using SolidNetsEasyClient.Models.DTOs.Requests.Webhooks;
 using SolidNetsEasyClient.Models.DTOs.Responses.Payments;
@@ -151,6 +155,177 @@ public class SubscriptionClient
             logger.LogError(ex, "An exception occurred trying to bulk charge {@Subscriptions}", subscriptions);
             throw;
         }
+    }
+
+    public async Task<PaginatedSubscriptions> RetrieveBulkChargesAsync(Guid bulkId, CancellationToken cancellationToken)
+    {
+        try
+        {
+            logger.LogTrace("Retrieving bulk {BulkId}", bulkId);
+            var response = await RetrieveBulkChargesAsync(bulkId, null, null, null, null, cancellationToken);
+            var msg = await response.Content.ReadAsStringAsync(cancellationToken);
+            logger.LogTrace("Content is: {@MessageContent}", msg);
+            response.EnsureSuccessStatusCode();
+
+            var result = JsonSerializer.Deserialize<PaginatedSubscriptions>(msg);
+            if (result is null)
+            {
+                logger.LogError("Could not deserialize {@Response} to PaginatedSubscriptions", msg);
+                throw new Exception("Could not deserialize response from the http client to a PaginatedSubscriptions");
+            }
+
+            logger.LogInformation("Retrieved bulk subscriptions: {@PaginatedSubscriptions}", result);
+            return result;
+        }
+        catch(Exception ex)
+        {
+            logger.LogError(ex, "An exception occurred trying to bulk retrieve {@BulkId}", bulkId);
+            throw;
+        }
+    }
+
+    public async Task<PaginatedSubscriptions> RetrieveBulkChargesAsync(Guid bulkId, int skip, int take, CancellationToken cancellationToken)
+    {
+        try
+        {
+            logger.LogTrace("Retrieving bulk {BulkId}, {Skipping} and {Taking}", bulkId, skip, take);
+            var response = await RetrieveBulkChargesAsync(bulkId, skip, take, null, null, cancellationToken);
+            var msg = await response.Content.ReadAsStringAsync(cancellationToken);
+            logger.LogTrace("Content is: {@MessageContent}", msg);
+            response.EnsureSuccessStatusCode();
+
+            var result = JsonSerializer.Deserialize<PaginatedSubscriptions>(msg);
+            if (result is null)
+            {
+                logger.LogError("Could not deserialize {@Response} to PaginatedSubscriptions", msg);
+                throw new Exception("Could not deserialize response from the http client to a PaginatedSubscriptions");
+            }
+
+            logger.LogInformation("Retrieved bulk subscriptions: {@PaginatedSubscriptions}", result);
+            return result;
+        }
+        catch(Exception ex)
+        {
+            logger.LogError(ex, "An exception occurred trying to bulk retrieve {@BulkId}", bulkId);
+            throw;
+        }
+    }
+
+    public async Task<PaginatedSubscriptions> RetrieveBulkChargesAsync(Guid bulkId, int pageSize, ushort pageNumber, CancellationToken cancellationToken)
+    {
+        try
+        {
+            logger.LogTrace("Retrieving bulk {BulkId}, {PageSize} and {PageNumber}", bulkId, pageSize, pageNumber);
+            var response = await RetrieveBulkChargesAsync(bulkId, null, null, pageSize, pageNumber, cancellationToken);
+            var msg = await response.Content.ReadAsStringAsync(cancellationToken);
+            logger.LogTrace("Content is: {@MessageContent}", msg);
+            response.EnsureSuccessStatusCode();
+
+            var result = JsonSerializer.Deserialize<PaginatedSubscriptions>(msg);
+            if (result is null)
+            {
+                logger.LogError("Could not deserialize {@Response} to PaginatedSubscriptions", msg);
+                throw new Exception("Could not deserialize response from the http client to a PaginatedSubscriptions");
+            }
+
+            logger.LogInformation("Retrieved bulk subscriptions: {@PaginatedSubscriptions}", result);
+            return result;
+        }
+        catch(Exception ex)
+        {
+            logger.LogError(ex, "An exception occurred trying to bulk retrieve {@BulkId}", bulkId);
+            throw;
+        }
+    }
+
+    private async Task<HttpResponseMessage> RetrieveBulkChargesAsync(Guid bulkId, int? skip, int? take, int? pageSize, ushort? pageNumber, CancellationToken cancellationToken)
+    {
+        var client = httpClientFactory.CreateClient(mode);
+        AddHeaders(ref client);
+        var sb = new StringBuilder();
+        sb
+            .Append(NetsEndpoints.Relative.Subscription)
+            .Append("/charges/")
+            .Append(bulkId);
+        bool isFirst = true;
+        if (skip.HasValue)
+        {
+            if (isFirst)
+            {
+                sb.Append('?');
+                isFirst = false;
+            }
+
+            sb.Append("skip=")
+            .Append(skip.Value);
+        }
+        if (take.HasValue)
+        {
+            if (isFirst)
+            {
+                sb.Append('?');
+                isFirst = false;
+            }
+            else
+            {
+                sb.Append('&');
+            }
+
+            sb.Append("take=")
+            .Append(take.Value);
+        }
+        if (pageSize.HasValue)
+        {
+            if (isFirst)
+            {
+                sb.Append('?');
+                isFirst = false;
+            }
+            else
+            {
+                sb.Append('&');
+            }
+
+            sb.Append("pageSize=")
+            .Append(pageSize.Value);
+        }
+        if (pageNumber.HasValue)
+        {
+            if (isFirst)
+            {
+                sb.Append('?');
+            }
+            else
+            {
+                sb.Append('&');
+            }
+
+            sb.Append("pageNumber=")
+            .Append(pageNumber.Value);
+        }
+
+        var path = sb.ToString();
+        var response = await client.GetAsync(path, cancellationToken);
+        return response;
+    }
+
+    public record PaginatedSubscriptions
+    {
+        public IList<Page>? Page { get; init; }
+        public bool More { get; init; }
+        public BulkStatus? Status { get; init; }
+    }
+
+    public record Page
+    {
+        public Guid SubscriptionId { get; init; }
+        public Guid? PaymentId { get; init; }
+        public Guid? ChargeId { get; init; }
+        public SubscriptionStatus Status { get; init; }
+        public string? Message { get; init; }
+        public string? Code { get; init; }
+        public string? Source { get; init; }
+        public string? ExternalReference { get; init; }
     }
 
     public Task<object> RetrieveBulkVerificationForUnscheduledSubscriptionsAsync(Guid bulkId)
