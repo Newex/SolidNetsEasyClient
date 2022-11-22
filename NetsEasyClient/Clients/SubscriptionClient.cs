@@ -335,44 +335,90 @@ public class SubscriptionClient
         }
     }
 
+    /// <summary>
+    /// Retrieves verifications associated with the specified bulk verification operation. The bulkId is returned from Nets in the response of the Verify subscriptions method. This method supports pagination. Specify the range of subscriptions to retrieve by using either skip and take or pageNumber together with pageSize. The boolean property named more in the response body, indicates whether there are more subscriptions beyond the requested range.
+    /// </summary>
+    /// <param name="bulkId">The identifier of the bulk verification operation that was returned from the erfiy subscriptions method.</param>
+    /// <param name="skip">The number of subscription entries to skip from the start. Use this property in combination with the take property.</param>
+    /// <param name="take">The maximum number of subscriptions to be retrieved. Use this property in combination with the skip property.</param>
+    /// <param name="pageNumber">The page number to be retrieved. Use this property in combination with the pageSize property.</param>
+    /// <param name="pageSize">The size of each page when specify the range of subscriptions using the pageNumber property.</param>
+    /// <param name="cancellationToken">The cancellation token</param>
+    /// <returns>A paginated result set of subscriptions</returns>
+    /// <exception cref="ArgumentException">Thrown if bulk id is empty or if skip, take, pageNumber or pageSize is negative</exception>
+    public async Task<PaginatedSubscriptions> RetrieveBulkVerificationsAsync(Guid bulkId, int? skip, int? take, int? pageNumber, int? pageSize, CancellationToken cancellationToken)
+    {
+        bool isValid = bulkId != Guid.Empty;
+        isValid &= skip is null || skip > 0;
+        isValid &= take is null || take > 0;
+        isValid &= pageNumber is null || pageNumber > 0;
+        isValid &= pageSize is null || pageSize > 0;
+
+        if (!isValid)
+        {
+            logger.LogError("Invalid {BulkId} or paging parameters must have values greater than or equal to zero", bulkId);
+            throw new ArgumentException("Invalid bulk id or paging parameters; must be greater than or equal to zero (or null)");
+        }
+
+        try
+        {
+            logger.LogTrace("Retrieving verifications of {@BulkId}", bulkId);
+            var client = httpClientFactory.CreateClient(mode);
+            AddHeaders(ref client);
+
+            var root = NetsEndpoints.Relative.Subscription + "/verifications/" + bulkId;
+            var path = AddQuery(root,
+                                (nameof(skip), skip?.ToString()),
+                                (nameof(take), take?.ToString()),
+                                (nameof(pageSize), pageSize?.ToString()),
+                                (nameof(pageNumber), pageNumber?.ToString()));
+            var response = await client.GetAsync(path, cancellationToken);
+            var msg = await response.Content.ReadAsStringAsync(cancellationToken);
+            logger.LogTrace("Content is: {@MessageContent}", msg);
+            response.EnsureSuccessStatusCode();
+            var result = JsonSerializer.Deserialize<PaginatedSubscriptions>(msg);
+            if (result is null)
+            {
+                logger.LogError("Could not deserialize {@Response} to bulkId", msg);
+                throw new Exception("Could not deserialize response from the http client to a PaginatedSubscription");
+            }
+
+            logger.LogInformation("Retrieved verified {@PaginatedSubscriptions}", result);
+            return result;
+        }
+        catch(Exception ex)
+        {
+            logger.LogError(ex, "An exception occurred trying to retrieve verifications of {@BulkId}", bulkId);
+            throw;
+        }
+    }
+
     private async Task<HttpResponseMessage> RetrieveBulkChargesAsync(Guid bulkId, int? skip, int? take, int? pageSize, ushort? pageNumber, CancellationToken cancellationToken)
     {
         var client = httpClientFactory.CreateClient(mode);
         AddHeaders(ref client);
-        var sb = new StringBuilder();
-        sb
-            .Append(NetsEndpoints.Relative.Subscription)
-            .Append("/charges/")
-            .Append(bulkId);
+        var root = NetsEndpoints.Relative.Subscription + "/charges/" + bulkId.ToString();
+        var path = AddQuery(root,
+                            (nameof(skip), skip?.ToString()),
+                            (nameof(take), take?.ToString()),
+                            (nameof(pageSize), pageSize?.ToString()),
+                            (nameof(pageNumber), pageNumber?.ToString()));
+        var response = await client.GetAsync(path, cancellationToken);
+        return response;
+    }
+
+    private static string AddQuery(string root, params (string? Key, string? Value)[] query)
+    {
+        var sb = new StringBuilder(root);
         bool isFirst = true;
-        if (skip.HasValue)
+
+        foreach (var (Key, Value) in query)
         {
-            if (isFirst)
+            if (Key is null || Value is null)
             {
-                sb.Append('?');
-                isFirst = false;
+                continue;
             }
 
-            sb.Append("skip=")
-            .Append(skip.Value);
-        }
-        if (take.HasValue)
-        {
-            if (isFirst)
-            {
-                sb.Append('?');
-                isFirst = false;
-            }
-            else
-            {
-                sb.Append('&');
-            }
-
-            sb.Append("take=")
-            .Append(take.Value);
-        }
-        if (pageSize.HasValue)
-        {
             if (isFirst)
             {
                 sb.Append('?');
@@ -383,27 +429,13 @@ public class SubscriptionClient
                 sb.Append('&');
             }
 
-            sb.Append("pageSize=")
-            .Append(pageSize.Value);
-        }
-        if (pageNumber.HasValue)
-        {
-            if (isFirst)
-            {
-                sb.Append('?');
-            }
-            else
-            {
-                sb.Append('&');
-            }
-
-            sb.Append("pageNumber=")
-            .Append(pageNumber.Value);
+            sb.Append(Key)
+                .Append('=')
+                .Append(Value);
         }
 
         var path = sb.ToString();
-        var response = await client.GetAsync(path, cancellationToken);
-        return response;
+        return path;
     }
 
     private void AddHeaders(ref HttpClient client)

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
 using SolidNetsEasyClient.Models.DTOs.Enums;
@@ -28,4 +29,11 @@ public record PaginatedSubscriptions
     [JsonPropertyName("status")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public BulkStatus? Status { get; init; }
+
+    /// <summary>
+    /// The payment identifier (a UUID).
+    /// </summary>
+    [JsonPropertyName("paymentId")]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public Guid? PaymentId { get; init; }
 }
