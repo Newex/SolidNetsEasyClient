@@ -13,7 +13,7 @@ namespace SolidNetsEasyClient.Tests.Tools;
 public static class Mocks
 {
 #nullable enable
-    public static IHttpClientFactory PaymentHttpClientFactory(HttpMethod requestMethod, string endpoint, Func<HttpRequestMessage, bool> condition, HttpStatusCode successCode, string responseJson)
+    public static IHttpClientFactory HttpClientFactory(HttpMethod requestMethod, string endpoint, Func<HttpRequestMessage, bool> condition, HttpStatusCode successCode, string responseJson)
     {
         var mock = new Mock<IHttpClientFactory>();
         var mockHttp = new MockHttpMessageHandler();

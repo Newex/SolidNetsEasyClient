@@ -225,14 +225,15 @@ internal static class PaymentValidator
         return isHttps && hasLength;
     }
 
-    private static bool ProperAuthorization(string? url)
+    private static bool ProperAuthorization(string? header)
     {
-        if (url is null)
+        if (header is null)
         {
             return true;
         }
 
-        var size = url.Length >= 8 && url.Length <= 32;
+        // Must only contain alphanumeric characters
+        var size = header.All(char.IsLetterOrDigit) && header.Length >= 8 && header.Length <= 32;
         return size;
     }
 }

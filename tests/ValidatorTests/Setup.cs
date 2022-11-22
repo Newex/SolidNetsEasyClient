@@ -6,7 +6,7 @@ using SolidNetsEasyClient.Models.DTOs.Requests.Payments;
 using SolidNetsEasyClient.Models.DTOs.Requests.Webhooks;
 using SolidNetsEasyClient.Tests.Tools;
 
-namespace SolidNetsEasyClient.Tests.PaymentValidatorTests;
+namespace SolidNetsEasyClient.Tests.ValidatorTests;
 
 public static class Setup
 {

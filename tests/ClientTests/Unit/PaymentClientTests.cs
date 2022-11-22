@@ -19,7 +19,7 @@ public class PaymentClientTests
     public async void A_proper_payment_returns_payment_with_id()
     {
         // Arrange
-        const string responseJson = ActualResponses.CreatePaymentResponse;
+        const string responseJson = TestResponses.CreatePaymentResponse;
         var client = Setup.PaymentClient(HttpMethod.Post, NetsEndpoints.Relative.Payment, HttpStatusCode.Created, responseJson);
         var payment = Fakes.MinimalOrderExample;
 
@@ -50,7 +50,7 @@ public class PaymentClientTests
     public async void Can_get_the_status_of_an_existing_payment()
     {
         // Arrange
-        const string responseJson = ActualResponses.PaymentStatusResponseJson;
+        const string responseJson = TestResponses.PaymentStatusResponseJson;
         var paymentID = Guid.NewGuid();
         var client = Setup.PaymentClient(HttpMethod.Get, NetsEndpoints.Relative.Payment + $"/{paymentID}", HttpStatusCode.OK, responseJson);
 
