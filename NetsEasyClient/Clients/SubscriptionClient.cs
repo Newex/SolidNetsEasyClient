@@ -13,7 +13,6 @@ using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 using Microsoft.Net.Http.Headers;
 using SolidNetsEasyClient.Constants;
-using SolidNetsEasyClient.Models.DTOs.Requests.Payments;
 using SolidNetsEasyClient.Models.DTOs.Requests.Payments.Subscriptions;
 using SolidNetsEasyClient.Models.DTOs.Requests.Webhooks;
 using SolidNetsEasyClient.Models.DTOs.Responses.Payments;
@@ -237,6 +236,45 @@ public class SubscriptionClient
         }
     }
 
+    public async Task<BulkId> VerifyBulkSubscriptionsAsync(BulkSubscriptionVerification verifications, CancellationToken cancellationToken)
+    {
+        var isValid = (verifications.ExternalBulkVerificationId is null || (verifications.ExternalBulkVerificationId?.Length > 1 && verifications.ExternalBulkVerificationId.Length < 64))
+            && (verifications.Subscriptions?.All(SubscriptionValidator.OnlyEitherSubscriptionIdOrExternalRef) ?? verifications.Subscriptions?.Any() ?? false);
+        if (!isValid)
+        {
+            logger.LogError("Invalid subscription {@Verifications}", verifications);
+            throw new ArgumentException("Invalid bulk verifications. Must have at least 1 verification and/or exernal bulk verification id must be between 1-64 characters long");
+        }
+
+        try
+        {
+            logger.LogTrace("Verifying subscriptions {@Subscriptions}", verifications);
+            var client = httpClientFactory.CreateClient(mode);
+            AddHeaders(ref client);
+
+            var path = NetsEndpoints.Relative.Subscription + "/verifications";
+            var response = await client.PostAsJsonAsync(path, verifications, cancellationToken);
+            var msg = await response.Content.ReadAsStringAsync(cancellationToken);
+            logger.LogTrace("Content is: {@MessageContent}", msg);
+            response.EnsureSuccessStatusCode();
+            var result = JsonSerializer.Deserialize<BulkId>(msg);
+            if (result is null)
+            {
+                logger.LogError("Could not deserialize {@Response} to BulkId", msg);
+                throw new Exception("Could not deserialize response from the http client to a BulkId");
+            }
+
+            logger.LogInformation("Verified {@Subscriptions}, with {@BulkId}", verifications, result);
+            return result;
+        }
+        catch(Exception ex)
+        {
+            logger.LogError(ex, "An exception occurred trying to verify bulk subscriptions of {@Bulk}", verifications);
+            throw;
+        }
+        throw new NotImplementedException();
+    }
+
     private async Task<HttpResponseMessage> RetrieveBulkChargesAsync(Guid bulkId, int? skip, int? take, int? pageSize, ushort? pageNumber, CancellationToken cancellationToken)
     {
         var client = httpClientFactory.CreateClient(mode);
@@ -306,11 +344,6 @@ public class SubscriptionClient
         var path = sb.ToString();
         var response = await client.GetAsync(path, cancellationToken);
         return response;
-    }
-
-    public Task<BulkId> VerifyBulkSubscriptionsAsync(BulkSubscriptionVerification verifications, CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException();
     }
 
     private void AddHeaders(ref HttpClient client)
