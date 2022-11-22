@@ -5,7 +5,7 @@ using SolidNetsEasyClient.Converters;
 namespace SolidNetsEasyClient.Models.DTOs.Requests.Payments.Subscriptions;
 
 /// <summary>
-/// A base subscription with a subscription id and an ewternal reference
+/// A base subscription with a subscription id and an external reference
 /// </summary>
 public record BaseSubscription
 {
