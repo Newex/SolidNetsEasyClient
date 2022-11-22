@@ -313,18 +313,6 @@ public class SubscriptionClient
         throw new NotImplementedException();
     }
 
-    public record BulkSubscriptionVerification
-    {
-        public string? ExternalBulkVerificationId { get; init; }
-        public IList<SubscriptionVerification>? Subscriptions { get; init; }
-    }
-
-    public record SubscriptionVerification
-    {
-        public Guid? SubscriptionId { get; init; }
-        public string? ExternalReference { get; init; }
-    }
-
     private void AddHeaders(ref HttpClient client)
     {
         client.DefaultRequestHeaders.Add(HeaderNames.Authorization, apiKey);
