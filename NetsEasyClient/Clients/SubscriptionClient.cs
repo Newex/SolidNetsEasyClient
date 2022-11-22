@@ -24,6 +24,9 @@ namespace SolidNetsEasyClient.Clients;
 /// <summary>
 /// Subscription client, responsible for mediating communication between NETS payment API and this client
 /// </summary>
+/// <remarks>
+/// Subscriptions allow you to charge your customers on a regular basis, for example a monthly subscription for a product the customer must pay for every month. When a subscription is charged, a new payment object is created to represent the purchase of the subscription product. It is possible to verify and charge multiple subscriptions in bulk using the Bulk charge subscriptions method.
+/// </remarks>
 public class SubscriptionClient
 {
     private readonly IHttpClientFactory httpClientFactory;
