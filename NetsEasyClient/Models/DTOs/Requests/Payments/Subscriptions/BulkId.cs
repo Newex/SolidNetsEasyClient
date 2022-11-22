@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 using SolidNetsEasyClient.Converters;
 
-namespace SolidNetsEasyClient.Models.DTOs.Requests.Payments;
+namespace SolidNetsEasyClient.Models.DTOs.Requests.Payments.Subscriptions;
 
 /// <summary>
 /// The bulk charge identifier (a UUID). This identifier can be used when retrieving all charges associated with a bulk charge operation.

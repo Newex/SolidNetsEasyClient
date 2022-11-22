@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System.Text.Json.Serialization;
 using SolidNetsEasyClient.Models.DTOs.Enums;
 
-namespace SolidNetsEasyClient.Models.DTOs.Requests.Payments;
+namespace SolidNetsEasyClient.Models.DTOs.Requests.Payments.Subscriptions;
 
 /// <summary>
 /// A page of subscription statusses

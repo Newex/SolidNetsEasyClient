@@ -1,5 +1,5 @@
 using System;
-using SolidNetsEasyClient.Models.DTOs.Requests.Payments;
+using SolidNetsEasyClient.Models.DTOs.Requests.Payments.Subscriptions;
 using SolidNetsEasyClient.Validators;
 
 namespace SolidNetsEasyClient.Tests.ValidatorTests;

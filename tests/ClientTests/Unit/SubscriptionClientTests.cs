@@ -3,11 +3,10 @@ using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
 using System.Threading;
-using SolidNetsEasyClient.Clients;
 using SolidNetsEasyClient.Constants;
 using SolidNetsEasyClient.Models.DTOs;
 using SolidNetsEasyClient.Models.DTOs.Enums;
-using SolidNetsEasyClient.Models.DTOs.Requests.Payments;
+using SolidNetsEasyClient.Models.DTOs.Requests.Payments.Subscriptions;
 
 namespace SolidNetsEasyClient.Tests.ClientTests.Unit;
 

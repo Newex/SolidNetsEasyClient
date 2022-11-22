@@ -4,7 +4,7 @@ using System.Text.Json.Serialization;
 using SolidNetsEasyClient.Converters;
 using SolidNetsEasyClient.Models.DTOs.Requests.Orders;
 
-namespace SolidNetsEasyClient.Models.DTOs.Requests.Payments;
+namespace SolidNetsEasyClient.Models.DTOs.Requests.Payments.Subscriptions;
 
 /// <summary>
 /// Should define either a subscriptionId or an externalReference, but not both.

@@ -3,7 +3,7 @@ using System.Linq;
 using System.Text.Json.Serialization;
 using SolidNetsEasyClient.Models.DTOs.Requests.Webhooks;
 
-namespace SolidNetsEasyClient.Models.DTOs.Requests.Payments;
+namespace SolidNetsEasyClient.Models.DTOs.Requests.Payments.Subscriptions;
 
 /// <summary>
 /// Bulk charge result

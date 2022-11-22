@@ -14,6 +14,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.Net.Http.Headers;
 using SolidNetsEasyClient.Constants;
 using SolidNetsEasyClient.Models.DTOs.Requests.Payments;
+using SolidNetsEasyClient.Models.DTOs.Requests.Payments.Subscriptions;
 using SolidNetsEasyClient.Models.DTOs.Requests.Webhooks;
 using SolidNetsEasyClient.Models.DTOs.Responses.Payments;
 using SolidNetsEasyClient.Models.Options;
@@ -307,9 +308,21 @@ public class SubscriptionClient
         return response;
     }
 
-    public Task<object> RetrieveBulkVerificationForUnscheduledSubscriptionsAsync(Guid bulkId)
+    public Task<BulkId> VerifyBulkSubscriptionsAsync(BulkSubscriptionVerification verifications, CancellationToken cancellationToken)
     {
         throw new NotImplementedException();
+    }
+
+    public record BulkSubscriptionVerification
+    {
+        public string? ExternalBulkVerificationId { get; init; }
+        public IList<SubscriptionVerification>? Subscriptions { get; init; }
+    }
+
+    public record SubscriptionVerification
+    {
+        public Guid? SubscriptionId { get; init; }
+        public string? ExternalReference { get; init; }
     }
 
     private void AddHeaders(ref HttpClient client)
