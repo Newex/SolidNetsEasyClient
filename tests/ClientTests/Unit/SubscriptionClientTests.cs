@@ -155,10 +155,10 @@ public class SubscriptionClientTests
         };
 
         var bulkId = Guid.NewGuid();
-        var client = Setup.SubscriptionClient(HttpMethod.Get, NetsEndpoints.Relative.Subscription + $"/charges/{bulkId}", HttpStatusCode.OK, response);
+        var client = Setup.SubscriptionClient(HttpMethod.Get, NetsEndpoints.Relative.Subscription + $"/charges/{bulkId}?skip=2&take=5", HttpStatusCode.OK, response);
 
         // Act
-        var actual = await client.RetrieveBulkChargesAsync(bulkId, CancellationToken.None);
+        var actual = await client.RetrieveBulkChargesAsync(bulkId, skip: 2, take: 5, CancellationToken.None);
 
         // Assert
         actual.Should().BeEquivalentTo(expected);
