@@ -192,4 +192,47 @@ public class SubscriptionClientTests
         // Assert
         actual.Should().BeEquivalentTo(expected);
     }
+
+    [Fact]
+    public async void Retrieve_paginated_subscriptions()
+    {
+        // Arrange
+        const string response = "{\n" +
+        "\"page\": [\n" +
+            "{\n" +
+                "\"subscriptionId\": \"d079718b-ff63-45dd-947b-4950c023750f\",\n" +
+                "\"paymentId\": \"472e651e-5a1e-424d-8098-23858bf03ad7\",\n" +
+                "\"chargeId\": \"aec0aceb-a4db-49fb-b366-75e90229c640\",\n" +
+                "\"status\": \"Failed\",\n" +
+                "\"externalReference\": \"string\"\n" +
+            "}\n" +
+        "],\n" +
+            "\"more\": true,\n" +
+            "\"status\": \"Processing\"\n" +
+        "}\n";
+        var expected = new PaginatedSubscriptions
+        {
+            Page = new List<SubscriptionProcessStatus>
+            {
+                new()
+                {
+                    SubscriptionId = new("d079718b-ff63-45dd-947b-4950c023750f"),
+                    PaymentId = new("472e651e-5a1e-424d-8098-23858bf03ad7"),
+                    ChargeId = new("aec0aceb-a4db-49fb-b366-75e90229c640"),
+                    Status = SubscriptionStatus.Failed,
+                    ExternalReference = "string"
+                }
+            },
+            More = true,
+            Status = BulkStatus.Processing
+        };
+        var bulkId = Guid.NewGuid();
+        var client = Setup.SubscriptionClient(HttpMethod.Get, NetsEndpoints.Relative.Subscription + $"/verifications/{bulkId}?skip=2&take=5", HttpStatusCode.OK, response);
+
+        // Act
+        var actual = await client.RetrieveBulkVerificationsAsync(bulkId, skip: 2, take: 5, null, null, CancellationToken.None);
+
+        // Assert
+        actual.Should().BeEquivalentTo(expected);
+    }
 }
