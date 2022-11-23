@@ -113,4 +113,54 @@ public class SubscriptionClientTests
         // Assert
         result.Should().Match<BulkId>(x => x.Id == new Guid("50490f2b-98bd-4782-b08d-413ee70aa1f7"));
     }
+
+    [Fact]
+    public async void Retrieving_bulk_charges_returns_PaginatedSubscriptions()
+    {
+        // Arrange
+        const string response = "{\n" +
+        "\"page\": [\n" +
+            "{\n" +
+                "\"subscriptionId\": \"d079718b-ff63-45dd-947b-4950c023750f\",\n" +
+                "\"paymentId\": \"472e651e-5a1e-424d-8098-23858bf03ad7\",\n" +
+                "\"chargeId\": \"aec0aceb-a4db-49fb-b366-75e90229c640\",\n" +
+                "\"status\": \"Failed\",\n" +
+                "\"message\": \"string\",\n" +
+                "\"code\": \"string\",\n" +
+                "\"source\": \"string\",\n" +
+                "\"externalReference\": \"string\"\n" +
+            "}\n" +
+        "],\n" +
+            "\"more\": true,\n" +
+            "\"status\": \"Processing\"\n" +
+        "}\n";
+        var expected = new PaginatedSubscriptions
+        {
+            Page = new List<SubscriptionProcessStatus>
+            {
+                new()
+                {
+                    SubscriptionId = new("d079718b-ff63-45dd-947b-4950c023750f"),
+                    PaymentId = new("472e651e-5a1e-424d-8098-23858bf03ad7"),
+                    ChargeId = new("aec0aceb-a4db-49fb-b366-75e90229c640"),
+                    Status = SubscriptionStatus.Failed,
+                    Message = "string",
+                    Code = "string",
+                    Source = "string",
+                    ExternalReference = "string"
+                }
+            },
+            More = true,
+            Status = BulkStatus.Processing
+        };
+
+        var bulkId = Guid.NewGuid();
+        var client = Setup.SubscriptionClient(HttpMethod.Get, NetsEndpoints.Relative.Subscription + $"/charges/{bulkId}", HttpStatusCode.OK, response);
+
+        // Act
+        var actual = await client.RetrieveBulkChargesAsync(bulkId, CancellationToken.None);
+
+        // Assert
+        actual.Should().BeEquivalentTo(expected);
+    }
 }
