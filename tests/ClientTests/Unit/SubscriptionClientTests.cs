@@ -163,4 +163,33 @@ public class SubscriptionClientTests
         // Assert
         actual.Should().BeEquivalentTo(expected);
     }
+
+    [Fact]
+    public async void Verify_subscriptions_returns_bulk_id()
+    {
+        // Arrange
+        const string response = @"{ ""bulkId"": ""50490f2b-98bd-4782-b08d-413ee70aa1f7"" }";
+        var bulk = new BulkSubscriptionVerification
+        {
+            ExternalBulkVerificationId = "123",
+            Subscriptions = new List<BaseSubscription>
+            {
+                new()
+                {
+                    SubscriptionId = Guid.NewGuid()
+                }
+            }
+        };
+        var expected = new BulkId
+        {
+            Id = new Guid("50490f2b-98bd-4782-b08d-413ee70aa1f7")
+        };
+        var client = Setup.SubscriptionClient(HttpMethod.Post, NetsEndpoints.Relative.Subscription + "/verifications", HttpStatusCode.Accepted, response);
+
+        // Act
+        var actual = await client.VerifyBulkSubscriptionsAsync(bulk, CancellationToken.None);
+
+        // Assert
+        actual.Should().BeEquivalentTo(expected);
+    }
 }
