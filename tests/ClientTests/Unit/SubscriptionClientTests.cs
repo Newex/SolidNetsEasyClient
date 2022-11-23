@@ -7,6 +7,7 @@ using SolidNetsEasyClient.Constants;
 using SolidNetsEasyClient.Models.DTOs;
 using SolidNetsEasyClient.Models.DTOs.Enums;
 using SolidNetsEasyClient.Models.DTOs.Requests.Payments.Subscriptions;
+using SolidNetsEasyClient.Models.DTOs.Responses.Payments;
 
 namespace SolidNetsEasyClient.Tests.ClientTests.Unit;
 
@@ -26,6 +27,62 @@ public class SubscriptionClientTests
 
         // Assert
         await act.Should().ThrowAsync<HttpRequestException>();
+    }
+
+    [Fact]
+    public async void Retrieving_existing_subscription_by_external_reference_returns_SubscriptionDetails()
+    {
+        // Arrange
+        const string response = "{\n" +
+            "\"subscriptionId\": \"d079718b-ff63-45dd-947b-4950c023750f\",\n" +
+            "\"frequency\": 0,\n" +
+            "\"interval\": 0,\n" +
+            "\"endDate\": \"2019-08-24T14:15:22Z\",\n" +
+            "\"paymentDetails\": {\n" +
+                "\"paymentType\": \"Card\",\n" +
+                "\"paymentMethod\": \"VISA\",\n" +
+                "\"cardDetails\": {\n" +
+                    "\"expiryDate\": \"1226\",\n" +
+                    "\"maskedPan\": \"string\"\n" +
+                "}\n" +
+            "},\n" +
+            "\"importError\": {\n" +
+                "\"importStepsResponseCode\": \"string\",\n" +
+                "\"importStepsResponseSource\": \"string\",\n" +
+                "\"importStepsResponseText\": \"string\"\n" +
+            "}\n" +
+        "}";
+        var expected = new SubscriptionDetails
+        {
+            SubscriptionId = new("d079718b-ff63-45dd-947b-4950c023750f"),
+            Frequency = 0,
+            Interval = 0,
+            EndDate = DateTimeOffset.Parse("2019-08-24T14:15:22Z"),
+            PaymentDetails = new()
+            {
+                PaymentType = PaymentTypeEnum.Card,
+                PaymentMethod = PaymentMethodEnum.Visa,
+                CardDetails = new()
+                {
+                    ExpiryDate = new(2026, 12),
+                    MaskedPan = "string"
+                }
+            },
+            ImportError = new()
+            {
+                ImportStepsResponseCode = "string",
+                ImportStepsResponseSource = "string",
+                ImportStepsResponseText = "string"
+            }
+        };
+        var externalReference = Guid.NewGuid();
+        var client = Setup.SubscriptionClient(HttpMethod.Get, NetsEndpoints.Relative.Subscription + "?externalReference=" + externalReference, HttpStatusCode.OK, response);
+
+        // Act
+        var actual = await client.RetrieveSubscriptionByExternalReferenceAsync(externalReference.ToString(), CancellationToken.None);
+
+        // Assert
+        actual.Should().BeEquivalentTo(expected);
     }
 
     [Fact]
