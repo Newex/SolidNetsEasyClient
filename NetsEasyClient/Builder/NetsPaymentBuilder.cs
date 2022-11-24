@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Microsoft.AspNetCore.WebUtilities;
 using SolidNetsEasyClient.Models.DTOs.Contacts;
 using SolidNetsEasyClient.Models.DTOs.Enums;
 using SolidNetsEasyClient.Models.DTOs.Requests.Customers;
@@ -221,19 +222,22 @@ public sealed class NetsPaymentBuilder
     /// Subscribe to an event
     /// </summary>
     /// <remarks>
-    /// The callback url must be a https endpoint and be acknowledged with a 200 OK status.
+    /// The callback url must be an https endpoint and be acknowledged with a 200 OK status.
+    /// This builder appends a query parameter with the order reference i.e. https://webhook.url/callback?orderId=my-order-id
     /// </remarks>
     /// <param name="eventName">The event name</param>
     /// <param name="callbackUrl">The callback url</param>
     /// <param name="authorization">The authorization credentials</param>
+    /// <param name="append">Append the order reference id as query parameter to the url</param>
     /// <returns>A payment builder</returns>
-    public NetsPaymentBuilder SubscribeToEvent(EventName eventName, string callbackUrl, string authorization)
+    public NetsPaymentBuilder SubscribeToEvent(EventName eventName, string callbackUrl, string? authorization = null, bool append = true)
     {
+        var url = append ? QueryHelpers.AddQueryString(callbackUrl, "orderId", order.Reference ?? "none") : callbackUrl;
         webHooks.Add(new()
         {
             Authorization = authorization,
             EventName = eventName,
-            Url = callbackUrl
+            Url = url
         });
 
         return this;

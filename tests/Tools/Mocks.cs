@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
 using Microsoft.AspNetCore.Http;
+// using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using RichardSzalay.MockHttp;
 using SolidNetsEasyClient.Constants;
@@ -12,7 +13,7 @@ namespace SolidNetsEasyClient.Tests.Tools;
 public static class Mocks
 {
 #nullable enable
-    public static IHttpClientFactory PaymentHttpClientFactory(HttpMethod requestMethod, string endpoint, Func<HttpRequestMessage, bool> condition, HttpStatusCode successCode, string responseJson)
+    public static IHttpClientFactory HttpClientFactory(HttpMethod requestMethod, string endpoint, Func<HttpRequestMessage, bool> condition, HttpStatusCode successCode, string responseJson)
     {
         var mock = new Mock<IHttpClientFactory>();
         var mockHttp = new MockHttpMessageHandler();
@@ -65,5 +66,34 @@ public static class Mocks
         }
 
         return result;
+    }
+
+    public static IServiceProvider ServiceProvider<T>(T service)
+    {
+        var mock = new Mock<IServiceProvider>();
+
+        mock.Setup(s => s.GetService(typeof(T)))
+        .Returns(service);
+
+        return mock.Object;
+    }
+
+    public static Mock<HttpContext> HttpContext(IPAddress fromIp, string method)
+    {
+        var mock = new Mock<HttpContext>();
+
+        mock.Setup(c => c.Connection.RemoteIpAddress)
+        .Returns(fromIp);
+
+        mock.Setup(c => c.Request.Method)
+        .Returns(method);
+
+        return mock;
+    }
+
+    public static void AddService<T>(this Mock<HttpContext> context, T service)
+    {
+        context.Setup(c => c.RequestServices.GetService(typeof(T)))
+        .Returns(service);
     }
 }

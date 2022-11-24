@@ -3,6 +3,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 using SolidNetsEasyClient.Converters;
 using SolidNetsEasyClient.Models.DTOs.Enums;
+using SolidNetsEasyClient.Models.DTOs.Responses.Webhooks.Payloads;
 
 namespace SolidNetsEasyClient.Models.DTOs.Responses.Webhooks;
 
@@ -11,7 +12,7 @@ namespace SolidNetsEasyClient.Models.DTOs.Responses.Webhooks;
 /// </summary>
 /// <typeparam name="T">The webhook data</typeparam>
 public abstract record Webhook<T>
-where T : new()
+where T : IWebhookData, new()
 {
     /// <summary>
     /// A unique identifier of this event. You can use this identifier to detect whether this event is new or has already been handled by you.
@@ -41,6 +42,7 @@ where T : new()
     /// </summary>
     [Required]
     [JsonPropertyName("event")]
+    [JsonConverter(typeof(EventNameConverter))]
     public EventName Event { get; init; } = EventName.PaymentCreated;
 
     /// <summary>

@@ -13,12 +13,12 @@ public static class EventNameConstants
     /// <summary>
     /// The amount of the payment has been reserved
     /// </summary>
-    public const string ReservationCreated = "payment.reservation.created.v2";
+    public const string ReservationCreatedV2 = "payment.reservation.created.v2";
 
     /// <summary>
     /// The amount of the payment has been reserved (version 1)
     /// </summary>
-    public const string V1ReservationCreated = "payment.reservation.created";
+    public const string ReservationCreatedV1 = "payment.reservation.created";
 
     /// <summary>
     /// A reservation attempt has failed

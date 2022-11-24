@@ -59,6 +59,36 @@ public record PlatformPaymentOptions
     public string? CommercePlatformTag { get; set; }
 
     /// <summary>
+    /// A semi-colon ";" separated string of IPs for the Nets Easy webhook endpoints.
+    /// </summary>
+    /// <remarks>
+    /// If empty these values will be used: 20.103.218.104/30 and 20.31.57.60/30 for the Live and Test mode respectively.
+    /// Must be in CIDR format.
+    /// </remarks>
+    public string? NetsIPWebhookEndpoints { get; init; }
+
+    /// <summary>
+    /// Blacklist single IPs requests sent to the webhook endpoint
+    /// </summary>
+    /// <remarks>
+    /// Each IP should be separated by a semi-colon (;)
+    /// </remarks>
+    public string? BlacklistIPsForWebhook { get; init; }
+
+    /// <summary>
+    /// Blacklist a range of IPs separated by a semi-colon (;)
+    /// </summary>
+    /// <remarks>
+    /// Each range should be in CIDR format.
+    /// </remarks>
+    public string? BlacklistIPRangesForWebhook { get; init; }
+
+    /// <summary>
+    /// The webhook authorization key used to sign and validate webhook requests
+    /// </summary>
+    public string? WebhookAuthorizationKey { get; init; }
+
+    /// <summary>
     /// The nets easy configuration section
     /// </summary>
     internal const string NetsEasyConfigurationSection = "SolidNetsEasy";

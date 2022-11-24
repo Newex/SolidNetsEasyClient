@@ -5,6 +5,7 @@ using System.Text.Json;
 using SolidNetsEasyClient.Models.DTOs;
 using SolidNetsEasyClient.Models.DTOs.Enums;
 using SolidNetsEasyClient.Models.DTOs.Responses.Webhooks;
+using SolidNetsEasyClient.Tests.SerializationTests.WebHooksTests.ActualResponses;
 
 namespace SolidNetsEasyClient.Tests.SerializationTests.WebHooksTests;
 
@@ -74,7 +75,7 @@ public class ChargeCreatedWebhookSerializationTests
                 Amount = new()
                 {
                     Amount = 5500,
-                    Currency = "SEK",
+                    Currency = Currency.SEK
                 },
                 PaymentId = new("025400006091b1ef6937598058c4e487")
             },
@@ -82,6 +83,50 @@ public class ChargeCreatedWebhookSerializationTests
 
         // Act
         var actual = JsonSerializer.Deserialize<ChargeCreated>(json);
+
+        // Assert
+        actual.Should().BeEquivalentTo(expected);
+    }
+
+    [Fact]
+    public void Can_deserialize_actual_response_to_ChargeCreated_object()
+    {
+        // Arrange
+        const string response = CleanedResponses.ChargeCreated;
+        var expected = new ChargeCreated
+        {
+            Id = new("006b0000636f4149e30174516bf6aa5a"),
+            Timestamp = DateTimeOffset.Parse("2022-11-12T07:46:33.7120+01:00"),
+            MerchantNumber = 123456,
+            Event = EventName.ChargeCreated,
+            Data = new()
+            {
+                ChargeId = new("006b0000636f4149e30174516bf6aa5a"),
+                OrderItems = new List<Item>
+                {
+                    new()
+                    {
+                        Name = "Nuka-Cola",
+                        Quantity = 1,
+                        Reference = "f32be43c-19f8-4546-bb8b-5fcd273d19a1",
+                        Unit = "ea",
+                        UnitPrice = 40_00,
+                        TaxRate = 0
+                    }
+                },
+                PaymentMethod = PaymentMethodEnum.Visa,
+                PaymentType = PaymentTypeEnum.Card,
+                Amount = new()
+                {
+                    Amount = 40_00,
+                    Currency = Currency.DKK
+                },
+                PaymentId = new("023e0000636f3df7e30174516bf6aa48")
+            }
+        };
+
+        // Act
+        var actual = JsonSerializer.Deserialize<ChargeCreated>(response);
 
         // Assert
         actual.Should().BeEquivalentTo(expected);

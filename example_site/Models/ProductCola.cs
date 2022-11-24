@@ -1,4 +1,5 @@
 using System;
+using SolidNetsEasyClient.Models.DTOs.Enums;
 
 namespace ExampleSite.Models;
 
@@ -35,5 +36,5 @@ public record class ProductCola
     /// <summary>
     /// The currency
     /// </summary>
-    public string Currency => "DKK";
+    public Currency Currency => Currency.DKK;
 }

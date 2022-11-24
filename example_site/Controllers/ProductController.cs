@@ -5,7 +5,6 @@ namespace ExampleSite.Controllers;
 
 public class ProductController : Controller
 {
-    [HttpGet("/products")]
     public IActionResult Index()
     {
         var basket = new BasketViewModel();

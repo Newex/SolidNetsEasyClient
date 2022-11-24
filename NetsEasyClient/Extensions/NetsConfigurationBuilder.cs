@@ -55,6 +55,10 @@ public sealed class NetsConfigurationBuilder
         services.TryAddScoped<IPaymentClient, PaymentClient>();
         services.TryAddScoped(typeof(PaymentClient));
 
+        // Add subscription client
+        services.TryAddScoped<ISubscriptionClient, SubscriptionClient>();
+        services.TryAddScoped(typeof(SubscriptionClient));
+
         // Add payment options
         services.Configure<PlatformPaymentOptions>(_ => { });
 

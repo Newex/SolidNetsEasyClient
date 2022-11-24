@@ -1,8 +1,8 @@
 using System;
-using System.Diagnostics;
 using System.Text.Json;
 using SolidNetsEasyClient.Models.DTOs.Enums;
 using SolidNetsEasyClient.Models.DTOs.Responses.Webhooks;
+using SolidNetsEasyClient.Tests.SerializationTests.WebHooksTests.ActualResponses;
 
 namespace SolidNetsEasyClient.Tests.SerializationTests.WebHooksTests;
 
@@ -46,15 +46,15 @@ public class ReservationCreatedSerializationTests
                 "\"paymentId\": \"01d40000632ade184172b85d8cc3f516\"\n" +
             "}\n" +
         "}";
-        var expected = new ReservationCreated
+        var expected = new ReservationCreatedV1
         {
             Id = new("6f081ae39b9846c4bacff88fa2cecc98"),
             MerchantId = 100001234,
             Timestamp = DateTimeOffset.Parse("2022-09-21T09:50:05.9440+00:00"),
-            Event = EventName.V1ReservationCreated,
+            Event = EventName.ReservationCreatedV1,
             Data = new()
             {
-                V1CardDetails = new()
+                CardDetails = new()
                 {
                     CreditDebitIndicator = "D",
                     ExpiryMonth = 1,
@@ -70,23 +70,23 @@ public class ReservationCreatedSerializationTests
                 },
                 PaymentMethod = PaymentMethodEnum.Visa,
                 PaymentType = PaymentTypeEnum.Card,
-                V1Consumer = new()
+                Consumer = new()
                 {
                     IP = "10.230.197.32"
                 },
-                V1ReservationReference = "683884",
-                V1ReserveId = new("6f081ae39b9846c4bacff88fa2cecc98"),
+                ReservationReference = "683884",
+                ReserveId = new("6f081ae39b9846c4bacff88fa2cecc98"),
                 Amount = new()
                 {
                     Amount = 10_00,
-                    Currency = "SEK"
+                    Currency = Currency.SEK
                 },
                 PaymentId = new("01d40000632ade184172b85d8cc3f516")
             }
         };
 
         // Act
-        var actual = JsonSerializer.Deserialize<ReservationCreated>(json);
+        var actual = JsonSerializer.Deserialize<ReservationCreatedV1>(json);
 
         // Assert
         actual.Should().BeEquivalentTo(expected);
@@ -112,12 +112,12 @@ public class ReservationCreatedSerializationTests
         "}\n" +
         "}";
 
-        var expected = new ReservationCreated
+        var expected = new ReservationCreatedV2
         {
             Id = new("c25459e92ba54be1925493f987fb05a7"),
             Timestamp = DateTimeOffset.Parse("2021-05-04T22:09:08.4342+02:00"),
             MerchantNumber = 100017120,
-            Event = EventName.ReservationCreated,
+            Event = EventName.ReservationCreatedV2,
             Data = new()
             {
                 PaymentMethod = PaymentMethodEnum.Visa,
@@ -125,14 +125,96 @@ public class ReservationCreatedSerializationTests
                 Amount = new()
                 {
                     Amount = 55_00,
-                    Currency = "SEK"
+                    Currency = Currency.SEK
                 },
                 PaymentId = new("02a900006091a9a96937598058c4e474")
             }
         };
 
         // Act
-        var actual = JsonSerializer.Deserialize<ReservationCreated>(json);
+        var actual = JsonSerializer.Deserialize<ReservationCreatedV2>(json);
+
+        // Assert
+        actual.Should().BeEquivalentTo(expected);
+    }
+
+    [Fact]
+    public void Can_deserialize_actual_response_to_ReservationCreatedV1_object()
+    {
+        // Arrange
+        const string response = CleanedResponses.ReservationCreatedV1;
+        var expected = new ReservationCreatedV1
+        {
+            Id = new("ffb26a376517427da7236b55e06478d9"),
+            MerchantId = 123456,
+            Timestamp = DateTimeOffset.Parse("2022-11-12T06:33:24.3795+00:00"),
+            Event = EventName.ReservationCreatedV1,
+            Data = new()
+            {
+                CardDetails = new()
+                {
+                    CreditDebitIndicator = "D",
+                    ExpiryMonth = 12,
+                    ExpiryYear = 26,
+                    IssuerCountry = "NO",
+                    TruncatedPan = "492500******0004",
+                    ThreeDSecure = new()
+                    {
+                        AuthenticationEnrollmentStatus = "Y",
+                        AuthenticationStatus = "Y",
+                        ECI = "05"
+                    }
+                },
+                PaymentMethod = PaymentMethodEnum.Visa,
+                PaymentType = PaymentTypeEnum.Card,
+                Consumer = new()
+                {
+                    IP = "192.168.0.1"
+                },
+                ReservationReference = "211569",
+                ReserveId = new("ffb26a376517427da7236b55e06478d9"),
+                Amount = new()
+                {
+                    Amount = 40_00,
+                    Currency = Currency.DKK
+                },
+                PaymentId = new("023e0000636f3df7e30174516bf6aa48")
+            }
+        };
+
+        // Act
+        var actual = JsonSerializer.Deserialize<ReservationCreatedV1>(response);
+
+        // Assert
+        actual.Should().BeEquivalentTo(expected);
+    }
+
+    [Fact]
+    public void Can_deserialize_actual_response_to_ReservationCreatedV2_object()
+    {
+        // Arrange
+        const string response = CleanedResponses.ReservationCreatedV2;
+        var expected = new ReservationCreatedV2
+        {
+            Id = new("ffb26a376517427da7236b55e06478d9"),
+            Timestamp = DateTimeOffset.Parse("2022-11-12T06:33:24.3795+00:00"),
+            MerchantNumber = 123456,
+            Event = EventName.ReservationCreatedV2,
+            Data = new()
+            {
+                PaymentMethod = PaymentMethodEnum.Visa,
+                PaymentType = PaymentTypeEnum.Card,
+                Amount = new()
+                {
+                    Amount = 40_00,
+                    Currency = Currency.DKK
+                },
+                PaymentId = new("023e0000636f3df7e30174516bf6aa48")
+            }
+        };
+
+        // Act
+        var actual = JsonSerializer.Deserialize<ReservationCreatedV2>(response);
 
         // Assert
         actual.Should().BeEquivalentTo(expected);

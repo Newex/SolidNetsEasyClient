@@ -47,5 +47,26 @@ public static class NetsEndpoints
         /// The pending refunds endpoint
         /// </summary>
         public const string PendingRefunds = "/v1/pending-refunds";
+
+        /// <summary>
+        /// The subscription endpoint
+        /// </summary>
+        public const string Subscription = "/v1/subscriptions";
+    }
+
+    /// <summary>
+    /// The ip range for where the webhook callback originate from
+    /// </summary>
+    public static class WebhookIPs
+    {
+        /// <summary>
+        /// Default IP range for the live Nets Easy webhook callback client
+        /// </summary>
+        public const string LiveIPRange = "20.103.218.104/30";
+
+        /// <summary>
+        /// Default IP range for the test Nets Easy webhook callback client
+        /// </summary>
+        public const string TestIPRange = "20.31.57.60/30";
     }
 }

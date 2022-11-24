@@ -82,7 +82,7 @@ public class ChargeFailedSerializationTests
                 Amount = new()
                 {
                     Amount = 5500,
-                    Currency = "SEK"
+                    Currency = Currency.SEK
                 },
                 PaymentId = new("029b000060923a766937598058c4e6fa")
             }

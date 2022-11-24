@@ -10,7 +10,7 @@ namespace SolidNetsEasyClient.Models.DTOs.Responses.Webhooks.Payloads;
 /// <summary>
 /// The reservation payload
 /// </summary>
-public record ReservationCreatedData
+public record ReservationCreatedDataV1 : IWebhookData
 {
     /// <summary>
     /// The payment identifier
@@ -21,11 +21,11 @@ public record ReservationCreatedData
     public Guid PaymentId { get; init; }
 
     /// <summary>
-    /// The complete order associated with the payment.
+    /// The reservation card details
     /// </summary>
-    [Required]
-    [JsonPropertyName("order")]
-    public WebhookOrder Order { get; init; } = new();
+    [JsonPropertyName("cardDetails")]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public ReservationCreatedCardDetails? CardDetails { get; init; }
 
     /// <summary>
     /// The payment method
@@ -40,41 +40,28 @@ public record ReservationCreatedData
     public PaymentTypeEnum PaymentType { get; init; }
 
     /// <summary>
-    /// The reservation amount
-    /// </summary>
-    [JsonPropertyName("amount")]
-    public WebhookAmount Amount { get; init; } = new();
-
-    /*
-        Payment V1
-    */
-
-    /// <summary>
-    /// The reservation card details
-    /// </summary>
-    [JsonPropertyName("cardDetails")]
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public ReservationCreatedCardDetails? V1CardDetails { get; init; }
-
-    /// <summary>
     /// The consumer details
     /// </summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("consumer")]
-    public ReservationCreatedConsumer? V1Consumer { get; init; }
+    public ReservationCreatedConsumer Consumer { get; init; } = new();
 
     /// <summary>
     /// The reservation reference
     /// </summary>
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("reservationReference")]
-    public string? V1ReservationReference { get; init; }
+    public string ReservationReference { get; init; } = string.Empty;
 
     /// <summary>
     /// The reserve id
     /// </summary>
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonConverter(typeof(GuidTypeConverter))]
     [JsonPropertyName("reserveId")]
-    public Guid? V1ReserveId { get; init; }
+    public Guid ReserveId { get; init; }
+
+    /// <summary>
+    /// The reservation amount
+    /// </summary>
+    [JsonPropertyName("amount")]
+    public WebhookAmount Amount { get; init; } = new();
 }

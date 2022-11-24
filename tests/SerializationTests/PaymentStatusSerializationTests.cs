@@ -1,7 +1,7 @@
 using System;
 using System.Text.Json;
 using SolidNetsEasyClient.Models.DTOs.Responses.Payments;
-using SolidNetsEasyClient.Tests.ClientTests.Unit;
+using SolidNetsEasyClient.Tests.Tools;
 
 namespace SolidNetsEasyClient.Tests.SerializationTests;
 
@@ -12,7 +12,7 @@ public class PaymentStatusSerializationTests
     public void Can_deserialize_payment_status_to_object()
     {
         // Arrange
-        const string json = ActualResponses.PaymentStatusResponseJson;
+        const string json = TestResponses.PaymentStatusResponseJson;
 
         // Act
         var status = JsonSerializer.Deserialize<PaymentStatus>(json);

@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
+using SolidNetsEasyClient.Models.DTOs.Enums;
 
 namespace SolidNetsEasyClient.Models.DTOs.Responses.Orders;
 
@@ -20,7 +21,7 @@ public record OrderDetailsInfo
     /// </summary>
     [Required]
     [JsonPropertyName("currency")]
-    public string Currency { get; init; } = string.Empty;
+    public Currency Currency { get; init; }
 
     /// <summary>
     /// The reference to recognize this order. Usually a number sequence provided when creating or updating the payment

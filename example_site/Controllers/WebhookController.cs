@@ -2,6 +2,7 @@ using System.Text.Json;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
+using SolidNetsEasyClient.Filters;
 
 namespace ExampleSite.Controllers;
 
@@ -16,11 +17,12 @@ public class WebhookController : Controller
         this.logger = logger ?? NullLogger<WebhookController>.Instance;
     }
 
+    [WebhookIPFilter(VerifyAuthorization = false, WhitelistIPs = "::1")]
     [HttpPost("/webhook")]
     public ActionResult Post([FromBody] dynamic jsonData)
     {
         string data = JsonSerializer.Deserialize<dynamic>(jsonData.ToString()).ToString();
         logger.LogInformation("The data: {@Json}", data);
-        return Ok();
+        return NoContent();
     }
 }

@@ -9,7 +9,7 @@ namespace SolidNetsEasyClient.Models.DTOs.Responses.Webhooks.Payloads;
 /// <summary>
 /// The refund initiated payload
 /// </summary>
-public record RefundInitiatedData
+public record RefundInitiatedData : IWebhookData
 {
     /// <summary>
     /// The payment identifier

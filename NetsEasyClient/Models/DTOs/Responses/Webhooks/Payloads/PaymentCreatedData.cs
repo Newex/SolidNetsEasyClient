@@ -9,7 +9,7 @@ namespace SolidNetsEasyClient.Models.DTOs.Responses.Webhooks.Payloads;
 /// <summary>
 /// The data associated with this event.
 /// </summary>
-public record PaymentCreatedData
+public record PaymentCreatedData : IWebhookData
 {
     /// <summary>
     /// The payment identifier.

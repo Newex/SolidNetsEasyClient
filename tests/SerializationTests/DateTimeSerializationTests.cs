@@ -29,22 +29,4 @@ public class DateTimeSerializationTests
         Assert.Equal(22, actual.DateOfBirth.Value.Second);
         Assert.Equal(0, actual.DateOfBirth.Value.Offset.Hours);
     }
-
-    [Fact]
-    public void Date_only_string_yymm_should_return_valid_date_only_object()
-    {
-        // Arrange
-        const string jsonDate = @"
-        {
-            ""expiryDate"": ""2312""
-        }
-        ";
-
-        // Act
-        var actual = JsonSerializer.Deserialize<CardDetailsInfo>(jsonDate);
-        var expected = new DateOnly(2023, 12, 31);
-
-        // Assert
-        Assert.Equal(expected, actual!.ExpiryDate);
-    }
 }

@@ -52,9 +52,9 @@ public class CheckoutController : Controller
             .SubscribeToEvent(EventName.RefundInitiated, webhookUrl, order.SignOrder(signingKey))
             .SubscribeToEvent(EventName.ReservationCancellationFailed, webhookUrl, order.SignOrder(signingKey))
             .SubscribeToEvent(EventName.ReservationCancelled, webhookUrl, order.SignOrder(signingKey))
-            .SubscribeToEvent(EventName.ReservationCreated, webhookUrl, order.SignOrder(signingKey))
-            .SubscribeToEvent(EventName.ReservationFailed, webhookUrl, order.SignOrder(signingKey))
-            .SubscribeToEvent(EventName.V1ReservationCreated, webhookUrl, order.SignOrder(signingKey));
+            .SubscribeToEvent(EventName.ReservationCreatedV1, webhookUrl, order.SignOrder(signingKey))
+            .SubscribeToEvent(EventName.ReservationCreatedV2, webhookUrl, order.SignOrder(signingKey))
+            .SubscribeToEvent(EventName.ReservationFailed, webhookUrl, order.SignOrder(signingKey));
 
         var payment = await client.CreatePaymentAsync(paymentBuilder.BuildPaymentRequest(), cts);
         var vm = new CheckoutViewModel

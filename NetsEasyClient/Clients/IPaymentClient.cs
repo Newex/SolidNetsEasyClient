@@ -19,6 +19,11 @@ public interface IPaymentClient
     string CheckoutKey { get; }
 
     /// <summary>
+    /// The webhook authorization key used to sign and validate webhook requests
+    /// </summary>
+    string? WebhookAuthorizationKey { get; }
+
+    /// <summary>
     /// Cancels the specified payment. When a payment is canceled, the reserved amount of the payment will be released to the customer's payment card
     /// </summary>
     /// <remarks>
