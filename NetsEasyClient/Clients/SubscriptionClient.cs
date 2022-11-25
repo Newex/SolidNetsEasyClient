@@ -7,6 +7,7 @@ using System.Text;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Web;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -104,7 +105,7 @@ public class SubscriptionClient : ISubscriptionClient
             var client = httpClientFactory.CreateClient(mode);
             AddHeaders(ref client);
 
-            var path = NetsEndpoints.Relative.Subscription + $"?externalReference={externalReference}";
+            var path = NetsEndpoints.Relative.Subscription + $"?externalReference={HttpUtility.UrlEncode(externalReference)}";
             var result = await client.GetFromJsonAsync<SubscriptionDetails>(path, cancellationToken);
 
             if (result is null)
