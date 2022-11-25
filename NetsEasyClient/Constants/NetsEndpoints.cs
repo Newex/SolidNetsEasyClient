@@ -52,6 +52,11 @@ public static class NetsEndpoints
         /// The subscription endpoint
         /// </summary>
         public const string Subscription = "/v1/subscriptions";
+
+        /// <summary>
+        /// The unscheduled subscriptions endpoint
+        /// </summary>
+        public const string UnscheduledSubscriptions = "/v1/unscheduledsubscriptions";
     }
 
     /// <summary>
