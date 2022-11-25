@@ -53,7 +53,7 @@ internal static class PaymentValidator
             return false;
         }
 
-        if (!Below32WebHooks(payment))
+        if (!Below33WebHooks(payment))
         {
             return false;
         }
@@ -172,7 +172,7 @@ internal static class PaymentValidator
         return country is not null;
     }
 
-    internal static bool Below32WebHooks(PaymentRequest payment)
+    internal static bool Below33WebHooks(PaymentRequest payment)
     {
         var countWebHooks = payment.Notifications?.WebHooks.Count() ?? 0;
         return countWebHooks <= 32;

@@ -258,7 +258,7 @@ public class PaymentModelTests
             .WithNotifications(webHooks: 33);
 
         // Act
-        var result = PaymentValidator.Below32WebHooks(payment);
+        var result = PaymentValidator.Below33WebHooks(payment);
 
         // Assert
         Assert.False(result);
@@ -273,7 +273,7 @@ public class PaymentModelTests
             .WithNotifications(webHooks: 32);
 
         // Act
-        var result = PaymentValidator.Below32WebHooks(payment);
+        var result = PaymentValidator.Below33WebHooks(payment);
 
         // Assert
         Assert.True(result);
@@ -288,7 +288,7 @@ public class PaymentModelTests
             .WithNotifications(webHooks: 12);
 
         // Act
-        var result = PaymentValidator.Below32WebHooks(payment);
+        var result = PaymentValidator.Below33WebHooks(payment);
 
         // Assert
         Assert.True(result);
@@ -303,7 +303,7 @@ public class PaymentModelTests
             .WithNotifications(webHooks: 0, c => null);
 
         // Act
-        var result = PaymentValidator.Below32WebHooks(payment);
+        var result = PaymentValidator.Below33WebHooks(payment);
 
         // Assert
         Assert.True(result);
