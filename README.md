@@ -14,7 +14,7 @@ $ `dotnet add package SolidNetsEasyClient`
 Register the service in the startup process:
 
 ```csharp
-// Register TUS services
+// Register nets services
 builder
 .Services
 .AddNetsEasyClient()
