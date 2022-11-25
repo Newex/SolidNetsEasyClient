@@ -1,5 +1,7 @@
+using System;
 using System.Collections.Generic;
 using Microsoft.AspNetCore.WebUtilities;
+using SolidNetsEasyClient.Extensions;
 using SolidNetsEasyClient.Models.DTOs.Contacts;
 using SolidNetsEasyClient.Models.DTOs.Enums;
 using SolidNetsEasyClient.Models.DTOs.Requests.Customers;
@@ -15,8 +17,12 @@ namespace SolidNetsEasyClient.Builder;
 public sealed class NetsPaymentBuilder
 {
     private readonly Order order;
-    private Checkout checkout = new();
-    private readonly List<WebHook> webHooks = new();
+    private Checkout checkout = new()
+    {
+        IntegrationType = Integration.EmbeddedCheckout
+    };
+    private Subscription? subscription;
+    private readonly List<WebHook> webHooks = new(32);
 
     private NetsPaymentBuilder(Order order)
     {
@@ -219,6 +225,27 @@ public sealed class NetsPaymentBuilder
     }
 
     /// <summary>
+    /// Create the payment as part of a regular subscription
+    /// </summary>
+    /// <param name="interval">The minimum number of days between charges, an interval of zero means no restriction. This interval commences from either the day the subscription was created or the most recent subscription charge, whichever is later</param>
+    /// <param name="endDate">The date and time when the subscription expires. It is not possible to charge this subscription after this date</param>
+    /// <param name="onTheEndOfTheMonth">True if the end date should fall on the last day of the month otherwise false</param>
+    /// <param name="onMidnight">True if the end date should fall on midnight otherwise false. Note that midnight is the same zone as the <paramref name="endDate"/></param>
+    /// <returns>A payment builder</returns>
+    public NetsPaymentBuilder AsRegularSubscription(int interval, DateTimeOffset endDate, bool onTheEndOfTheMonth = false, bool onMidnight = false)
+    {
+        // Must have end date if creating subscription
+        var date = onTheEndOfTheMonth ? endDate.AtTheEndOfTheMonth() : endDate;
+        var maybeMidnight = onMidnight ? date.AtMidnight() : date;
+        subscription = new()
+        {
+            Interval = interval,
+            EndDate = maybeMidnight
+        };
+        return this;
+    }
+
+    /// <summary>
     /// Subscribe to an event
     /// </summary>
     /// <remarks>
@@ -256,7 +283,8 @@ public sealed class NetsPaymentBuilder
             Notifications = new()
             {
                 WebHooks = webHooks
-            }
+            },
+            Subscription = subscription
         };
     }
 
