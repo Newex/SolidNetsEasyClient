@@ -83,7 +83,7 @@ public class SubscriptionClient : ISubscriptionClient
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "An exception occurred trying to retrieve subscription with {@SubscriptionID}", subscriptionId);
+            logger.LogError(ex, "An exception occurred trying to retrieve subscription with {SubscriptionID}", subscriptionId);
             throw;
         }
     }
@@ -118,7 +118,7 @@ public class SubscriptionClient : ISubscriptionClient
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "An exception occurred trying to retrieve subscription with {@ExternalReference}", externalReference);
+            logger.LogError(ex, "An exception occurred trying to retrieve subscription with {ExternalReference}", externalReference);
             throw;
         }
     }
@@ -155,7 +155,7 @@ public class SubscriptionClient : ISubscriptionClient
                 logger.LogError("Could not deserialize response from {@HttpClient}", client);
                 throw new Exception("Could not deserialize response from the http client to a BulkId");
             }
-            logger.LogInformation("Bulk charge id: {@BulkChargeId}", result);
+            logger.LogInformation("Bulk charge id: {BulkChargeId}", result);
             return result;
         }
         catch (Exception ex)
@@ -188,7 +188,7 @@ public class SubscriptionClient : ISubscriptionClient
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "An exception occurred trying to bulk retrieve {@BulkId}", bulkId);
+            logger.LogError(ex, "An exception occurred trying to bulk retrieve {BulkId}", bulkId);
             throw;
         }
     }
@@ -207,7 +207,7 @@ public class SubscriptionClient : ISubscriptionClient
             var result = JsonSerializer.Deserialize<PaginatedSubscriptions>(msg);
             if (result is null)
             {
-                logger.LogError("Could not deserialize {@Response} to PaginatedSubscriptions", msg);
+                logger.LogError("Could not deserialize {Response} to PaginatedSubscriptions", msg);
                 throw new Exception("Could not deserialize response from the http client to a PaginatedSubscriptions");
             }
 
@@ -216,7 +216,7 @@ public class SubscriptionClient : ISubscriptionClient
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "An exception occurred trying to bulk retrieve {@BulkId}", bulkId);
+            logger.LogError(ex, "An exception occurred trying to bulk retrieve {BulkId}", bulkId);
             throw;
         }
     }
@@ -235,7 +235,7 @@ public class SubscriptionClient : ISubscriptionClient
             var result = JsonSerializer.Deserialize<PaginatedSubscriptions>(msg);
             if (result is null)
             {
-                logger.LogError("Could not deserialize {@Response} to PaginatedSubscriptions", msg);
+                logger.LogError("Could not deserialize {Response} to PaginatedSubscriptions", msg);
                 throw new Exception("Could not deserialize response from the http client to a PaginatedSubscriptions");
             }
 
@@ -244,7 +244,7 @@ public class SubscriptionClient : ISubscriptionClient
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "An exception occurred trying to bulk retrieve {@BulkId}", bulkId);
+            logger.LogError(ex, "An exception occurred trying to bulk retrieve {BulkId}", bulkId);
             throw;
         }
     }
@@ -269,16 +269,16 @@ public class SubscriptionClient : ISubscriptionClient
             var path = NetsEndpoints.Relative.Subscription + "/verifications";
             var response = await client.PostAsJsonAsync(path, verifications, cancellationToken);
             var msg = await response.Content.ReadAsStringAsync(cancellationToken);
-            logger.LogTrace("Content is: {@MessageContent}", msg);
+            logger.LogTrace("Content is: {MessageContent}", msg);
             _ = response.EnsureSuccessStatusCode();
             var result = JsonSerializer.Deserialize<BulkId>(msg);
             if (result is null)
             {
-                logger.LogError("Could not deserialize {@Response} to BulkId", msg);
+                logger.LogError("Could not deserialize {Response} to BulkId", msg);
                 throw new Exception("Could not deserialize response from the http client to a BulkId");
             }
 
-            logger.LogInformation("Verified {@Subscriptions}, with {@BulkId}", verifications, result);
+            logger.LogInformation("Verified {@Subscriptions}, with {BulkId}", verifications, result);
             return result;
         }
         catch (Exception ex)
@@ -322,7 +322,7 @@ public class SubscriptionClient : ISubscriptionClient
             var result = JsonSerializer.Deserialize<PaginatedSubscriptions>(msg);
             if (result is null)
             {
-                logger.LogError("Could not deserialize {@Response} to bulkId", msg);
+                logger.LogError("Could not deserialize {Response} to bulkId", msg);
                 throw new Exception("Could not deserialize response from the http client to a PaginatedSubscription");
             }
 
@@ -331,7 +331,7 @@ public class SubscriptionClient : ISubscriptionClient
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "An exception occurred trying to retrieve verifications of {@BulkId}", bulkId);
+            logger.LogError(ex, "An exception occurred trying to retrieve verifications of {BulkId}", bulkId);
             throw;
         }
     }
