@@ -174,7 +174,7 @@ internal static class PaymentValidator
 
     internal static bool Below33WebHooks(PaymentRequest payment)
     {
-        var countWebHooks = payment.Notifications?.WebHooks.Count() ?? 0;
+        var countWebHooks = payment.Notifications?.WebHooks.Count ?? 0;
         return countWebHooks <= 32;
     }
 

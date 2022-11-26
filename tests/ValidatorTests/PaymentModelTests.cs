@@ -324,7 +324,7 @@ public class PaymentModelTests
                         Authorization = "thisisa32lengthstringauthz123456",
                         Url = "https://somesite.org/callback/endpoint"
                     }
-                }.AsEnumerable()
+                }
             });
 
         // Act
@@ -349,7 +349,7 @@ public class PaymentModelTests
                         Authorization = "thisisa33lengthstringauthz1234567",
                         Url = "https://somesite.org/callback/endpoint"
                     }
-                }.AsEnumerable()
+                }
             });
 
         // Act
