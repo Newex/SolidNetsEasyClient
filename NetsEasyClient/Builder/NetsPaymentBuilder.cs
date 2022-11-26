@@ -250,8 +250,11 @@ public sealed class NetsPaymentBuilder
     }
 
     /// <summary>
-    /// Create the payment as part of an unscheduled subscription
+    /// Create the payment as part of an unscheduled subscription.
     /// </summary>
+    /// <remarks>
+    /// The customer will be registering for a service.
+    /// </remarks>
     /// <param name="create">True if a unscheduled card on file (uCoF) should be created at NETS, can be false if updating existing unscheduled subscription id</param>
     /// <param name="unscheduledSubscriptionId">The existing unscheduled subscription id</param>
     /// <returns>A payment builder</returns>
