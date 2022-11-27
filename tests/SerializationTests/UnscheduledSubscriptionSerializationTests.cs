@@ -1,6 +1,10 @@
 using System;
+using System.Collections.Generic;
 using System.Text.Json;
+using SolidNetsEasyClient.Models.DTOs;
 using SolidNetsEasyClient.Models.DTOs.Enums;
+using SolidNetsEasyClient.Models.DTOs.Requests.Payments.Subscriptions;
+using SolidNetsEasyClient.Models.DTOs.Requests.Webhooks;
 using SolidNetsEasyClient.Models.DTOs.Responses.Payments;
 
 namespace SolidNetsEasyClient.Tests.SerializationTests;
@@ -61,6 +65,96 @@ public class UnscheduledSubscriptionSerializationTests
 
         // Act
         var actual = JsonSerializer.Deserialize<UnscheduledSubscriptionChargeResult>(json);
+
+        // Assert
+        actual.Should().BeEquivalentTo(expected);
+    }
+
+    [Fact]
+    public void Can_deserialize_request_to_BulkUnscheduledSubscriptionCharge()
+    {
+        // Arrange
+        const string json = "{\n" +
+            "\"externalBulkChargeId\": \"string\",\n" +
+            "\"notifications\": {\n" +
+                "\"webHooks\": [\n" +
+                    "{\n" +
+                        "\"eventName\": \"payment.charge.created.v2\",\n" +
+                        "\"url\": \"string\",\n" +
+                        "\"authorization\": \"string\",\n" +
+                        "\"headers\": null\n" +
+                    "}\n" +
+                "]\n" +
+            "},\n" +
+            "\"unscheduledSubscriptions\": [\n" +
+                "{\n" +
+                    "\"unscheduledSubscriptionId\": \"92143051-9e78-40af-a01f-245ccdcd9c03\",\n" +
+                    "\"externalReference\": \"string\",\n" +
+                    "\"order\": {\n" +
+                        "\"items\": [\n" +
+                            "{\n" +
+                                "\"reference\": \"string\",\n" +
+                                "\"name\": \"string\",\n" +
+                                "\"quantity\": 0,\n" +
+                                "\"unit\": \"string\",\n" +
+                                "\"unitPrice\": 0,\n" +
+                                "\"taxRate\": 0,\n" +
+                                "\"taxAmount\": 0,\n" +
+                                "\"grossTotalAmount\": 0,\n" +
+                                "\"netTotalAmount\": 0\n" +
+                            "}\n" +
+                        "],\n" +
+                        "\"amount\": 0,\n" +
+                        "\"currency\": \"nok\",\n" +
+                        "\"reference\": \"string\"\n" +
+                    "}\n" +
+                "}\n" +
+            "]\n" +
+        "}";
+        var expected = new BulkUnscheduledSubscriptionCharge
+        {
+            ExternalBulkChargeId = "string",
+            Notifications = new()
+            {
+                WebHooks = new List<WebHook>
+                {
+                    new()
+                    {
+                        EventName = EventName.ChargeCreated,
+                        Url = "string",
+                        Authorization = "string",
+                    }
+                }
+            },
+            UnscheduledSubscriptions = new List<UnscheduledSubscription>()
+            {
+                new()
+                {
+                    UnscheduledSubscriptionId = new("92143051-9e78-40af-a01f-245ccdcd9c03"),
+                    ExternalReference = "string",
+                    Order = new()
+                    {
+                        Items = new List<Item>
+                        {
+                            new()
+                            {
+                                Reference = "string",
+                                Name = "string",
+                                Quantity = 0,
+                                Unit = "string",
+                                UnitPrice = 0,
+                                TaxRate = 0
+                            }
+                        },
+                        Currency = Currency.NOK,
+                        Reference = "string"
+                    },
+                }
+            }
+        };
+
+        // Act
+        var actual = JsonSerializer.Deserialize<BulkUnscheduledSubscriptionCharge>(json);
 
         // Assert
         actual.Should().BeEquivalentTo(expected);
