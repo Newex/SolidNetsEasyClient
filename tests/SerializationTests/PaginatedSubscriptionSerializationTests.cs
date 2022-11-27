@@ -28,7 +28,7 @@ public class PaginatedSubscriptionSerializationTests
         "\"more\": true,\n" +
         "\"status\": \"Processing\"\n" +
         "}";
-        var expected = new PaginatedSubscriptions
+        var expected = new PageResult<SubscriptionProcessStatus>
         {
             Page = new List<SubscriptionProcessStatus>()
             {
@@ -49,7 +49,7 @@ public class PaginatedSubscriptionSerializationTests
         };
 
         // Act
-        var actual = JsonSerializer.Deserialize<PaginatedSubscriptions>(json);
+        var actual = JsonSerializer.Deserialize<PageResult<SubscriptionProcessStatus>>(json);
 
         // Assert
         actual.Should().BeEquivalentTo(expected);

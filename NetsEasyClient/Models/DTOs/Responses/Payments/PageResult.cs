@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
 using SolidNetsEasyClient.Models.DTOs.Enums;
@@ -6,16 +5,17 @@ using SolidNetsEasyClient.Models.DTOs.Enums;
 namespace SolidNetsEasyClient.Models.DTOs.Responses.Payments;
 
 /// <summary>
-/// A page of subscription statusses
+/// A paginated result set of <typeparamref name="T"/>
 /// </summary>
-public record PaginatedSubscriptions
+/// <typeparam name="T">The subscription process statuses</typeparam>
+public record PageResult<T> where T : BaseProcessStatus
 {
     /// <summary>
     /// A page of subscription statusses
     /// </summary>
     [JsonPropertyName("page")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public IList<SubscriptionProcessStatus>? Page { get; init; }
+    public IList<T>? Page { get; init; }
 
     /// <summary>
     /// Indicates whether there are more subscriptions beyond the requested range.
@@ -29,11 +29,4 @@ public record PaginatedSubscriptions
     [JsonPropertyName("status")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public BulkStatus? Status { get; init; }
-
-    /// <summary>
-    /// The payment identifier (a UUID).
-    /// </summary>
-    [JsonPropertyName("paymentId")]
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public Guid? PaymentId { get; init; }
 }

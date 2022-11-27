@@ -167,7 +167,7 @@ public class SubscriptionClient : ISubscriptionClient
     }
 
     /// <inheritdoc />
-    public async Task<PaginatedSubscriptions> RetrieveBulkChargesAsync(Guid bulkId, CancellationToken cancellationToken)
+    public async Task<PageResult<SubscriptionProcessStatus>> RetrieveBulkChargesAsync(Guid bulkId, CancellationToken cancellationToken)
     {
         try
         {
@@ -177,7 +177,7 @@ public class SubscriptionClient : ISubscriptionClient
             logger.LogTrace("Content is: {@MessageContent}", msg);
             _ = response.EnsureSuccessStatusCode();
 
-            var result = JsonSerializer.Deserialize<PaginatedSubscriptions>(msg);
+            var result = JsonSerializer.Deserialize<PageResult<SubscriptionProcessStatus>>(msg);
             if (result is null)
             {
                 logger.LogError("Could not deserialize {@Response} to PaginatedSubscriptions", msg);
@@ -195,7 +195,7 @@ public class SubscriptionClient : ISubscriptionClient
     }
 
     /// <inheritdoc />
-    public async Task<PaginatedSubscriptions> RetrieveBulkChargesAsync(Guid bulkId, int skip, int take, CancellationToken cancellationToken)
+    public async Task<PageResult<SubscriptionProcessStatus>> RetrieveBulkChargesAsync(Guid bulkId, int skip, int take, CancellationToken cancellationToken)
     {
         try
         {
@@ -205,7 +205,7 @@ public class SubscriptionClient : ISubscriptionClient
             logger.LogTrace("Content is: {@MessageContent}", msg);
             _ = response.EnsureSuccessStatusCode();
 
-            var result = JsonSerializer.Deserialize<PaginatedSubscriptions>(msg);
+            var result = JsonSerializer.Deserialize<PageResult<SubscriptionProcessStatus>>(msg);
             if (result is null)
             {
                 logger.LogError("Could not deserialize {Response} to PaginatedSubscriptions", msg);
@@ -223,7 +223,7 @@ public class SubscriptionClient : ISubscriptionClient
     }
 
     /// <inheritdoc />
-    public async Task<PaginatedSubscriptions> RetrieveBulkChargesAsync(Guid bulkId, int pageSize, ushort pageNumber, CancellationToken cancellationToken)
+    public async Task<PageResult<SubscriptionProcessStatus>> RetrieveBulkChargesAsync(Guid bulkId, int pageSize, ushort pageNumber, CancellationToken cancellationToken)
     {
         try
         {
@@ -233,7 +233,7 @@ public class SubscriptionClient : ISubscriptionClient
             logger.LogTrace("Content is: {@MessageContent}", msg);
             _ = response.EnsureSuccessStatusCode();
 
-            var result = JsonSerializer.Deserialize<PaginatedSubscriptions>(msg);
+            var result = JsonSerializer.Deserialize<PageResult<SubscriptionProcessStatus>>(msg);
             if (result is null)
             {
                 logger.LogError("Could not deserialize {Response} to PaginatedSubscriptions", msg);
@@ -290,7 +290,7 @@ public class SubscriptionClient : ISubscriptionClient
     }
 
     /// <inheritdoc />
-    public async Task<PaginatedSubscriptions> RetrieveBulkVerificationsAsync(Guid bulkId, int? skip, int? take, int? pageNumber, int? pageSize, CancellationToken cancellationToken)
+    public async Task<PageResult<SubscriptionProcessStatus>> RetrieveBulkVerificationsAsync(Guid bulkId, int? skip, int? take, int? pageNumber, int? pageSize, CancellationToken cancellationToken)
     {
         bool isValid = bulkId != Guid.Empty;
         isValid &= skip is null or > 0;
@@ -320,7 +320,7 @@ public class SubscriptionClient : ISubscriptionClient
             var msg = await response.Content.ReadAsStringAsync(cancellationToken);
             logger.LogTrace("Content is: {@MessageContent}", msg);
             _ = response.EnsureSuccessStatusCode();
-            var result = JsonSerializer.Deserialize<PaginatedSubscriptions>(msg);
+            var result = JsonSerializer.Deserialize<PageResult<SubscriptionProcessStatus>>(msg);
             if (result is null)
             {
                 logger.LogError("Could not deserialize {Response} to bulkId", msg);
