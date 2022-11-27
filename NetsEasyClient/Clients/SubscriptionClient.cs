@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Json;
-using System.Text;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
@@ -14,6 +13,7 @@ using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 using Microsoft.Net.Http.Headers;
 using SolidNetsEasyClient.Constants;
+using SolidNetsEasyClient.Extensions;
 using SolidNetsEasyClient.Models.DTOs.Requests.Payments.Subscriptions;
 using SolidNetsEasyClient.Models.DTOs.Requests.Webhooks;
 using SolidNetsEasyClient.Models.DTOs.Responses.Payments;
@@ -293,10 +293,10 @@ public class SubscriptionClient : ISubscriptionClient
     public async Task<PageResult<SubscriptionProcessStatus>> RetrieveBulkVerificationsAsync(Guid bulkId, int? skip, int? take, int? pageNumber, int? pageSize, CancellationToken cancellationToken)
     {
         bool isValid = bulkId != Guid.Empty;
-        isValid &= skip is null or > 0;
-        isValid &= take is null or > 0;
-        isValid &= pageNumber is null or > 0;
-        isValid &= pageSize is null or > 0;
+        isValid &= skip is null or >= 0;
+        isValid &= take is null or >= 0;
+        isValid &= pageNumber is null or >= 0;
+        isValid &= pageSize is null or >= 0;
 
         if (!isValid)
         {
@@ -311,7 +311,7 @@ public class SubscriptionClient : ISubscriptionClient
             AddHeaders(ref client);
 
             var root = NetsEndpoints.Relative.Subscription + "/verifications/" + bulkId;
-            var path = AddQuery(root,
+            var path = UrlQueryHelpers.AddQuery(root,
                                 (nameof(skip), skip?.ToString()),
                                 (nameof(take), take?.ToString()),
                                 (nameof(pageSize), pageSize?.ToString()),
@@ -342,7 +342,7 @@ public class SubscriptionClient : ISubscriptionClient
         var client = httpClientFactory.CreateClient(mode);
         AddHeaders(ref client);
         var root = NetsEndpoints.Relative.Subscription + "/charges/" + bulkId.ToString();
-        var path = AddQuery(root,
+        var path = UrlQueryHelpers.AddQuery(root,
                             (nameof(skip), skip?.ToString()),
                             (nameof(take), take?.ToString()),
                             (nameof(pageSize), pageSize?.ToString()),
@@ -351,36 +351,6 @@ public class SubscriptionClient : ISubscriptionClient
         return response;
     }
 
-    private static string AddQuery(string root, params (string? Key, string? Value)[] query)
-    {
-        var sb = new StringBuilder(root);
-        bool isFirst = true;
-
-        foreach (var (Key, Value) in query)
-        {
-            if (Key is null || Value is null)
-            {
-                continue;
-            }
-
-            if (isFirst)
-            {
-                _ = sb.Append('?');
-                isFirst = false;
-            }
-            else
-            {
-                _ = sb.Append('&');
-            }
-
-            _ = sb.Append(Key)
-                .Append('=')
-                .Append(Value);
-        }
-
-        var path = sb.ToString();
-        return path;
-    }
 
     private void AddHeaders(ref HttpClient client)
     {
