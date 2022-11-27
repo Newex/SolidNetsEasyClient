@@ -44,4 +44,25 @@ public class UnscheduledSubscriptionSerializationTests
         // Assert
         actual.Should().BeEquivalentTo(expected);
     }
+
+    [Fact]
+    public void Can_deserialize_result_from_an_unscheduled_subscription_charge_to_UnscheduledSubscriptionChargeResult()
+    {
+        // Arrange
+        const string json = "{\n" +
+            "\"paymentId\": \"472e651e-5a1e-424d-8098-23858bf03ad7\",\n" +
+            "\"chargeId\": \"aec0aceb-a4db-49fb-b366-75e90229c640\"\n" +
+        "}";
+        var expected = new UnscheduledSubscriptionChargeResult
+        {
+            PaymentId = new("472e651e-5a1e-424d-8098-23858bf03ad7"),
+            ChargeId = new("aec0aceb-a4db-49fb-b366-75e90229c640")
+        };
+
+        // Act
+        var actual = JsonSerializer.Deserialize<UnscheduledSubscriptionChargeResult>(json);
+
+        // Assert
+        actual.Should().BeEquivalentTo(expected);
+    }
 }
