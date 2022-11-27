@@ -328,7 +328,7 @@ public class PaymentModelTests
             });
 
         // Act
-        var result = PaymentValidator.CheckWebHooks(payment);
+        var result = PaymentValidator.CheckWebHooks(payment.Notifications);
 
         // Assert
         Assert.True(result);
@@ -353,7 +353,7 @@ public class PaymentModelTests
             });
 
         // Act
-        var result = PaymentValidator.CheckWebHooks(payment);
+        var result = PaymentValidator.CheckWebHooks(payment.Notifications);
 
         // Assert
         Assert.False(result);

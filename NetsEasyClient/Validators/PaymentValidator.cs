@@ -58,7 +58,7 @@ internal static class PaymentValidator
             return false;
         }
 
-        if (!CheckWebHooks(payment))
+        if (!CheckWebHooks(payment.Notifications))
         {
             return false;
         }
@@ -194,9 +194,9 @@ internal static class PaymentValidator
         return isValid;
     }
 
-    internal static bool CheckWebHooks(PaymentRequest payment)
+    internal static bool CheckWebHooks(Models.DTOs.Requests.Webhooks.Notification? notification)
     {
-        var checkWebHooks = payment.Notifications?.WebHooks.Aggregate(true, (soFar, current) => soFar && ProperWebHookUrl(current.Url) && ProperAuthorization(current.Authorization));
+        var checkWebHooks = notification?.WebHooks.Aggregate(true, (soFar, current) => soFar && ProperWebHookUrl(current.Url) && ProperAuthorization(current.Authorization));
         return checkWebHooks is null || checkWebHooks.Value;
     }
 
