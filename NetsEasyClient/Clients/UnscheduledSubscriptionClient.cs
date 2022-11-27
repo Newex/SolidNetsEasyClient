@@ -13,6 +13,7 @@ using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 using Microsoft.Net.Http.Headers;
 using SolidNetsEasyClient.Constants;
+using SolidNetsEasyClient.Extensions;
 using SolidNetsEasyClient.Models.DTOs.Requests.Orders;
 using SolidNetsEasyClient.Models.DTOs.Requests.Payments.Subscriptions;
 using SolidNetsEasyClient.Models.DTOs.Requests.Webhooks;
@@ -212,6 +213,143 @@ public class UnscheduledSubscriptionClient
             logger.LogError(ex, "An exception occurred trying to charge {@Bulk} unscheduled subscription {ExternalBulkChargeId}", bulk, externalBulkChargeId);
             throw;
         }
+    }
+
+    /// <summary>
+    /// Retrieves charges associated with the specified bulk charge operation. The bulkId is returned from Nets in the response of the Bulk charge unscheduled subscriptions method. This method supports pagination. Specify the range of subscriptions to retrieve by using either skip and take or pageNumber together with pageSize. The boolean property named more in the response body, indicates whether there are more subscriptions beyond the requested range.
+    /// </summary>
+    /// <param name="bulkId">The identifier of the bulk charge operation that was returned from the Bulk charge unscheduled subscriptions method.</param>
+    /// <param name="cancellationToken">The cancellation token</param>
+    /// <returns>A paginated result set</returns>
+    /// <exception cref="ArgumentException">Thrown if argument is invalid</exception>
+    /// <exception cref="SerializationException">Thrown if response is successfull but cannot be serialized to expected result</exception>
+    /// <exception cref="HttpRequestException">Thrown if response is not successful</exception>
+    public async Task<PageResult<UnscheduledSubscriptionProcessStatus>> RetrieveBulkUnscheduledSubscriptionChargesAsync(Guid bulkId, CancellationToken cancellationToken)
+    {
+        try
+        {
+            logger.LogTrace("Retrieving bulk {BulkId}", bulkId);
+            var response = await RetrieveBulkChargesAsync(bulkId, null, null, null, null, cancellationToken);
+            var content = await response.Content.ReadAsStringAsync(cancellationToken);
+            logger.LogTrace("Content is: {@MessageContent}", content);
+            _ = response.EnsureSuccessStatusCode();
+
+            var result = JsonSerializer.Deserialize<PageResult<UnscheduledSubscriptionProcessStatus>>(content);
+            if (result is null)
+            {
+                logger.LogError("Could not deserialize {Response} to paginated unscheduled subscription process", content);
+                throw new SerializationException("Could not deserialize response from the http client to a paginated unscheduled subscription");
+            }
+
+            logger.LogInformation("Retrieved bulk unscheduled subscriptions: {@PaginatedUnscheduledSubscripions}", result);
+            return result;
+        }
+        catch(Exception ex)
+        {
+            logger.LogError(ex, "An exception occurred trying to retrieve {BulkId}", bulkId);
+            throw;
+        }
+    }
+
+    /// <summary>
+    /// Retrieves charges associated with the specified bulk charge operation. The bulkId is returned from Nets in the response of the Bulk charge unscheduled subscriptions method. This method supports pagination. Specify the range of subscriptions to retrieve by using either skip and take or pageNumber together with pageSize. The boolean property named more in the response body, indicates whether there are more subscriptions beyond the requested range.
+    /// </summary>
+    /// <param name="bulkId">The identifier of the bulk charge operation that was returned from the Bulk charge unscheduled subscriptions method.</param>
+    /// <param name="skip">The number of subscription entries to skip from the start. Use this property in combination with the take property.</param>
+    /// <param name="take">The maximum number of subscriptions to be retrieved. Use this property in combination with the skip property.</param>
+    /// <param name="cancellationToken">The cancellation token</param>
+    /// <returns>A paginated result set</returns>
+    /// <exception cref="ArgumentException">Thrown if argument is invalid</exception>
+    /// <exception cref="SerializationException">Thrown if response is successfull but cannot be serialized to expected result</exception>
+    /// <exception cref="HttpRequestException">Thrown if response is not successful</exception>
+    public async Task<PageResult<UnscheduledSubscriptionProcessStatus>> RetrieveBulkUnscheduledSubscriptionChargesAsync(Guid bulkId, int skip, int take, CancellationToken cancellationToken)
+    {
+        try
+        {
+            logger.LogTrace("Retrieving bulk {BulkId}, {Skip} and {Take}", bulkId, skip, take);
+            var response = await RetrieveBulkChargesAsync(bulkId, skip, take, null, null, cancellationToken);
+            var content = await response.Content.ReadAsStringAsync(cancellationToken);
+            logger.LogTrace("Content is: {@MessageContent}", content);
+            _ = response.EnsureSuccessStatusCode();
+
+            var result = JsonSerializer.Deserialize<PageResult<UnscheduledSubscriptionProcessStatus>>(content);
+            if (result is null)
+            {
+                logger.LogError("Could not deserialize {Response} to paginated unscheduled subscription process", content);
+                throw new SerializationException("Could not deserialize response from the http client to a paginated unscheduled subscription");
+            }
+
+            logger.LogInformation("Retrieved bulk unscheduled subscriptions: {@PaginatedUnscheduledSubscripions}", result);
+            return result;
+        }
+        catch(Exception ex)
+        {
+            logger.LogError(ex, "An exception occurred trying to retrieve {BulkId}", bulkId);
+            throw;
+        }
+    }
+
+    /// <summary>
+    /// Retrieves charges associated with the specified bulk charge operation. The bulkId is returned from Nets in the response of the Bulk charge unscheduled subscriptions method. This method supports pagination. Specify the range of subscriptions to retrieve by using either skip and take or pageNumber together with pageSize. The boolean property named more in the response body, indicates whether there are more subscriptions beyond the requested range.
+    /// </summary>
+    /// <param name="bulkId">The identifier of the bulk charge operation that was returned from the Bulk charge unscheduled subscriptions method.</param>
+    /// <param name="pageNumber">The page number to be retrieved. Use this property in combination with the pageSize property.</param>
+    /// <param name="pageSize">The size of each page when specify the range of subscriptions using the pageNumber property.</param>
+    /// <param name="cancellationToken">The cancellation token</param>
+    /// <returns>A paginated result set</returns>
+    /// <exception cref="ArgumentException">Thrown if argument is invalid</exception>
+    /// <exception cref="SerializationException">Thrown if response is successfull but cannot be serialized to expected result</exception>
+    /// <exception cref="HttpRequestException">Thrown if response is not successful</exception>
+    public async Task<PageResult<UnscheduledSubscriptionProcessStatus>> RetrieveBulkUnscheduledSubscriptionChargesAsync(Guid bulkId, int pageNumber, ushort pageSize, CancellationToken cancellationToken)
+    {
+        try
+        {
+            logger.LogTrace("Retrieving bulk {BulkId}, {PageSize} and {PageNumber}", bulkId, pageSize, pageNumber);
+            var response = await RetrieveBulkChargesAsync(bulkId, null, null, pageNumber, pageSize, cancellationToken);
+            var content = await response.Content.ReadAsStringAsync(cancellationToken);
+            logger.LogTrace("Content is: {@MessageContent}", content);
+            _ = response.EnsureSuccessStatusCode();
+
+            var result = JsonSerializer.Deserialize<PageResult<UnscheduledSubscriptionProcessStatus>>(content);
+            if (result is null)
+            {
+                logger.LogError("Could not deserialize {Response} to paginated unscheduled subscription process", content);
+                throw new SerializationException("Could not deserialize response from the http client to a paginated unscheduled subscription");
+            }
+
+            logger.LogInformation("Retrieved bulk unscheduled subscriptions: {@PaginatedUnscheduledSubscripions}", result);
+            return result;
+        }
+        catch(Exception ex)
+        {
+            logger.LogError(ex, "An exception occurred trying to retrieve {BulkId}", bulkId);
+            throw;
+        }
+    }
+
+    private async Task<HttpResponseMessage> RetrieveBulkChargesAsync(Guid bulkId, int? skip, int? take, int? pageNumber, ushort? pageSize, CancellationToken cancellationToken)
+    {
+        bool isValid = bulkId != Guid.Empty;
+        isValid &= skip is null or >= 0;
+        isValid &= take is null or >= 0;
+        isValid &= pageNumber is null or >= 0;
+
+        if (!isValid)
+        {
+            logger.LogError("Invalid {BulkId} or paging parameters, must have values greater than zero", bulkId);
+            throw new ArgumentException("Invalid bulk id or paging parameters");
+        }
+
+        var client = httpClientFactory.CreateClient(mode);
+        AddHeaders(ref client);
+        var root = NetsEndpoints.Relative.UnscheduledSubscriptions + $"/charges/{bulkId}";
+        var path = UrlQueryHelpers.AddQuery(root,
+            (nameof(skip), skip?.ToString()),
+            (nameof(take), take?.ToString()),
+            (nameof(pageSize), pageSize?.ToString()),
+            (nameof(pageNumber), pageNumber?.ToString()));
+        var response = await client.GetAsync(path, cancellationToken);
+        return response;
     }
 
     private void AddHeaders(ref HttpClient client)
