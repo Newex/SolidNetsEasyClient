@@ -3,8 +3,9 @@ using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 using SolidNetsEasyClient.Converters;
 using SolidNetsEasyClient.Models.DTOs.Enums;
+using SolidNetsEasyClient.Models.DTOs.Requests.Payments.Subscriptions;
 
-namespace SolidNetsEasyClient.Models.DTOs.Requests.Payments.Subscriptions;
+namespace SolidNetsEasyClient.Models.DTOs.Responses.Payments;
 
 /// <summary>
 /// The status of a bulk subscription charge process

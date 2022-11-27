@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Text.Json;
 using SolidNetsEasyClient.Models.DTOs.Enums;
-using SolidNetsEasyClient.Models.DTOs.Requests.Payments.Subscriptions;
+using SolidNetsEasyClient.Models.DTOs.Responses.Payments;
 
 namespace SolidNetsEasyClient.Tests.SerializationTests;
 
