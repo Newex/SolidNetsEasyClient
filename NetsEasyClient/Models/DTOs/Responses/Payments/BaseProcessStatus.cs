@@ -61,10 +61,4 @@ public abstract record BaseProcessStatus
     [JsonPropertyName("externalReference")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public virtual string? ExternalReference { get; init; }
-
-    /// <summary>
-    /// Get the main id of the subscription
-    /// </summary>
-    /// <returns>The id</returns>
-    public abstract Guid GetId();
 }

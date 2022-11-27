@@ -17,7 +17,4 @@ public record SubscriptionProcessStatus : BaseProcessStatus
     [JsonPropertyName("subscriptionId")]
     [JsonConverter(typeof(GuidTypeConverter))]
     public Guid SubscriptionId { get; init; }
-
-    /// <inheritdoc />
-    public override Guid GetId() => SubscriptionId;
 }
