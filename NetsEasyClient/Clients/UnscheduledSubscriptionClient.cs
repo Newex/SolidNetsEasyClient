@@ -1,5 +1,7 @@
 using System;
+using System.Linq;
 using System.Net.Http;
+using System.Net.Http.Json;
 using System.Runtime.Serialization;
 using System.Text.Json;
 using System.Threading;
@@ -10,6 +12,9 @@ using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 using Microsoft.Net.Http.Headers;
 using SolidNetsEasyClient.Constants;
+using SolidNetsEasyClient.Models.DTOs.Requests.Orders;
+using SolidNetsEasyClient.Models.DTOs.Requests.Payments.Subscriptions;
+using SolidNetsEasyClient.Models.DTOs.Requests.Webhooks;
 using SolidNetsEasyClient.Models.DTOs.Responses.Payments;
 using SolidNetsEasyClient.Models.Options;
 
@@ -94,6 +99,60 @@ public class UnscheduledSubscriptionClient
         catch(Exception ex)
         {
             logger.LogError(ex, "An exception occurred trying to retrieve unscheduled subscription with {ExternalReference}", externalReference);
+            throw;
+        }
+    }
+
+    /// <summary>
+    /// Charges a single unscheduled subscription. The unscheduledSubscriptionId can be obtained from the Retrieve payment method. On success, this method creates a new payment object and performs a charge of the specified amount. Both the new paymentId and chargeId are returned in the response body.
+    /// </summary>
+    /// <param name="unscheduledSubscriptionId">The unscheduled subscription identifier (a UUID) returned from the Retrieve payment method.</param>
+    /// <param name="order">Specifies an order associated with a payment. An order must contain at least one order item. The amount of the order must match the sum of the specified order items.</param>
+    /// <param name="notifications">Notifications allow you to subscribe to status updates for a payment.</param>
+    /// <param name="cancellationToken">The cancellation token</param>
+    /// <returns>A result containing the payment and charge id</returns>
+    /// <exception cref="ArgumentException">Thrown if argument is invalid</exception>
+    /// <exception cref="SerializationException">Thrown if response is successfull but cannot be serialized to expected result</exception>
+    /// <exception cref="HttpRequestException">Thrown if response is not successful</exception>
+    public async Task<UnscheduledSubscriptionChargeResult> ChargeUnscheduledSubscriptionAsync(Guid unscheduledSubscriptionId, Order order, Notification notifications, CancellationToken cancellationToken)
+    {
+        var isValid = unscheduledSubscriptionId != Guid.Empty && order.Items.Any() && notifications.WebHooks.Count < 33;
+        if (!isValid)
+        {
+            logger.LogError("Unscheduled subscription must contain an {UnscheduledSubscriptionId} and the {@Order} must have at least 1 item! And the max webhooks are 32", unscheduledSubscriptionId, order);
+            throw new ArgumentException("Unscheduled subscription must contain an ID and an order must have at least 1 item!", nameof(unscheduledSubscriptionId));
+        }
+
+        try
+        {
+            logger.LogTrace("Charging unscheduled subscription {UnscheduledSubscriptionId}, with {@Order}", unscheduledSubscriptionId, order);
+            var client = httpClientFactory.CreateClient(mode);
+            AddHeaders(ref client);
+
+            var path = NetsEndpoints.Relative.UnscheduledSubscriptions + $"/{unscheduledSubscriptionId}/charges";
+            var body = new UnscheduledSubscriptionCharge
+            {
+                Order = order,
+                Notifications = notifications
+            };
+            var response = await client.PostAsJsonAsync(path, body, cancellationToken: cancellationToken);
+            var content = await response.Content.ReadAsStringAsync(cancellationToken);
+            logger.LogDebug("Raw response is: {ResponseContent}", content);
+            _ = response.EnsureSuccessStatusCode();
+
+            var result = JsonSerializer.Deserialize<UnscheduledSubscriptionChargeResult>(content);
+            if (result is null)
+            {
+                logger.LogError("Could not deserialize response {Content} from {@HttpClient} to UnscheduledSubscriptionChargeResult", content, client);
+                throw new SerializationException("Could not deserialize response to UnscheduledSubscriptionResult");
+            }
+
+            logger.LogInformation("Charged {@UnscheduledSubscription}", body);
+            return result;
+        }
+        catch(Exception ex)
+        {
+            logger.LogError(ex, "An exception occurred trying to charge unscheduled subscription {UnscheduledSubscriptionId}", unscheduledSubscriptionId);
             throw;
         }
     }
