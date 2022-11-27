@@ -81,8 +81,7 @@ public class UnscheduledSubscriptionSerializationTests
                     "{\n" +
                         "\"eventName\": \"payment.charge.created.v2\",\n" +
                         "\"url\": \"string\",\n" +
-                        "\"authorization\": \"string\",\n" +
-                        "\"headers\": null\n" +
+                        "\"authorization\": \"string\"\n" +
                     "}\n" +
                 "]\n" +
             "},\n" +
