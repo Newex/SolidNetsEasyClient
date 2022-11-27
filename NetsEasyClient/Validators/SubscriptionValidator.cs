@@ -9,4 +9,10 @@ internal static class SubscriptionValidator
         var xor = subscription.SubscriptionId.HasValue ^ !string.IsNullOrWhiteSpace(subscription.ExternalReference);
         return xor;
     }
+
+    internal static bool OnlyEitherSubscriptionIdOrExternalRef(UnscheduledSubscription subscription)
+    {
+        var xor = subscription.UnscheduledSubscriptionId.HasValue ^ !string.IsNullOrWhiteSpace(subscription.ExternalReference);
+        return xor;
+    }
 }

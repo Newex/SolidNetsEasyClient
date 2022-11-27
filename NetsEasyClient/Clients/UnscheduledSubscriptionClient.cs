@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Json;
@@ -17,6 +18,7 @@ using SolidNetsEasyClient.Models.DTOs.Requests.Payments.Subscriptions;
 using SolidNetsEasyClient.Models.DTOs.Requests.Webhooks;
 using SolidNetsEasyClient.Models.DTOs.Responses.Payments;
 using SolidNetsEasyClient.Models.Options;
+using SolidNetsEasyClient.Validators;
 
 namespace SolidNetsEasyClient.Clients;
 
@@ -153,6 +155,61 @@ public class UnscheduledSubscriptionClient
         catch(Exception ex)
         {
             logger.LogError(ex, "An exception occurred trying to charge unscheduled subscription {UnscheduledSubscriptionId}", unscheduledSubscriptionId);
+            throw;
+        }
+    }
+
+    /// <summary>
+    /// Charges multiple unscheduled subscriptions at once. The request body must contain: (*) A unique string that identifies this bulk charge operation; (*) A set of unscheduled subscription identifiers that should be charged.; To get status updates about the bulk charge you can subscribe to the webhooks for charges and refunds (payment.charges.* and payments.refunds.*). See also the webhooks documentation.
+    /// </summary>
+    /// <param name="bulk">The array of unscheduled subscriptions that should be charged. Each item in the array should define either a subscriptionId or an externalReference, but not both.</param>
+    /// <param name="externalBulkChargeId">A string that uniquely identifies the bulk charge operation. Use this property for enabling safe retries. Must be between 1 and 64 characters.</param>
+    /// <param name="notifications">Notifications allow you to subscribe to status updates for a payment.</param>
+    /// <param name="cancellationToken">The cancellation token</param>
+    /// <returns>A bulk id</returns>
+    /// <exception cref="ArgumentException">Thrown if argument is invalid</exception>
+    /// <exception cref="SerializationException">Thrown if response is successfull but cannot be serialized to expected result</exception>
+    /// <exception cref="HttpRequestException">Thrown if response is not successful</exception>
+    public async Task<BulkId> BulkChargeUnscheduledSubscriptionsAsync(IList<UnscheduledSubscription> bulk, string externalBulkChargeId, Notification? notifications, CancellationToken cancellationToken)
+    {
+        var isValid = bulk.All(SubscriptionValidator.OnlyEitherSubscriptionIdOrExternalRef) && !string.IsNullOrWhiteSpace(externalBulkChargeId) && PaymentValidator.CheckWebHooks(notifications);
+        if (!isValid)
+        {
+            logger.LogError("Invalid {@Bulk} or missing external {ExternalBulkChargeId} or {@Notifications}", bulk, externalBulkChargeId, notifications);
+            throw new ArgumentException("Invalid bulk, external bulk charge id or notifications");
+        }
+
+        try
+        {
+            logger.LogTrace("Charging {@Bulk} unscheduled subscription {ExternalBulkChargeId}", bulk, externalBulkChargeId);
+            var client = httpClientFactory.CreateClient(mode);
+            AddHeaders(ref client);
+
+            var path = NetsEndpoints.Relative.UnscheduledSubscriptions + "/charges";
+            var body = new BulkUnscheduledSubscriptionCharge
+            {
+                ExternalBulkChargeId = externalBulkChargeId,
+                Notifications = notifications,
+                UnscheduledSubscriptions = bulk
+            };
+            var response = await client.PostAsJsonAsync(path, body, cancellationToken);
+            var content = await response.Content.ReadAsStringAsync(cancellationToken);
+            logger.LogDebug("Raw response is: {ResponseContent}", content);
+            _ = response.EnsureSuccessStatusCode();
+
+            var result = JsonSerializer.Deserialize<BulkId>(content);
+            if (result is null)
+            {
+                logger.LogError("Could not deserialize response {Content} from {@HttpClient} to BulkId", content, client);
+                throw new SerializationException("Could not deserialize response to BulkId");
+            }
+
+            logger.LogInformation("Charged {@Bulk}, with {@BulkId}", body, result);
+            return result;
+        }
+        catch(Exception ex)
+        {
+            logger.LogError(ex, "An exception occurred trying to charge {@Bulk} unscheduled subscription {ExternalBulkChargeId}", bulk, externalBulkChargeId);
             throw;
         }
     }
