@@ -158,4 +158,51 @@ public class UnscheduledSubscriptionSerializationTests
         // Assert
         actual.Should().BeEquivalentTo(expected);
     }
+
+    [Fact]
+    public void Can_deserialize_a_paginated_set_of_unscheduled_subscriptions_to_object()
+    {
+        // Arrange
+        const string json = "{\n" +
+            "\"page\": [\n" +
+                "{\n" +
+                    "\"unscheduledSubscriptionId\": \"92143051-9e78-40af-a01f-245ccdcd9c03\",\n" +
+                    "\"paymentId\": \"472e651e-5a1e-424d-8098-23858bf03ad7\",\n" +
+                    "\"chargeId\": \"aec0aceb-a4db-49fb-b366-75e90229c640\",\n" +
+                    "\"status\": \"Failed\",\n" +
+                    "\"message\": \"string\",\n" +
+                    "\"code\": \"string\",\n" +
+                    "\"source\": \"string\",\n" +
+                    "\"externalReference\": \"string\"\n" +
+                "}\n" +
+            "],\n" +
+            "\"more\": true,\n" +
+            "\"status\": \"processing\"\n" +
+        "}";
+        var expected = new PageResult<UnscheduledSubscriptionProcessStatus>
+        {
+            Page = new List<UnscheduledSubscriptionProcessStatus>
+            {
+                new()
+                {
+                    UnscheduledSubscriptionId = new("92143051-9e78-40af-a01f-245ccdcd9c03"),
+                    PaymentId = new("472e651e-5a1e-424d-8098-23858bf03ad7"),
+                    ChargeId = new("aec0aceb-a4db-49fb-b366-75e90229c640"),
+                    Status = SubscriptionStatus.Failed,
+                    Message = "string",
+                    Code = "string",
+                    Source = "string",
+                    ExternalReference = "string"
+                }
+            },
+            More = true,
+            Status = BulkStatus.Processing
+        };
+
+        // Act
+        var actual = JsonSerializer.Deserialize<PageResult<UnscheduledSubscriptionProcessStatus>>(json);
+
+        // Assert
+        actual.Should().BeEquivalentTo(expected);
+    }
 }
