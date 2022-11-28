@@ -258,7 +258,7 @@ public class PaymentModelTests
             .WithNotifications(webHooks: 33);
 
         // Act
-        var result = PaymentValidator.Below32WebHooks(payment);
+        var result = PaymentValidator.Below33WebHooks(payment);
 
         // Assert
         Assert.False(result);
@@ -273,7 +273,7 @@ public class PaymentModelTests
             .WithNotifications(webHooks: 32);
 
         // Act
-        var result = PaymentValidator.Below32WebHooks(payment);
+        var result = PaymentValidator.Below33WebHooks(payment);
 
         // Assert
         Assert.True(result);
@@ -288,7 +288,7 @@ public class PaymentModelTests
             .WithNotifications(webHooks: 12);
 
         // Act
-        var result = PaymentValidator.Below32WebHooks(payment);
+        var result = PaymentValidator.Below33WebHooks(payment);
 
         // Assert
         Assert.True(result);
@@ -303,7 +303,7 @@ public class PaymentModelTests
             .WithNotifications(webHooks: 0, c => null);
 
         // Act
-        var result = PaymentValidator.Below32WebHooks(payment);
+        var result = PaymentValidator.Below33WebHooks(payment);
 
         // Assert
         Assert.True(result);
@@ -324,11 +324,11 @@ public class PaymentModelTests
                         Authorization = "thisisa32lengthstringauthz123456",
                         Url = "https://somesite.org/callback/endpoint"
                     }
-                }.AsEnumerable()
+                }
             });
 
         // Act
-        var result = PaymentValidator.CheckWebHooks(payment);
+        var result = PaymentValidator.CheckWebHooks(payment.Notifications);
 
         // Assert
         Assert.True(result);
@@ -349,11 +349,11 @@ public class PaymentModelTests
                         Authorization = "thisisa33lengthstringauthz1234567",
                         Url = "https://somesite.org/callback/endpoint"
                     }
-                }.AsEnumerable()
+                }
             });
 
         // Act
-        var result = PaymentValidator.CheckWebHooks(payment);
+        var result = PaymentValidator.CheckWebHooks(payment.Notifications);
 
         // Assert
         Assert.False(result);

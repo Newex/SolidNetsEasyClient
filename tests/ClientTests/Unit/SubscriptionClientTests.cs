@@ -134,7 +134,7 @@ public class SubscriptionClientTests
             "\"more\": true,\n" +
             "\"status\": \"Processing\"\n" +
         "}\n";
-        var expected = new PaginatedSubscriptions
+        var expected = new PageResult<SubscriptionProcessStatus>
         {
             Page = new List<SubscriptionProcessStatus>
             {
@@ -210,7 +210,7 @@ public class SubscriptionClientTests
             "\"more\": true,\n" +
             "\"status\": \"Processing\"\n" +
         "}\n";
-        var expected = new PaginatedSubscriptions
+        var expected = new PageResult<SubscriptionProcessStatus>
         {
             Page = new List<SubscriptionProcessStatus>
             {

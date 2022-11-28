@@ -1,5 +1,7 @@
+using System;
 using System.Collections.Generic;
 using Microsoft.AspNetCore.WebUtilities;
+using SolidNetsEasyClient.Extensions;
 using SolidNetsEasyClient.Models.DTOs.Contacts;
 using SolidNetsEasyClient.Models.DTOs.Enums;
 using SolidNetsEasyClient.Models.DTOs.Requests.Customers;
@@ -15,12 +17,19 @@ namespace SolidNetsEasyClient.Builder;
 public sealed class NetsPaymentBuilder
 {
     private readonly Order order;
-    private Checkout checkout = new();
-    private readonly List<WebHook> webHooks = new();
+    private Checkout checkout = new()
+    {
+        IntegrationType = Integration.EmbeddedCheckout
+    };
+    private Subscription? subscription;
+    private UnscheduledSubscription? unscheduled;
+    private readonly List<WebHook> webHooks = new(32);
+    private readonly int minimumPayment;
 
-    private NetsPaymentBuilder(Order order)
+    private NetsPaymentBuilder(Order order, int minimumPayment)
     {
         this.order = order;
+        this.minimumPayment = minimumPayment;
     }
 
     /// <summary>
@@ -219,6 +228,55 @@ public sealed class NetsPaymentBuilder
     }
 
     /// <summary>
+    /// Create the payment as part of a regular subscription
+    /// </summary>
+    /// <param name="interval">The minimum number of days between charges, an interval of zero means no restriction. This interval commences from either the day the subscription was created or the most recent subscription charge, whichever is later</param>
+    /// <param name="endDate">The date and time when the subscription expires. It is not possible to charge this subscription after this date</param>
+    /// <param name="onTheEndOfTheMonth">True if the end date should fall on the last day of the month otherwise false</param>
+    /// <param name="onMidnight">True if the end date should fall on midnight otherwise false. Note that midnight is the same zone as the <paramref name="endDate"/></param>
+    /// <returns>A payment builder</returns>
+    public NetsPaymentBuilder AsRegularSubscription(int interval, DateTimeOffset endDate, bool onTheEndOfTheMonth = false, bool onMidnight = false)
+    {
+        // Must have end date if creating subscription
+        var date = onTheEndOfTheMonth ? endDate.AtTheEndOfTheMonth() : endDate;
+        var maybeMidnight = onMidnight ? date.AtMidnight() : date;
+        unscheduled = null;
+        subscription = new()
+        {
+            Interval = interval,
+            EndDate = maybeMidnight
+        };
+        return this;
+    }
+
+    /// <summary>
+    /// Create the payment as part of an unscheduled subscription.
+    /// </summary>
+    /// <remarks>
+    /// The customer will be registering for a service.
+    /// </remarks>
+    /// <param name="create">True if a unscheduled card on file (uCoF) should be created at NETS, can be false if updating existing unscheduled subscription id</param>
+    /// <param name="unscheduledSubscriptionId">The existing unscheduled subscription id</param>
+    /// <returns>A payment builder</returns>
+    /// <exception cref="ArgumentException">Thrown if create is false and unscheduled subscription id is missing</exception>
+    public NetsPaymentBuilder AsUnscheduledSubscription(bool create, Guid? unscheduledSubscriptionId = null)
+    {
+        if (!create && unscheduledSubscriptionId.GetValueOrDefault() == Guid.Empty)
+        {
+            throw new ArgumentException("If not creating a new unscheduled subscription you must include the ID which can be found using the retrieve payment method in PaymentClient", nameof(unscheduledSubscriptionId));
+        }
+
+        subscription = null;
+        unscheduled = new()
+        {
+            Create = create,
+            UnscheduledSubscriptionId = unscheduledSubscriptionId
+        };
+
+        return this;
+    }
+
+    /// <summary>
     /// Subscribe to an event
     /// </summary>
     /// <remarks>
@@ -249,6 +307,11 @@ public sealed class NetsPaymentBuilder
     /// <returns>A payment request</returns>
     public PaymentRequest BuildPaymentRequest()
     {
+        if (unscheduled is not null && order.Amount < minimumPayment && order.Amount != 0)
+        {
+            throw new InvalidOperationException($"Order amount for an unscheduled subscription must be zero or more than {minimumPayment}");
+        }
+
         return new()
         {
             Order = order,
@@ -256,17 +319,23 @@ public sealed class NetsPaymentBuilder
             Notifications = new()
             {
                 WebHooks = webHooks
-            }
+            },
+            Subscription = subscription,
+            UnscheduledSubscription = unscheduled
         };
     }
 
     /// <summary>
     /// Create a payment builder
     /// </summary>
+    /// <remarks>
+    /// The minimum order amount for an unscheduled subscription charge is determined by each individual provider Visa, MasterCard etc. and will be rejected if below a certain amount.
+    /// </remarks>
     /// <param name="order">The order</param>
+    /// <param name="minimumPayment">The minimum payment that an unscheduled subscription should contain</param>
     /// <returns>A payment builder</returns>
-    public static NetsPaymentBuilder CreatePayment(Order order)
+    public static NetsPaymentBuilder CreatePayment(Order order, int minimumPayment = 5_00)
     {
-        return new NetsPaymentBuilder(order);
+        return new NetsPaymentBuilder(order, minimumPayment);
     }
 }

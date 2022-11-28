@@ -4,7 +4,7 @@ This is a client for making type safe requests to the [nets easy API endpoint](h
 ### Status
 Current development status is: under development, non functional library.
 
-# Quickstart (TBD)
+# Quickstart
 
 Add the package to your project:  
 ```
@@ -14,7 +14,7 @@ $ `dotnet add package SolidNetsEasyClient`
 Register the service in the startup process:
 
 ```csharp
-// Register TUS services
+// Register nets services
 builder
 .Services
 .AddNetsEasyClient()
@@ -22,7 +22,7 @@ builder
 ```
 
 Either via appsettings.json or environment variables set the payment option values (or via the `Configure` extension method)
-```json
+```
 // File appsettings.json
   {
     ...
@@ -34,13 +34,45 @@ Either via appsettings.json or environment variables set the payment option valu
         "PrivacyPolicyUrl": "http://privacy.url",
         "CommercePlatformTag": "optional identifier for the ecommerce platform",
         "ReturnUrl": "http://only-use-when-hosting-checkout-on-nets.com/aka/HostedPaymentPage",
-        "ClientMode": "Test" // Can be Test or Live mode
+        "ClientMode": "Test" // Can be 'Test' or 'Live' mode
     }
   }
 ```
 
+And use the payment builder to construct a payment object:
 
-# Features (TBD)
+```csharp
+Order order = new Order { /* With order items */};
+var paymentBuilder = NetsPaymentBuilder
+                        .CreatePayment(order)
+                        .WithPrivateCustomer(
+                            customerId: "myInternalCustomerId",
+                            firstName: "John",
+                            lastName: "Doe",
+                            email: "john@doe.com"
+                        )
+                        .ChargePaymentOnCreation(true);
+PaymentRequest payment = paymentBuilder.BuildPaymentRequest;
+```
+Then use the `PaymentClient` or `SubscriptionClient` or `UnscheduledSubscriptionClient` in your `Controller` via dependency injection:
+
+```csharp
+public class MyController : Controller
+{
+    public MyController(PaymentClient paymentClient)
+    {
+        // ...
+    }
+}
+```
+
+To start a checkout session:
+```csharp
+PaymentResult payment = await paymentClient.CreatePaymentAsync(payment, CancellationToken.None);
+```
+
+
+# Features
 Use the client to make and manage payments, from the backend. Remember that the you still need a frontend for a customer to input payment details.
 
 

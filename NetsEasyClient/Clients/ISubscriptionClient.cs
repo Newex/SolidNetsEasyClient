@@ -33,7 +33,7 @@ public interface ISubscriptionClient
     /// <param name="bulkId">The identifier of the bulk charge operation that was returned from the Bulk charge subscriptions method.</param>
     /// <param name="cancellationToken">The cancellation token</param>
     /// <returns>A paginated set of subscriptions</returns>
-    Task<PaginatedSubscriptions> RetrieveBulkChargesAsync(Guid bulkId, CancellationToken cancellationToken);
+    Task<PageResult<SubscriptionProcessStatus>> RetrieveBulkChargesAsync(Guid bulkId, CancellationToken cancellationToken);
 
     /// <summary>
     /// Retrieves charges associated with the specified bulk charge operation. The bulkId is returned from Nets in the response of the Bulk charge subscriptions method. This method supports pagination. Specify the range of subscriptions to retrieve by using either skip and take. The boolean property named more in the response body, indicates whether there are more subscriptions beyond the requested range.
@@ -43,7 +43,7 @@ public interface ISubscriptionClient
     /// <param name="take">The maximum number of subscriptions to be retrieved. Use this property in combination with the skip property.</param>
     /// <param name="cancellationToken">The cancellation token</param>
     /// <returns>A paginated set of subscriptions</returns>
-    Task<PaginatedSubscriptions> RetrieveBulkChargesAsync(Guid bulkId, int skip, int take, CancellationToken cancellationToken);
+    Task<PageResult<SubscriptionProcessStatus>> RetrieveBulkChargesAsync(Guid bulkId, int skip, int take, CancellationToken cancellationToken);
 
     /// <summary>
     /// Retrieves charges associated with the specified bulk charge operation. The bulkId is returned from Nets in the response of the Bulk charge subscriptions method. This method supports pagination. Specify the range of subscriptions to retrieve by using pageNumber together with pageSize. The boolean property named more in the response body, indicates whether there are more subscriptions beyond the requested range.
@@ -53,7 +53,7 @@ public interface ISubscriptionClient
     /// <param name="pageNumber">The page number to be retrieved. Use this property in combination with the pageSize property.</param>
     /// <param name="cancellationToken">The cancellation token</param>
     /// <returns>A paginated set of subscriptions</returns>
-    Task<PaginatedSubscriptions> RetrieveBulkChargesAsync(Guid bulkId, int pageSize, ushort pageNumber, CancellationToken cancellationToken);
+    Task<PageResult<SubscriptionProcessStatus>> RetrieveBulkChargesAsync(Guid bulkId, int pageSize, ushort pageNumber, CancellationToken cancellationToken);
 
     /// <summary>
     /// Retrieves verifications associated with the specified bulk verification operation. The bulkId is returned from Nets in the response of the Verify subscriptions method. This method supports pagination. Specify the range of subscriptions to retrieve by using either skip and take or pageNumber together with pageSize. The boolean property named more in the response body, indicates whether there are more subscriptions beyond the requested range.
@@ -66,7 +66,7 @@ public interface ISubscriptionClient
     /// <param name="cancellationToken">The cancellation token</param>
     /// <returns>A paginated result set of subscriptions</returns>
     /// <exception cref="ArgumentException">Thrown if bulk id is empty or if skip, take, pageNumber or pageSize is negative</exception>
-    Task<PaginatedSubscriptions> RetrieveBulkVerificationsAsync(Guid bulkId, int? skip, int? take, int? pageNumber, int? pageSize, CancellationToken cancellationToken);
+    Task<PageResult<SubscriptionProcessStatus>> RetrieveBulkVerificationsAsync(Guid bulkId, int? skip, int? take, int? pageNumber, int? pageSize, CancellationToken cancellationToken);
 
     /// <summary>
     /// Retrieves an existing subscription by a subscriptionId. The subscriptionId can be obtained from the Retrieve payment method.
