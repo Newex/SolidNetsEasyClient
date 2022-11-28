@@ -379,6 +379,66 @@ public class UnscheduledSubscriptionClient
         }
     }
 
+    /// <summary>
+    /// Retrieves verifications associated with the specified bulk unscheduled verification operation. The bulkId is returned from Nets in the response of the Verify unscheduled subscriptions method. This method supports pagination. Specify the range of subscriptions to retrieve by using either skip and take or pageNumber together with pageSize. The boolean property named more in the response body, indicates whether there are more subscriptions beyond the requested range.
+    /// </summary>
+    /// <param name="bulkId">The identifier of the bulk verification operation that was returned from the Verify unscheduled subscriptions method.</param>
+    /// <param name="cancellationToken">The cancellation token</param>
+    /// <param name="skip">The number of unscheduled subscription entries to skip from the start. Use this property in combination with the take property.</param>
+    /// <param name="take">The maximum number of unscheduled subscriptions to be retrieved. Use this property in combination with the skip property.</param>
+    /// <param name="pageNumber">The page number to be retrieved. Use this property in combination with the pageSize property.</param>
+    /// <param name="pageSize">The size of each page when specify the range of unscheduled subscriptions using the pageNumber property.</param>
+    /// <returns>A page result set of unscheduled subscription process statuses</returns>
+    /// <exception cref="ArgumentException">Thrown if argument is invalid</exception>
+    /// <exception cref="SerializationException">Thrown if response is successfull but cannot be serialized to expected result</exception>
+    /// <exception cref="HttpRequestException">Thrown if response is not successful</exception>
+    public async Task<PageResult<UnscheduledSubscriptionProcessStatus>> RetrieveBulkVerificationsAsync(Guid bulkId, CancellationToken cancellationToken, int? skip = null, int? take = null, int? pageNumber = null, int? pageSize = null)
+    {
+        bool isValid = bulkId != Guid.Empty;
+        isValid &= skip is null or >= 0;
+        isValid &= take is null or >= 0;
+        isValid &= pageNumber is null or >= 0;
+        if (!isValid)
+        {
+            logger.LogError("Invalid {BulkId}, or skip, take, pageNumber or pageSize parameters. Must be non-negative", bulkId);
+            throw new ArgumentException("Invalid bulk id or paging parameters.", nameof(bulkId));
+        }
+
+        try
+        {
+            logger.LogTrace("Retrieving page verifications for {BulkId}", bulkId);
+            var root = NetsEndpoints.Relative.UnscheduledSubscriptions + $"/verifications/{bulkId}";
+            var path = UrlQueryHelpers.AddQuery(root,
+                (nameof(skip), skip?.ToString()),
+                (nameof(take), take?.ToString()),
+                (nameof(pageSize), pageSize?.ToString()),
+                (nameof(pageNumber), pageNumber?.ToString()));
+
+            var client = httpClientFactory.CreateClient(mode);
+            AddHeaders(ref client);
+
+            var response = await client.GetAsync(path, cancellationToken);
+            var content = await response.Content.ReadAsStringAsync();
+            logger.LogTrace("Content is: {@MessageContent}", content);
+            _ = response.EnsureSuccessStatusCode();
+
+            var result = JsonSerializer.Deserialize<PageResult<UnscheduledSubscriptionProcessStatus>>(content);
+            if (result is null)
+            {
+                logger.LogError("Could not deserialize {ResponseContent} to PageResult of UnscheduledSubscriptionProcessStatus", content);
+                throw new SerializationException("Could not deserialize response to page result");
+            }
+
+            logger.LogInformation("Retrieved page of verifications: {@Result}", result);
+            return result;
+        }
+        catch(Exception ex)
+        {
+            logger.LogError(ex, "An exception occurred trying to retrieve bulk verifications for {BulkId}", bulkId);
+            throw;
+        }
+    }
+
     private async Task<HttpResponseMessage> RetrieveBulkChargesAsync(Guid bulkId, int? skip, int? take, int? pageNumber, ushort? pageSize, CancellationToken cancellationToken)
     {
         bool isValid = bulkId != Guid.Empty;
