@@ -205,4 +205,43 @@ public class UnscheduledSubscriptionSerializationTests
         // Assert
         actual.Should().BeEquivalentTo(expected);
     }
+
+    [Fact]
+    public void Can_deserialize_example_paginated_verification_result_set_to_object()
+    {
+        // Arrange
+        const string json = "{\n" +
+            "\"page\": [\n" +
+                "{\n" +
+                    "\"unscheduledSubscriptionId\": \"92143051-9e78-40af-a01f-245ccdcd9c03\",\n" +
+                    "\"externalReference\": \"string\",\n" +
+                    "\"status\": \"Succeeded\",\n" +
+                    "\"paymentId\": \"472e651e-5a1e-424d-8098-23858bf03ad7\"\n" +
+                "}\n" +
+            "],\n" +
+            "\"more\": true,\n" +
+            "\"status\": \"Done\"\n" +
+        "}";
+        var expected = new PageResult<UnscheduledSubscriptionProcessStatus>
+        {
+            Page = new List<UnscheduledSubscriptionProcessStatus>
+            {
+                new()
+                {
+                    UnscheduledSubscriptionId = new("92143051-9e78-40af-a01f-245ccdcd9c03"),
+                    ExternalReference = "string",
+                    Status = SubscriptionStatus.Succeeded,
+                    PaymentId = new("472e651e-5a1e-424d-8098-23858bf03ad7")
+                }
+            },
+            More = true,
+            Status = BulkStatus.Done
+        };
+
+        // Act
+        var actual = JsonSerializer.Deserialize<PageResult<UnscheduledSubscriptionProcessStatus>>(json);
+
+        // Assert
+        actual.Should().BeEquivalentTo(expected);
+    }
 }
