@@ -324,11 +324,11 @@ public class PaymentModelTests
                         Authorization = "thisisa32lengthstringauthz123456",
                         Url = "https://somesite.org/callback/endpoint"
                     }
-                }.AsEnumerable()
+                }
             });
 
         // Act
-        var result = PaymentValidator.CheckWebHooks(payment);
+        var result = PaymentValidator.CheckWebHooks(payment.Notifications);
 
         // Assert
         Assert.True(result);
@@ -349,11 +349,11 @@ public class PaymentModelTests
                         Authorization = "thisisa33lengthstringauthz1234567",
                         Url = "https://somesite.org/callback/endpoint"
                     }
-                }.AsEnumerable()
+                }
             });
 
         // Act
-        var result = PaymentValidator.CheckWebHooks(payment);
+        var result = PaymentValidator.CheckWebHooks(payment.Notifications);
 
         // Assert
         Assert.False(result);

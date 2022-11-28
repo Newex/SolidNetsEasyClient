@@ -4,21 +4,13 @@ using System.Text.Json.Serialization;
 using SolidNetsEasyClient.Converters;
 using SolidNetsEasyClient.Models.DTOs.Enums;
 
-namespace SolidNetsEasyClient.Models.DTOs.Requests.Payments.Subscriptions;
+namespace SolidNetsEasyClient.Models.DTOs.Responses.Payments;
 
 /// <summary>
-/// The status of a bulk subscription charge process
+/// The process status of a subscription
 /// </summary>
-public record SubscriptionProcessStatus : BaseSubscription
+public abstract record BaseProcessStatus
 {
-    /// <summary>
-    /// The subscription identifier (a UUID) returned from the Retrieve payment method.
-    /// </summary>
-    [Required]
-    [JsonPropertyName("subscriptionId")]
-    [JsonConverter(typeof(GuidTypeConverter))]
-    public new Guid SubscriptionId { get; init; }
-
     /// <summary>
     /// The payment identifier.
     /// </summary>
@@ -62,4 +54,11 @@ public record SubscriptionProcessStatus : BaseSubscription
     [JsonPropertyName("source")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public string? Source { get; init; }
+
+    /// <summary>
+    /// An external reference to identify a set of imported subscriptions. This parameter is only used if your subscriptions have been imported from a payment platform other than Nets Easy.
+    /// </summary>
+    [JsonPropertyName("externalReference")]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public virtual string? ExternalReference { get; init; }
 }

@@ -16,5 +16,5 @@ public record Notification
     /// The maximum number of webhooks is 32
     /// </remarks>
     [JsonPropertyName("webHooks")]
-    public IEnumerable<WebHook> WebHooks { get; init; } = Enumerable.Empty<WebHook>();
+    public IList<WebHook> WebHooks { get; init; } = Enumerable.Empty<WebHook>().ToList();
 }

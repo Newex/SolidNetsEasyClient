@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Bogus;
 using Bogus.DataSets;
 using ISO3166;
@@ -241,7 +242,7 @@ public static class Fakes
     public static Notification RandomNotification(int hooks)
     {
         var faker = new Faker<Notification>();
-        faker.RuleFor(f => f.WebHooks, f => f.MakeLazy(hooks, () => RandomWebHook()));
+        faker.RuleFor(f => f.WebHooks, f => f.Make(hooks, () => RandomWebHook()));
         return faker.Generate();
     }
 

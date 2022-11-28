@@ -22,11 +22,14 @@ public sealed class NetsPaymentBuilder
         IntegrationType = Integration.EmbeddedCheckout
     };
     private Subscription? subscription;
+    private UnscheduledSubscription? unscheduled;
     private readonly List<WebHook> webHooks = new(32);
+    private readonly int minimumPayment;
 
-    private NetsPaymentBuilder(Order order)
+    private NetsPaymentBuilder(Order order, int minimumPayment)
     {
         this.order = order;
+        this.minimumPayment = minimumPayment;
     }
 
     /// <summary>
@@ -237,11 +240,39 @@ public sealed class NetsPaymentBuilder
         // Must have end date if creating subscription
         var date = onTheEndOfTheMonth ? endDate.AtTheEndOfTheMonth() : endDate;
         var maybeMidnight = onMidnight ? date.AtMidnight() : date;
+        unscheduled = null;
         subscription = new()
         {
             Interval = interval,
             EndDate = maybeMidnight
         };
+        return this;
+    }
+
+    /// <summary>
+    /// Create the payment as part of an unscheduled subscription.
+    /// </summary>
+    /// <remarks>
+    /// The customer will be registering for a service.
+    /// </remarks>
+    /// <param name="create">True if a unscheduled card on file (uCoF) should be created at NETS, can be false if updating existing unscheduled subscription id</param>
+    /// <param name="unscheduledSubscriptionId">The existing unscheduled subscription id</param>
+    /// <returns>A payment builder</returns>
+    /// <exception cref="ArgumentException">Thrown if create is false and unscheduled subscription id is missing</exception>
+    public NetsPaymentBuilder AsUnscheduledSubscription(bool create, Guid? unscheduledSubscriptionId = null)
+    {
+        if (!create && unscheduledSubscriptionId.GetValueOrDefault() == Guid.Empty)
+        {
+            throw new ArgumentException("If not creating a new unscheduled subscription you must include the ID which can be found using the retrieve payment method in PaymentClient", nameof(unscheduledSubscriptionId));
+        }
+
+        subscription = null;
+        unscheduled = new()
+        {
+            Create = create,
+            UnscheduledSubscriptionId = unscheduledSubscriptionId
+        };
+
         return this;
     }
 
@@ -276,6 +307,11 @@ public sealed class NetsPaymentBuilder
     /// <returns>A payment request</returns>
     public PaymentRequest BuildPaymentRequest()
     {
+        if (unscheduled is not null && order.Amount < minimumPayment && order.Amount != 0)
+        {
+            throw new InvalidOperationException($"Order amount for an unscheduled subscription must be zero or more than {minimumPayment}");
+        }
+
         return new()
         {
             Order = order,
@@ -284,17 +320,22 @@ public sealed class NetsPaymentBuilder
             {
                 WebHooks = webHooks
             },
-            Subscription = subscription
+            Subscription = subscription,
+            UnscheduledSubscription = unscheduled
         };
     }
 
     /// <summary>
     /// Create a payment builder
     /// </summary>
+    /// <remarks>
+    /// The minimum order amount for an unscheduled subscription charge is determined by each individual provider Visa, MasterCard etc. and will be rejected if below a certain amount.
+    /// </remarks>
     /// <param name="order">The order</param>
+    /// <param name="minimumPayment">The minimum payment that an unscheduled subscription should contain</param>
     /// <returns>A payment builder</returns>
-    public static NetsPaymentBuilder CreatePayment(Order order)
+    public static NetsPaymentBuilder CreatePayment(Order order, int minimumPayment = 5_00)
     {
-        return new NetsPaymentBuilder(order);
+        return new NetsPaymentBuilder(order, minimumPayment);
     }
 }

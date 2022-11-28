@@ -58,7 +58,7 @@ internal static class PaymentValidator
             return false;
         }
 
-        if (!CheckWebHooks(payment))
+        if (!CheckWebHooks(payment.Notifications))
         {
             return false;
         }
@@ -132,7 +132,7 @@ internal static class PaymentValidator
         }
 
         var shippingCountries = payment.Checkout.ShippingCountries;
-        if (shippingCountries is not null && shippingCountries.Any())
+        if (shippingCountries?.Any() == true)
         {
             foreach (var destination in shippingCountries)
             {
@@ -174,7 +174,7 @@ internal static class PaymentValidator
 
     internal static bool Below33WebHooks(PaymentRequest payment)
     {
-        var countWebHooks = payment.Notifications?.WebHooks.Count() ?? 0;
+        var countWebHooks = payment.Notifications?.WebHooks.Count ?? 0;
         return countWebHooks <= 32;
     }
 
@@ -194,16 +194,16 @@ internal static class PaymentValidator
         return isValid;
     }
 
-    internal static bool CheckWebHooks(PaymentRequest payment)
+    internal static bool CheckWebHooks(Models.DTOs.Requests.Webhooks.Notification? notification)
     {
-        var checkWebHooks = payment.Notifications?.WebHooks.Aggregate(true, (soFar, current) => soFar && ProperWebHookUrl(current.Url) && ProperAuthorization(current.Authorization));
+        var checkWebHooks = notification?.WebHooks.Aggregate(true, (soFar, current) => soFar && ProperWebHookUrl(current.Url) && ProperAuthorization(current.Authorization));
         return checkWebHooks is null || checkWebHooks.Value;
     }
 
     internal static bool PaymentConfigurationAllMethodOrAllType(PaymentRequest payment)
     {
         var paymentConfiguration = payment.PaymentMethodsConfiguration;
-        if (paymentConfiguration is null || !paymentConfiguration.Any())
+        if (paymentConfiguration?.Any() != true)
         {
             return true;
         }
