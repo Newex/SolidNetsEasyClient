@@ -351,7 +351,6 @@ public class SubscriptionClient : ISubscriptionClient
         return response;
     }
 
-
     private void AddHeaders(ref HttpClient client)
     {
         client.DefaultRequestHeaders.Add(HeaderNames.Authorization, apiKey);

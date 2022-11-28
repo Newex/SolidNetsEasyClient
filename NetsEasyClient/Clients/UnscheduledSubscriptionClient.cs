@@ -327,6 +327,58 @@ public class UnscheduledSubscriptionClient
         }
     }
 
+    /// <summary>
+    /// Verifies the specified set of unscheduled subscriptions in bulk. The bulkId returned from a successful request can be used for querying the status of the unscheduled subscriptions.
+    /// </summary>
+    /// <param name="subscriptions">The set of unscheduled subscriptions that should be verified. Each item in the array should define either a unscheduledSubscriptionId or an externalReference, but not both.</param>
+    /// <param name="externalBulkVerificationId">A string that uniquely identifies the verification operation. Use this property for enabling safe retries. Must be between 1 and 64 characters.</param>
+    /// <param name="cancellationToken">The cancellation token</param>
+    /// <returns>A bulk id</returns>
+    /// <exception cref="ArgumentException">Thrown if argument is invalid</exception>
+    /// <exception cref="SerializationException">Thrown if response is successfull but cannot be serialized to expected result</exception>
+    /// <exception cref="HttpRequestException">Thrown if response is not successful</exception>
+    public async Task<BulkId> VerifyBulkSubscriptionsAsync(IList<UnscheduledSubscriptionInfo> subscriptions, string externalBulkVerificationId, CancellationToken cancellationToken)
+    {
+        var isValid = subscriptions.All(SubscriptionValidator.OnlyEitherSubscriptionIdOrExternalRef) && !string.IsNullOrWhiteSpace(externalBulkVerificationId) && externalBulkVerificationId.Length < 65;
+        if (!isValid)
+        {
+            logger.LogError("Invalid {@Subscriptions} or missing external {ExternalVerificationId}", subscriptions, externalBulkVerificationId);
+            throw new ArgumentException("Invalid subscriptions or external verification id");
+        }
+
+        try
+        {
+            logger.LogTrace("Verifying {@UnscheduledSubscriptions}", subscriptions);
+            var path = NetsEndpoints.Relative.UnscheduledSubscriptions + "/verifications";
+            var client = httpClientFactory.CreateClient(mode);
+            AddHeaders(ref client);
+            var body = new VerifyBulkUnscheduledSubscriptions
+            {
+                ExternalBulkVerificationId = externalBulkVerificationId,
+                UnscheduledSubscriptions = subscriptions
+            };
+            var response = await client.PostAsJsonAsync(path, body, cancellationToken);
+            var content = await response.Content.ReadAsStringAsync(cancellationToken);
+            logger.LogTrace("Content is: {@MessageContent}", content);
+            _ = response.EnsureSuccessStatusCode();
+
+            var result = JsonSerializer.Deserialize<BulkId>(content);
+            if (result is null)
+            {
+                logger.LogError("Could not deserialize {Response} to BulkId", content);
+                throw new SerializationException("Could not deserialize response from the http client to a bulk id");
+            }
+
+            logger.LogInformation("Retrieved bulk id: {@BulkId}", result);
+            return result;
+        }
+        catch(Exception ex)
+        {
+            logger.LogError(ex, "An exception occurred trying to verify {@UnscheduledSubscriptions}", subscriptions);
+            throw;
+        }
+    }
+
     private async Task<HttpResponseMessage> RetrieveBulkChargesAsync(Guid bulkId, int? skip, int? take, int? pageNumber, ushort? pageSize, CancellationToken cancellationToken)
     {
         bool isValid = bulkId != Guid.Empty;

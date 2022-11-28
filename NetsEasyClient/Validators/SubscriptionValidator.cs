@@ -1,4 +1,5 @@
 using SolidNetsEasyClient.Models.DTOs.Requests.Payments.Subscriptions;
+using SolidNetsEasyClient.Models.DTOs.Responses.Payments;
 
 namespace SolidNetsEasyClient.Validators;
 
@@ -10,7 +11,7 @@ internal static class SubscriptionValidator
         return xor;
     }
 
-    internal static bool OnlyEitherSubscriptionIdOrExternalRef(UnscheduledSubscription subscription)
+    internal static bool OnlyEitherSubscriptionIdOrExternalRef(UnscheduledSubscriptionInfo subscription)
     {
         var xor = subscription.UnscheduledSubscriptionId.HasValue ^ !string.IsNullOrWhiteSpace(subscription.ExternalReference);
         return xor;

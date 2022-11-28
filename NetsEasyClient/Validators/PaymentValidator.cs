@@ -132,7 +132,7 @@ internal static class PaymentValidator
         }
 
         var shippingCountries = payment.Checkout.ShippingCountries;
-        if (shippingCountries is not null && shippingCountries.Any())
+        if (shippingCountries?.Any() == true)
         {
             foreach (var destination in shippingCountries)
             {
@@ -203,7 +203,7 @@ internal static class PaymentValidator
     internal static bool PaymentConfigurationAllMethodOrAllType(PaymentRequest payment)
     {
         var paymentConfiguration = payment.PaymentMethodsConfiguration;
-        if (paymentConfiguration is null || !paymentConfiguration.Any())
+        if (paymentConfiguration?.Any() != true)
         {
             return true;
         }
