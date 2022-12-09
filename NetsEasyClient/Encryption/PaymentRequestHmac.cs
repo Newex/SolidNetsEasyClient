@@ -14,6 +14,24 @@ namespace SolidNetsEasyClient.Encryption;
 public static class PaymentRequestHmac
 {
     /// <summary>
+    /// Encode an input with a given key
+    /// </summary>
+    /// <param name="input">The input</param>
+    /// <param name="key">The key</param>
+    /// <returns>A base62 encoded signature</returns>
+    public static string Encode(string input, string key)
+    {
+        var inputBytes = Encoding.UTF8.GetBytes(input);
+        var byteKey = Encoding.UTF8.GetBytes(key);
+        using var hmac = new HMACSHA1(byteKey);
+        using var stream = new MemoryStream(inputBytes);
+        var hash = hmac.ComputeHash(stream);
+        var converter = new CustomBase62Converter();
+        var encode = converter.Encode(hash);
+        return encode;
+    }
+
+    /// <summary>
     /// Sign an <see cref="Order"/> which contains a reference with HMAC-SHA1
     /// </summary>
     /// <param name="order">The order</param>
