@@ -144,7 +144,7 @@ public class UnscheduledSubscriptionClient : IUnscheduledSubscriptionClient
     }
 
     /// <inheritdoc />
-    public async Task<BulkId> BulkChargeUnscheduledSubscriptionsAsync(IList<UnscheduledSubscription> bulk, string externalBulkChargeId, Notification? notifications, CancellationToken cancellationToken)
+    public async Task<BulkId> BulkChargeUnscheduledSubscriptionsAsync(IList<ChargeUnscheduledSubscription> bulk, string externalBulkChargeId, Notification? notifications, CancellationToken cancellationToken)
     {
         var isValid = bulk.All(SubscriptionValidator.OnlyEitherSubscriptionIdOrExternalRef) && !string.IsNullOrWhiteSpace(externalBulkChargeId) && PaymentValidator.CheckWebHooks(notifications);
         if (!isValid)

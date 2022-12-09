@@ -125,7 +125,7 @@ public class UnscheduledSubscriptionSerializationTests
                     }
                 }
             },
-            UnscheduledSubscriptions = new List<UnscheduledSubscription>()
+            UnscheduledSubscriptions = new List<ChargeUnscheduledSubscription>()
             {
                 new()
                 {
