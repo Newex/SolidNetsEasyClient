@@ -29,5 +29,5 @@ public record BulkUnscheduledSubscriptionCharge
     /// </summary>
     [Required]
     [JsonPropertyName("unscheduledSubscriptions")]
-    public IList<UnscheduledSubscription> UnscheduledSubscriptions { get; init; } = Enumerable.Empty<UnscheduledSubscription>().ToList();
+    public IList<ChargeUnscheduledSubscription> UnscheduledSubscriptions { get; init; } = Enumerable.Empty<ChargeUnscheduledSubscription>().ToList();
 }

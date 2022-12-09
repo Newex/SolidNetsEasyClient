@@ -30,7 +30,7 @@ public interface IUnscheduledSubscriptionClient
     /// <exception cref="ArgumentException">Thrown if argument is invalid</exception>
     /// <exception cref="SerializationException">Thrown if response is successfull but cannot be serialized to expected result</exception>
     /// <exception cref="HttpRequestException">Thrown if response is not successful</exception>
-    Task<BulkId> BulkChargeUnscheduledSubscriptionsAsync(IList<UnscheduledSubscription> bulk, string externalBulkChargeId, Notification? notifications, CancellationToken cancellationToken);
+    Task<BulkId> BulkChargeUnscheduledSubscriptionsAsync(IList<ChargeUnscheduledSubscription> bulk, string externalBulkChargeId, Notification? notifications, CancellationToken cancellationToken);
 
     /// <summary>
     /// Charges a single unscheduled subscription. The unscheduledSubscriptionId can be obtained from the Retrieve payment method. On success, this method creates a new payment object and performs a charge of the specified amount. Both the new paymentId and chargeId are returned in the response body.
