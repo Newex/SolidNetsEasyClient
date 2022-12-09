@@ -99,6 +99,27 @@ public static class PaymentRequestHmac
         return equal;
     }
 
+    /// <summary>
+    /// Validate whether an encoded signature has the same HMAC hash as a given message and a secret key
+    /// </summary>
+    /// <param name="signature">The encoded signature</param>
+    /// <param name="message">The plain message</param>
+    /// <param name="key">The secret key</param>
+    /// <returns>True if the signature equals the HMAC message and key otherwise false</returns>
+    public static bool Validate(string signature, string message, string key)
+    {
+        var actualBytes = Encoding.UTF8.GetBytes(message);
+        var byteKey = Encoding.UTF8.GetBytes(key);
+        using var hmac = new HMACSHA1(byteKey);
+        using var stream = new MemoryStream(actualBytes);
+        var hash = hmac.ComputeHash(actualBytes);
+        var converter = new CustomBase62Converter();
+        var expected = converter.Decode(signature);
+
+        var equal = ByteArraysEqual(hash, expected);
+        return equal;
+    }
+
     private static bool ByteArraysEqual(byte[] b1, byte[] b2)
     {
         if (b1 == b2) return true;

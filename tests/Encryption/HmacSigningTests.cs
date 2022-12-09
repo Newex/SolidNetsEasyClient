@@ -1,5 +1,6 @@
 using Microsoft.Net.Http.Headers;
 using SolidNetsEasyClient.Encryption;
+using SolidNetsEasyClient.Models.DTOs.Responses.Payments;
 using SolidNetsEasyClient.Models.DTOs.Responses.Webhooks;
 using SolidNetsEasyClient.Tests.Tools;
 
@@ -52,5 +53,20 @@ public class HmacSigningTests
 
         // Assert
         validSignature.Should().BeTrue();
+    }
+
+    [Fact]
+    public void Encoded_string_can_be_validated_using_the_same_key()
+    {
+        // Arrange
+        const string input = "encode_me";
+        const string key = "super_secret_keyaoetnhsuathoneusnaoeushaothnseusnhaoeuhtnaoeuhsntaoheuglr.,ysnthhjnkx";
+        var encoded = PaymentRequestHmac.Encode(input, key);
+
+        // Act
+        var valid = PaymentRequestHmac.Validate(encoded, input, key);
+
+        // Assert
+        valid.Should().BeTrue();
     }
 }
