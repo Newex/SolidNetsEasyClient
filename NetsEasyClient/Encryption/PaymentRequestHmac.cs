@@ -64,7 +64,12 @@ public static class PaymentRequestHmac
     /// <returns>True if the created payment matches the signature otherwise false</returns>
     public static bool ValidateOrderReference(this HttpRequest request, PaymentCreated paymentCreated, string key)
     {
-        var signature = request.Headers.Authorization;
+        string? signature = request.Headers.Authorization;
+        if (signature is null)
+        {
+            return false;
+        }
+
         var orderId = Encoding.UTF8.GetBytes(paymentCreated.Data.Order.Reference);
         var byteKey = Encoding.UTF8.GetBytes(key);
         using var hmac = new HMACSHA1(byteKey);
@@ -86,7 +91,12 @@ public static class PaymentRequestHmac
     /// <returns>True if the created payment matches the signature otherwise false</returns>
     public static bool ValidateOrderReference(this HttpRequest request, string orderReference, string key)
     {
-        var signature = request.Headers.Authorization;
+        string? signature = request.Headers.Authorization;
+        if (signature is null)
+        {
+            return false;
+        }
+
         var orderId = Encoding.UTF8.GetBytes(orderReference);
         var byteKey = Encoding.UTF8.GetBytes(key);
         using var hmac = new HMACSHA1(byteKey);
