@@ -144,6 +144,45 @@ public class UnscheduledSubscriptionClient : IUnscheduledSubscriptionClient
     }
 
     /// <inheritdoc />
+    public async Task<BulkId> BulkChargeUnscheduledSubscriptionsAsync(BulkUnscheduledSubscriptionCharge bulk, CancellationToken cancellationToken)
+    {
+        var isValid = bulk.UnscheduledSubscriptions.All(SubscriptionValidator.OnlyEitherSubscriptionIdOrExternalRef) && !string.IsNullOrWhiteSpace(bulk.ExternalBulkChargeId) && PaymentValidator.CheckWebHooks(bulk.Notifications);
+        if (!isValid)
+        {
+            logger.LogError("Invalid {@Bulk}", bulk);
+            throw new ArgumentException("Invalid bulk");
+        }
+
+        try
+        {
+            logger.LogTrace("Charging {@Bulk} unscheduled subscription", bulk);
+            var client = httpClientFactory.CreateClient(mode);
+            AddHeaders(ref client);
+
+            var path = NetsEndpoints.Relative.UnscheduledSubscriptions + "/charges";
+            var response = await client.PostAsJsonAsync(path, bulk, cancellationToken);
+            var content = await response.Content.ReadAsStringAsync(cancellationToken);
+            logger.LogDebug("Raw response is: {ResponseContent}", content);
+            _ = response.EnsureSuccessStatusCode();
+
+            var result = JsonSerializer.Deserialize<BulkId>(content);
+            if (result is null)
+            {
+                logger.LogError("Could not deserialize response {Content} from {@HttpClient} to BulkId", content, client);
+                throw new SerializationException("Could not deserialize response to BulkId");
+            }
+
+            logger.LogInformation("Charged {@Bulk}, with {@BulkId}", bulk, result);
+            return result;
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "An exception occurred trying to charge {@Bulk} unscheduled subscriptions", bulk);
+            throw;
+        }
+    }
+
+    /// <inheritdoc />
     public async Task<BulkId> BulkChargeUnscheduledSubscriptionsAsync(IList<ChargeUnscheduledSubscription> bulk, string externalBulkChargeId, Notification? notifications, CancellationToken cancellationToken)
     {
         var isValid = bulk.All(SubscriptionValidator.OnlyEitherSubscriptionIdOrExternalRef) && !string.IsNullOrWhiteSpace(externalBulkChargeId) && PaymentValidator.CheckWebHooks(notifications);

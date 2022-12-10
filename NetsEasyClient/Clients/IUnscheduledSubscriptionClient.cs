@@ -33,6 +33,17 @@ public interface IUnscheduledSubscriptionClient
     Task<BulkId> BulkChargeUnscheduledSubscriptionsAsync(IList<ChargeUnscheduledSubscription> bulk, string externalBulkChargeId, Notification? notifications, CancellationToken cancellationToken);
 
     /// <summary>
+    /// Charges multiple unscheduled subscriptions at once. The request body must contain: (*) A unique string that identifies this bulk charge operation; (*) A set of unscheduled subscription identifiers that should be charged.; To get status updates about the bulk charge you can subscribe to the webhooks for charges and refunds (payment.charges.* and payments.refunds.*). See also the webhooks documentation.
+    /// </summary>
+    /// <param name="bulk">The bulk</param>
+    /// <param name="cancellationToken">The cancellation token</param>
+    /// <returns>A bulk id</returns>
+    /// <exception cref="ArgumentException">Thrown if argument is invalid</exception>
+    /// <exception cref="SerializationException">Thrown if response is successfull but cannot be serialized to expected result</exception>
+    /// <exception cref="HttpRequestException">Thrown if response is not successful</exception>
+    Task<BulkId> BulkChargeUnscheduledSubscriptionsAsync(BulkUnscheduledSubscriptionCharge bulk, CancellationToken cancellationToken);
+
+    /// <summary>
     /// Charges a single unscheduled subscription. The unscheduledSubscriptionId can be obtained from the Retrieve payment method. On success, this method creates a new payment object and performs a charge of the specified amount. Both the new paymentId and chargeId are returned in the response body.
     /// </summary>
     /// <param name="unscheduledSubscriptionId">The unscheduled subscription identifier (a UUID) returned from the Retrieve payment method.</param>
