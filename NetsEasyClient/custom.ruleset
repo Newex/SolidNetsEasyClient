@@ -11,5 +11,10 @@
     <Rule Id="IDE0046" Action="None" />
     <Rule Id="RCS1160" Action="None" />
     <Rule Id="IDE0037" Action="None" />
+    <Rule Id="CA1715" Action="None" />
+    <Rule Id="IDE007" Action="None" />
+    <Rule Id="IDE008" Action="None" />
+    <Rule Id="IDE022" Action="None" />
+    <Rule Id="IDE0160" Action="None" />
   </Rules>
 </RuleSet>
