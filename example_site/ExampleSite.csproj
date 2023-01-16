@@ -3,6 +3,7 @@
   <PropertyGroup>
     <TargetFramework>net7.0</TargetFramework>
     <Nullable>enable</Nullable>
+    <CodeAnalysisRuleset>custom.ruleset</CodeAnalysisRuleset>
     <RootNamespace>ExampleSite</RootNamespace>
     <AssemblyName>ExampleSite</AssemblyName>
     <NoWarn>$(NoWarn);NU1803</NoWarn>

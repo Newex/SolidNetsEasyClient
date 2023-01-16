@@ -4,6 +4,7 @@
   <Rules AnalyzerId="Roslynator.CSharp.Analyzers" RuleNamespace="Roslynator.CSharp.Analyzers">
     <Rule Id="IDE0005" Action="Warning" />
     <Rule Id="IDE0008" Action="None" />
+    <Rule Id="IDE0022" Action="None" />
     <Rule Id="IDE0023" Action="None" />
     <Rule Id="IDE0024" Action="None" />
     <Rule Id="IDE0037" Action="None" />
