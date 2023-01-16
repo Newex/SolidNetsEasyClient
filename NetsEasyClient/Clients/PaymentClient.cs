@@ -67,7 +67,7 @@ public partial class PaymentClient : IPaymentClient
     public string? WebhookAuthorizationKey { get; }
 
     /// <inheritdoc />
-    public async Task<PaymentStatus?> GetPaymentStatusAsync(Guid paymentID, CancellationToken cancellationToken)
+    public async Task<PaymentStatus?> RetrievePaymentAsync(Guid paymentID, CancellationToken cancellationToken)
     {
         var isValid = paymentID != Guid.Empty;
         if (!isValid)

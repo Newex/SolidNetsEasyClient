@@ -120,7 +120,7 @@ public interface IPaymentClient
     /// <param name="paymentID">The payment ID</param>
     /// <param name="cancellationToken">The cancellation token</param>
     /// <returns>A payment status or null</returns>
-    Task<PaymentStatus?> GetPaymentStatusAsync(Guid paymentID, CancellationToken cancellationToken);
+    Task<PaymentStatus?> RetrievePaymentAsync(Guid paymentID, CancellationToken cancellationToken);
 
     /// <summary>
     /// Refunds a previously settled transaction (a charged payment). The refunded amount will be transferred back to the customer's account. The required chargeId is returned from the Charge payment method
