@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.Text.Json;
 using SolidNetsEasyClient.Models.DTOs;
 using SolidNetsEasyClient.Models.DTOs.Enums;
@@ -52,7 +53,7 @@ public class ChargeCreatedWebhookSerializationTests
         var expected = new ChargeCreated
         {
             Id = new("01ee00006091b2196937598058c4e488"),
-            Timestamp = DateTimeOffset.Parse("2021-05-04T22:44:10.1185+02:00"),
+            Timestamp = DateTimeOffset.Parse("2021-05-04T22:44:10.1185+02:00", CultureInfo.InvariantCulture),
             MerchantNumber = 100017120,
             Event = EventName.ChargeCreated,
             Data = new()
@@ -96,7 +97,7 @@ public class ChargeCreatedWebhookSerializationTests
         var expected = new ChargeCreated
         {
             Id = new("006b0000636f4149e30174516bf6aa5a"),
-            Timestamp = DateTimeOffset.Parse("2022-11-12T07:46:33.7120+01:00"),
+            Timestamp = DateTimeOffset.Parse("2022-11-12T07:46:33.7120+01:00", CultureInfo.InvariantCulture),
             MerchantNumber = 123456,
             Event = EventName.ChargeCreated,
             Data = new()

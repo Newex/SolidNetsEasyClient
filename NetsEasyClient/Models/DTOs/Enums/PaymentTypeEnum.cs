@@ -13,32 +13,32 @@ public enum PaymentTypeEnum
     /// <summary>
     /// Card payment type
     /// </summary>
-    Card,
+    Card = 0,
 
     /// <summary>
     /// Invoice payment type
     /// </summary>
-    Invoice,
+    Invoice = 1,
 
     /// <summary>
     /// Installment payment type
     /// </summary>
-    Installment,
+    Installment = 2,
 
     /// <summary>
     /// Account-2-account payment type
     /// </summary>
-    A2A,
+    A2A = 3,
 
     /// <summary>
     /// Wallet payment type
     /// </summary>
-    Wallet,
+    Wallet = 4,
 
     /// <summary>
     /// Prepaid invoice payment type
     /// </summary>
-    PrepaidInvoice
+    PrepaidInvoice = 5
 }
 
 /// <summary>
@@ -58,11 +58,13 @@ public static class PaymentTypeHelper
     /// <returns>The name of the payment type</returns>
     public static string GetName(this PaymentTypeEnum paymentType)
     {
+#pragma warning disable IDE0072
         return paymentType switch
         {
             PaymentTypeEnum.PrepaidInvoice => PrepaidInvoice,
             PaymentTypeEnum x => x.ToString(),
         };
+#pragma warning restore IDE0072
     }
 
     /// <summary>

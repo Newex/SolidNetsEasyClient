@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
+using System.Globalization;
 using System.Text.Json;
 using SolidNetsEasyClient.Models.DTOs;
 using SolidNetsEasyClient.Models.DTOs.Enums;
@@ -47,7 +47,7 @@ public class PaymentCancelledSerializationTests
         {
             Id = new("df7f9346097842bdb90c869b5c9ccfa9"),
             MerchantId = 100017120,
-            Timestamp = DateTimeOffset.Parse("2021-05-04T22:33:33.5969+02:00"),
+            Timestamp = DateTimeOffset.Parse("2021-05-04T22:33:33.5969+02:00", CultureInfo.InvariantCulture),
             Event = EventName.ReservationCancelled,
             Data = new()
             {
@@ -89,7 +89,7 @@ public class PaymentCancelledSerializationTests
         {
             Id = new("78edb53c694944dc83c72277d12181e0"),
             MerchantId = 123456,
-            Timestamp = DateTimeOffset.Parse("2022-11-12T21:15:14.9378+01:00"),
+            Timestamp = DateTimeOffset.Parse("2022-11-12T21:15:14.9378+01:00", CultureInfo.InvariantCulture),
             Event = EventName.ReservationCancelled,
             Data = new()
             {

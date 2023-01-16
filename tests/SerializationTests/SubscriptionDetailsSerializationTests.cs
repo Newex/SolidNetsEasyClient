@@ -1,4 +1,5 @@
 using System;
+using System.Globalization;
 using System.Text.Json;
 using SolidNetsEasyClient.Models.DTOs.Enums;
 using SolidNetsEasyClient.Models.DTOs.Responses.Payments;
@@ -17,7 +18,7 @@ public class SubscriptionDetailsSerializationTests
         var expected = new SubscriptionDetails
         {
             SubscriptionId = new("d079718b-ff63-45dd-947b-4950c023750f"),
-            EndDate = DateTimeOffset.Parse("2019-08-24T14:15:22Z"),
+            EndDate = DateTimeOffset.Parse("2019-08-24T14:15:22Z", CultureInfo.InvariantCulture),
             PaymentDetails = new()
             {
                 PaymentType = PaymentTypeEnum.Card,

@@ -7,7 +7,7 @@ namespace SolidNetsEasyClient.Models.DTOs.Enums;
 /// The names of both payment methods and types
 /// </summary>
 [JsonConverter(typeof(PaymentTypeMethodNameConverter))]
-public record struct PaymentTypeMethodName
+public readonly record struct PaymentTypeMethodName
 {
     private readonly string name;
 

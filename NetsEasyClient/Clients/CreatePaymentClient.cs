@@ -42,7 +42,7 @@ public partial class PaymentClient : IPaymentClient
             var response = await client.PostAsJsonAsync(NetsEndpoints.Relative.Payment, request, cancellationToken);
             var msg = await response.Content.ReadAsStringAsync(cancellationToken);
             logger.LogTrace("Raw content: {@ResponseContent}", msg);
-            response.EnsureSuccessStatusCode();
+            _ = response.EnsureSuccessStatusCode();
 
             // Response
             var result = await response.Content.ReadFromJsonAsync<PaymentResult>(cancellationToken: cancellationToken);
@@ -94,7 +94,7 @@ public partial class PaymentClient : IPaymentClient
             var response = await client.PostAsJsonAsync(NetsEndpoints.Relative.Payment, payment, cancellationToken);
             var msg = await response.Content.ReadAsStringAsync(cancellationToken);
             logger.LogTrace("Raw content: {@ResponseContent}", msg);
-            response.EnsureSuccessStatusCode();
+            _ = response.EnsureSuccessStatusCode();
 
             // Response
             var result = await response.Content.ReadFromJsonAsync<PaymentResult>(cancellationToken: cancellationToken);
@@ -144,7 +144,7 @@ public partial class PaymentClient : IPaymentClient
             var response = await client.PostAsJsonAsync(NetsEndpoints.Relative.Payment, payment, cancellationToken);
             var msg = await response.Content.ReadAsStringAsync(cancellationToken);
             logger.LogTrace("Raw content: {@ResponseContent}", msg);
-            response.EnsureSuccessStatusCode();
+            _ = response.EnsureSuccessStatusCode();
 
             // Response
             var result = await response.Content.ReadFromJsonAsync<PaymentResult>(cancellationToken: cancellationToken);

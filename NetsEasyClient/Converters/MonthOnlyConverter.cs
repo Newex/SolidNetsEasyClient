@@ -1,4 +1,5 @@
 using System;
+using System.Globalization;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using SolidNetsEasyClient.Models.DTOs;
@@ -16,7 +17,7 @@ public class MonthOnlyConverter : JsonConverter<MonthOnly>
         var json = reader.GetString();
         if (json is null)
         {
-            throw new NullReferenceException("The month only value is null");
+            throw new FormatException("The month only value is null");
         }
 
         if (json.Length != 4)
@@ -26,10 +27,10 @@ public class MonthOnlyConverter : JsonConverter<MonthOnly>
 
         var value = json.AsSpan();
         var MM = value[..2];
-        var month = int.Parse(MM);
+        var month = int.Parse(MM, CultureInfo.InvariantCulture);
 
         var YY = value.Slice(2, 2);
-        var year = int.Parse(YY);
+        var year = int.Parse(YY, CultureInfo.InvariantCulture);
 
         return new MonthOnly(year, month);
     }

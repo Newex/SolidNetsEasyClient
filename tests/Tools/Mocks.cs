@@ -12,7 +12,6 @@ namespace SolidNetsEasyClient.Tests.Tools;
 
 public static class Mocks
 {
-#nullable enable
     public static IHttpClientFactory HttpClientFactory(HttpMethod requestMethod, string endpoint, Func<HttpRequestMessage, bool> condition, HttpStatusCode successCode, string responseJson)
     {
         var mock = new Mock<IHttpClientFactory>();
@@ -37,7 +36,7 @@ public static class Mocks
     /// Default http request with TUS-Resumable 1.0.0 header if nothing specified
     /// </summary>
     /// <param name="method">The request method</param>
-    /// <param name="headers">The request headers</param>
+    /// <param name="header">The header</param>
     /// <returns>A mock http request</returns>
     public static HttpRequest HttpRequest(string method = "GET", params (string Key, string Value)[] header)
     {

@@ -1,4 +1,5 @@
 using System;
+using System.Globalization;
 using System.Text.Json.Serialization;
 using SolidNetsEasyClient.Converters;
 
@@ -36,13 +37,17 @@ public record struct MonthOnly
         int month
     )
     {
-        if (year == 0) year = 2000;
-        if (year < 1 || year > 9999)
+        if (year == 0)
+        {
+            year = 2000;
+        }
+
+        if (year is < 1 or > 9999)
         {
             throw new ArgumentOutOfRangeException(nameof(year), "Year must be between 1 through 9999");
         }
 
-        if (month < 1 || month > 12)
+        if (month is < 1 or > 12)
         {
             throw new ArgumentOutOfRangeException(nameof(month), "Month must be between 1 through 12");
         }
@@ -51,7 +56,7 @@ public record struct MonthOnly
         {
             year += 2000;
         }
-        else if (year >= split && year <= 99)
+        else if (year is >= split and <= 99)
         {
             year += 1900;
         }
@@ -63,18 +68,12 @@ public record struct MonthOnly
     /// <summary>
     /// The year from 1 through 9999
     /// </summary>
-    public int Year
-    {
-        get { return year ?? 1; }
-    }
+    public int Year => year ?? 1;
 
     /// <summary>
     /// The month
     /// </summary>
-    public int Month
-    {
-        get { return month ?? 1; }
-    }
+    public int Month => month ?? 1;
 
     /// <summary>
     /// Convert this month only to a date time
@@ -113,8 +112,8 @@ public record struct MonthOnly
     /// <returns>A string of the YYMM format</returns>
     public override string ToString()
     {
-        var yearText = (Year % 100).ToString("D2");
-        var monthText = Month.ToString("D2");
+        var yearText = (Year % 100).ToString("D2", CultureInfo.InvariantCulture);
+        var monthText = Month.ToString("D2", CultureInfo.InvariantCulture);
         return monthText + yearText;
     }
 }

@@ -114,7 +114,6 @@ public sealed class NetsPaymentBuilder
     /// Set the terms url
     /// </summary>
     /// <param name="termsUrl">The terms url</param>
-    /// <returns></returns>
     /// <returns>A payment builder</returns>
     public NetsPaymentBuilder SetTheTermsUrl(string termsUrl)
     {
@@ -305,6 +304,7 @@ public sealed class NetsPaymentBuilder
     /// Construct a payment request
     /// </summary>
     /// <returns>A payment request</returns>
+    /// <exception cref="InvalidOperationException">Thrown when <see cref="Order.Amount"/> is zero or less than <see cref="minimumPayment"/></exception>
     public PaymentRequest BuildPaymentRequest()
     {
         if (unscheduled is not null && order.Amount < minimumPayment && order.Amount != 0)

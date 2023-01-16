@@ -1,4 +1,3 @@
-using System;
 using SolidNetsEasyClient.Models.DTOs;
 
 namespace SolidNetsEasyClient.Tests.Features.MonthOnlyTests;

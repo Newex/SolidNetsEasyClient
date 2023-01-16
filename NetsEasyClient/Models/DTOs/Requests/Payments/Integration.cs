@@ -12,10 +12,10 @@ public enum Integration
     /// <summary>
     /// Default, where the checkout page will be embedded within an iframe on the website
     /// </summary>
-    EmbeddedCheckout,
+    EmbeddedCheckout = 0,
 
     /// <summary>
     /// Redirects to NETS website, where the customer can pay
     /// </summary>
-    HostedPaymentPage,
+    HostedPaymentPage = 1,
 }

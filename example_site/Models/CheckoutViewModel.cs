@@ -1,5 +1,3 @@
-using System;
-
 namespace ExampleSite.Models;
 
 public record class CheckoutViewModel

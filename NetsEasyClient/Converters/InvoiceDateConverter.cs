@@ -1,4 +1,5 @@
 using System;
+using System.Globalization;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -18,14 +19,14 @@ public class InvoiceDateConverter : JsonConverter<DateOnly>
             throw new NotSupportedException();
         }
 
-        var dateOnly = DateOnly.Parse(json);
+        var dateOnly = DateOnly.Parse(json, CultureInfo.InvariantCulture);
         return dateOnly;
     }
 
     /// <inheritdoc />
     public override void Write(Utf8JsonWriter writer, DateOnly value, JsonSerializerOptions options)
     {
-        var date = value.ToString("yyyy-MM-dd\\T\\0\\0\\:\\0\\0\\:\\0\\0");
+        var date = value.ToString("yyyy-MM-dd\\T\\0\\0\\:\\0\\0\\:\\0\\0", CultureInfo.InvariantCulture);
         writer.WriteStringValue(date);
     }
 }

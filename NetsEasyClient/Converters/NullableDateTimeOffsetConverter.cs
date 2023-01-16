@@ -1,4 +1,5 @@
 using System;
+using System.Globalization;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -17,7 +18,7 @@ public class NullableDateTimeOffsetConverter : JsonConverter<DateTimeOffset?>
         {
             return null;
         }
-        var dateTime = DateTimeOffset.Parse(json);
+        var dateTime = DateTimeOffset.Parse(json, CultureInfo.InvariantCulture);
         return dateTime;
     }
 
@@ -25,6 +26,8 @@ public class NullableDateTimeOffsetConverter : JsonConverter<DateTimeOffset?>
     public override void Write(Utf8JsonWriter writer, DateTimeOffset? value, JsonSerializerOptions options)
     {
         if (value is not null)
+        {
             writer.WriteStringValue(value.Value);
+        }
     }
 }

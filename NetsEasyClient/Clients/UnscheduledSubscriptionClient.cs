@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Json;
@@ -372,10 +373,10 @@ public class UnscheduledSubscriptionClient : IUnscheduledSubscriptionClient
             logger.LogTrace("Retrieving page verifications for {BulkId}", bulkId);
             var root = NetsEndpoints.Relative.UnscheduledSubscriptions + $"/verifications/{bulkId}";
             var path = UrlQueryHelpers.AddQuery(root,
-                (nameof(skip), skip?.ToString()),
-                (nameof(take), take?.ToString()),
-                (nameof(pageSize), pageSize?.ToString()),
-                (nameof(pageNumber), pageNumber?.ToString()));
+                (nameof(skip), skip?.ToString(CultureInfo.InvariantCulture)),
+                (nameof(take), take?.ToString(CultureInfo.InvariantCulture)),
+                (nameof(pageSize), pageSize?.ToString(CultureInfo.InvariantCulture)),
+                (nameof(pageNumber), pageNumber?.ToString(CultureInfo.InvariantCulture)));
 
             var client = httpClientFactory.CreateClient(mode);
             AddHeaders(ref client);
@@ -419,10 +420,10 @@ public class UnscheduledSubscriptionClient : IUnscheduledSubscriptionClient
         AddHeaders(ref client);
         var root = NetsEndpoints.Relative.UnscheduledSubscriptions + $"/charges/{bulkId}";
         var path = UrlQueryHelpers.AddQuery(root,
-            (nameof(skip), skip?.ToString()),
-            (nameof(take), take?.ToString()),
-            (nameof(pageSize), pageSize?.ToString()),
-            (nameof(pageNumber), pageNumber?.ToString()));
+            (nameof(skip), skip?.ToString(CultureInfo.InvariantCulture)),
+            (nameof(take), take?.ToString(CultureInfo.InvariantCulture)),
+            (nameof(pageSize), pageSize?.ToString(CultureInfo.InvariantCulture)),
+            (nameof(pageNumber), pageNumber?.ToString(CultureInfo.InvariantCulture)));
         var response = await client.GetAsync(path, cancellationToken);
         return response;
     }

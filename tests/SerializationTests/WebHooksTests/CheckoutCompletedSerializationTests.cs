@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
+using System.Globalization;
 using System.Text.Json;
 using SolidNetsEasyClient.Models.DTOs;
 using SolidNetsEasyClient.Models.DTOs.Enums;
@@ -76,7 +76,7 @@ public class CheckoutCompletedSerializationTests
         {
             Id = new("36ce3ff4a896450ea2b70f3263554772"),
             MerchantId = 100017120,
-            Timestamp = DateTimeOffset.Parse("2021-05-04T22:09:08.4342+02:00"),
+            Timestamp = DateTimeOffset.Parse("2021-05-04T22:09:08.4342+02:00", CultureInfo.InvariantCulture),
             Event = EventName.CheckoutCompleted,
             Data = new()
             {
@@ -152,7 +152,7 @@ public class CheckoutCompletedSerializationTests
         {
             Id = new("4a094d529b1647eb857453e92e6874b6"),
             MerchantId = 123456,
-            Timestamp = DateTimeOffset.Parse("2022-11-12T07:33:24.3795+01:00"),
+            Timestamp = DateTimeOffset.Parse("2022-11-12T07:33:24.3795+01:00", CultureInfo.InvariantCulture),
             Event = EventName.CheckoutCompleted,
             Data = new()
             {

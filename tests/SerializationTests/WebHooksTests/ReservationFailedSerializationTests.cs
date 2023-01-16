@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Text.Json;
 using SolidNetsEasyClient.Models.DTOs;
 using SolidNetsEasyClient.Models.DTOs.Enums;
@@ -50,7 +51,7 @@ public class ReservationFailedSerializationTests
         {
             Id = new("ef0f698086ac4e7493439ab4290695da"),
             MerchantId = 100008172,
-            Timestamp = DateTimeOffset.Parse("2022-06-30T10:54:07.7765+02:00"),
+            Timestamp = DateTimeOffset.Parse("2022-06-30T10:54:07.7765+02:00", CultureInfo.InvariantCulture),
             Event = EventName.ReservationFailed,
             Data = new()
             {

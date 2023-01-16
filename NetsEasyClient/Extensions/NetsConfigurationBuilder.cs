@@ -15,7 +15,9 @@ namespace SolidNetsEasyClient.Extensions;
 /// </summary>
 public sealed class NetsConfigurationBuilder
 {
-    // private readonly ServiceDescriptor 
+    /// <summary>
+    /// private readonly ServiceDescriptor
+    /// </summary>
     private readonly IServiceCollection services;
 
     private NetsConfigurationBuilder(IServiceCollection services)
@@ -31,7 +33,7 @@ public sealed class NetsConfigurationBuilder
     public NetsConfigurationBuilder Configure(IConfiguration configuration)
     {
         var section = configuration.GetSection(PlatformPaymentOptions.NetsEasyConfigurationSection);
-        services.Configure<PlatformPaymentOptions>(section);
+        _ = services.Configure<PlatformPaymentOptions>(section);
         return this;
     }
 
@@ -42,7 +44,7 @@ public sealed class NetsConfigurationBuilder
     /// <returns>A builder object</returns>
     public NetsConfigurationBuilder Configure(Action<PlatformPaymentOptions> options)
     {
-        services.Configure(options);
+        _ = services.Configure(options);
         return this;
     }
 
@@ -63,16 +65,11 @@ public sealed class NetsConfigurationBuilder
             _ => throw new NotSupportedException()
         };
 
-        if (transientHttpErrorPolicy is not null)
-        {
-            services
+        _ = transientHttpErrorPolicy is not null
+            ? services
                 .AddHttpClient(clientMode, options)
-                .AddTransientHttpErrorPolicy(transientHttpErrorPolicy);
-        }
-        else
-        {
-            services.AddHttpClient(clientMode, options);
-        }
+                .AddTransientHttpErrorPolicy(transientHttpErrorPolicy)
+            : services.AddHttpClient(clientMode, options);
         return this;
     }
 
@@ -92,7 +89,7 @@ public sealed class NetsConfigurationBuilder
             _ => throw new NotSupportedException()
         };
 
-        services.AddHttpClient(clientMode).AddTransientHttpErrorPolicy(transientHttpErrorPolicy);
+        _ = services.AddHttpClient(clientMode).AddTransientHttpErrorPolicy(transientHttpErrorPolicy);
         return this;
     }
 
@@ -101,8 +98,8 @@ public sealed class NetsConfigurationBuilder
         var instance = new NetsConfigurationBuilder(services);
 
         // Add http clients
-        services.AddHttpClient(ClientConstants.Live, client => client.BaseAddress = NetsEndpoints.LiveBaseUri);
-        services.AddHttpClient(ClientConstants.Test, client => client.BaseAddress = NetsEndpoints.TestingBaseUri);
+        _ = services.AddHttpClient(ClientConstants.Live, client => client.BaseAddress = NetsEndpoints.LiveBaseUri);
+        _ = services.AddHttpClient(ClientConstants.Test, client => client.BaseAddress = NetsEndpoints.TestingBaseUri);
 
         // Add payment client
         services.TryAddScoped<IPaymentClient, PaymentClient>();
@@ -117,7 +114,7 @@ public sealed class NetsConfigurationBuilder
         services.TryAddScoped(typeof(UnscheduledSubscriptionClient));
 
         // Add payment options
-        services.Configure<PlatformPaymentOptions>(_ => { });
+        _ = services.Configure<PlatformPaymentOptions>(_ => { });
 
         return instance;
     }

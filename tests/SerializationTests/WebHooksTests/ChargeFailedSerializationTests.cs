@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.Text.Json;
 using SolidNetsEasyClient.Models.DTOs;
 using SolidNetsEasyClient.Models.DTOs.Enums;
@@ -55,7 +56,7 @@ public class ChargeFailedSerializationTests
         {
             Id = new("02a8000060923bcb6937598058c4e77a"),
             MerchantId = 100017120,
-            Timestamp = DateTimeOffset.Parse("2021-05-05T08:31:39.2481+02:00"),
+            Timestamp = DateTimeOffset.Parse("2021-05-05T08:31:39.2481+02:00", CultureInfo.InvariantCulture),
             Event = EventName.ChargeFailed,
             Data = new()
             {

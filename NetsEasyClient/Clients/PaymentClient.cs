@@ -90,7 +90,7 @@ public partial class PaymentClient : IPaymentClient
             var response = await client.GetAsync(path, cancellationToken);
             var msg = await response.Content.ReadAsStringAsync(cancellationToken);
             logger.LogTrace("Raw content: {@ResponseContent}", msg);
-            response.EnsureSuccessStatusCode();
+            _ = response.EnsureSuccessStatusCode();
 
             // Success response
             var result = await response.Content.ReadFromJsonAsync<PaymentStatus>(cancellationToken: cancellationToken);
@@ -133,7 +133,7 @@ public partial class PaymentClient : IPaymentClient
             var msg = await response.Content.ReadAsStringAsync(cancellationToken);
             logger.LogTrace("Raw content: {@ResponseContent}", msg);
 
-            response.EnsureSuccessStatusCode();
+            _ = response.EnsureSuccessStatusCode();
             return true;
         }
         catch (Exception ex)
@@ -179,7 +179,7 @@ public partial class PaymentClient : IPaymentClient
             var msg = await response.Content.ReadAsStringAsync(cancellationToken);
             logger.LogTrace("Raw content: {@ResponseContent}", msg);
 
-            response.EnsureSuccessStatusCode();
+            _ = response.EnsureSuccessStatusCode();
             return true;
         }
         catch (Exception ex)
@@ -209,7 +209,7 @@ public partial class PaymentClient : IPaymentClient
             var path = NetsEndpoints.Relative.Payment + $"/{paymentID}/terminate";
             var response = await client.PutAsync(path, null, cancellationToken);
 
-            response.EnsureSuccessStatusCode();
+            _ = response.EnsureSuccessStatusCode();
             return true;
         }
         catch (Exception ex)
@@ -246,7 +246,7 @@ public partial class PaymentClient : IPaymentClient
             var msg = await response.Content.ReadAsStringAsync(cancellationToken);
             logger.LogTrace("Raw content: {@ResponseContent}", msg);
 
-            response.EnsureSuccessStatusCode();
+            _ = response.EnsureSuccessStatusCode();
             return true;
         }
         catch (Exception ex)
@@ -279,7 +279,7 @@ public partial class PaymentClient : IPaymentClient
 
             var path = NetsEndpoints.Relative.Payment + $"/{paymentID}/charges";
             var response = await client.PostAsJsonAsync(path, charge, cancellationToken);
-            response.EnsureSuccessStatusCode();
+            _ = response.EnsureSuccessStatusCode();
 
             // Success response
             var result = await response.Content.ReadFromJsonAsync<ChargeResult>(cancellationToken: cancellationToken);
@@ -313,7 +313,7 @@ public partial class PaymentClient : IPaymentClient
             var path = NetsEndpoints.Relative.Charge + $"/{chargeId}";
             var response = await client.GetAsync(path, cancellationToken);
 
-            response.EnsureSuccessStatusCode();
+            _ = response.EnsureSuccessStatusCode();
             var result = await response.Content.ReadFromJsonAsync<ChargeDetailsInfo>(cancellationToken: cancellationToken);
             logger.LogInformation("Retrieved charge: {@ChargeDetails}", result);
             return result;
@@ -345,7 +345,7 @@ public partial class PaymentClient : IPaymentClient
             var path = NetsEndpoints.Relative.Charge + $"/{chargeId}/refunds";
             var response = await client.PostAsJsonAsync(path, refund, cancellationToken);
 
-            response.EnsureSuccessStatusCode();
+            _ = response.EnsureSuccessStatusCode();
             var result = await response.Content.ReadFromJsonAsync<RefundResult>(cancellationToken: cancellationToken);
             logger.LogInformation("Refunded: {ChargeID} for {@Refund}", chargeId, refund);
             return result;
@@ -377,7 +377,7 @@ public partial class PaymentClient : IPaymentClient
             var path = NetsEndpoints.Relative.Refund + $"/{refundId}";
             var response = await client.GetAsync(path, cancellationToken);
 
-            response.EnsureSuccessStatusCode();
+            _ = response.EnsureSuccessStatusCode();
             var result = await response.Content.ReadFromJsonAsync<RetrieveRefund>(cancellationToken: cancellationToken);
             logger.LogInformation("Refund result: {@Refund}", result);
             return result;
@@ -409,7 +409,7 @@ public partial class PaymentClient : IPaymentClient
             var path = NetsEndpoints.Relative.PendingRefunds + $"/{refundId}/cancel";
             var response = await client.PostAsync(path, null, cancellationToken);
 
-            response.EnsureSuccessStatusCode();
+            _ = response.EnsureSuccessStatusCode();
             logger.LogInformation("Cancelled pending refund {RefundId}", refundId);
             return true;
         }
@@ -443,7 +443,7 @@ public partial class PaymentClient : IPaymentClient
                 myReference = myReference
             }, cancellationToken);
 
-            response.EnsureSuccessStatusCode();
+            _ = response.EnsureSuccessStatusCode();
             logger.LogInformation("Updated my reference to {MyReference} for {PaymentId}", myReference, paymentId);
             return true;
         }

@@ -18,7 +18,7 @@ public enum EventName
     /// <remarks>
     /// 'payment.created'
     /// </remarks>
-    PaymentCreated,
+    PaymentCreated = 0,
 
     /// <summary>
     /// The amount of the payment has been reserved
@@ -26,7 +26,7 @@ public enum EventName
     /// <remarks>
     /// payment.reservation.created.v2
     /// </remarks>
-    ReservationCreatedV2,
+    ReservationCreatedV2 = 1,
 
     /// <summary>
     /// The amount of the payment has been reserved (version 1)
@@ -34,7 +34,7 @@ public enum EventName
     /// <remarks>
     /// payment.reservation.created
     /// </remarks>
-    ReservationCreatedV1,
+    ReservationCreatedV1 = 2,
 
     /// <summary>
     /// A reservation attempt has failed
@@ -42,7 +42,7 @@ public enum EventName
     /// <remarks>
     /// payment.reservation.failed
     /// </remarks>
-    ReservationFailed,
+    ReservationFailed = 3,
 
     /// <summary>
     /// The customer has completed the checkout
@@ -50,7 +50,7 @@ public enum EventName
     /// <remarks>
     /// payment.checkout.completed
     /// </remarks>
-    CheckoutCompleted,
+    CheckoutCompleted = 4,
 
     /// <summary>
     /// The customer has successfully been charged, partially or fully
@@ -58,7 +58,7 @@ public enum EventName
     /// <remarks>
     /// payment.charge.created.v2
     /// </remarks>
-    ChargeCreated,
+    ChargeCreated = 5,
 
     /// <summary>
     /// A charge attempt has failed
@@ -66,7 +66,7 @@ public enum EventName
     /// <remarks>
     /// payment.charge.failed
     /// </remarks>
-    ChargeFailed,
+    ChargeFailed = 6,
 
     /// <summary>
     /// A refund has been initiated.
@@ -74,7 +74,7 @@ public enum EventName
     /// <remarks>
     /// payment.refund.initiated.v2
     /// </remarks>
-    RefundInitiated,
+    RefundInitiated = 7,
 
     /// <summary>
     /// A refund attempt has failed
@@ -82,7 +82,7 @@ public enum EventName
     /// <remarks>
     /// payment.refund.failed
     /// </remarks>
-    RefundFailed,
+    RefundFailed = 8,
 
     /// <summary>
     /// A refund has successfully been completed
@@ -90,7 +90,7 @@ public enum EventName
     /// <remarks>
     /// payment.refund.completed
     /// </remarks>
-    RefundCompleted,
+    RefundCompleted = 9,
 
     /// <summary>
     /// A reservation has been canceled
@@ -98,7 +98,7 @@ public enum EventName
     /// <remarks>
     /// payment.cancel.created
     /// </remarks>
-    ReservationCancelled,
+    ReservationCancelled = 10,
 
     /// <summary>
     /// A cancellation has failed
@@ -106,7 +106,7 @@ public enum EventName
     /// <remarks>
     /// payment.cancel.failed
     /// </remarks>
-    ReservationCancellationFailed
+    ReservationCancellationFailed = 11
 }
 
 /// <summary>

@@ -45,10 +45,7 @@ public class CustomBase62Converter
     /// <param name="charset"></param>
     public CustomBase62Converter(CharacterSet charset)
     {
-        if (charset == CharacterSet.DEFAULT)
-            characterSet = DEFAULT_CHARACTER_SET;
-        else
-            characterSet = INVERTED_CHARACTER_SET;
+        characterSet = charset == CharacterSet.DEFAULT ? DEFAULT_CHARACTER_SET : INVERTED_CHARACTER_SET;
     }
 
     /// <summary>
@@ -102,8 +99,9 @@ public class CustomBase62Converter
         var builder = new StringBuilder();
         foreach (var c in base62)
         {
-            builder.Append(characterSet[c]);
+            _ = builder.Append(characterSet[c]);
         }
+
         return builder.ToString();
     }
 
@@ -124,13 +122,18 @@ public class CustomBase62Converter
     /// <param name="sourceBase">Source base to convert from.</param>
     /// <param name="targetBase">Target base to convert to.</param>
     /// <returns>Converted byte array.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">Thrown when value is outside 2 or 256 of either <paramref name="sourceBase"/> or <paramref name="targetBase"/></exception>
     private static byte[] BaseConvert(byte[] source, int sourceBase, int targetBase)
     {
-        if (targetBase < 2 || targetBase > 256)
+        if (targetBase is < 2 or > 256)
+        {
             throw new ArgumentOutOfRangeException(nameof(targetBase), targetBase, "Value must be between 2 & 256 (inclusive)");
+        }
 
-        if (sourceBase < 2 || sourceBase > 256)
+        if (sourceBase is < 2 or > 256)
+        {
             throw new ArgumentOutOfRangeException(nameof(sourceBase), sourceBase, "Value must be between 2 & 256 (inclusive)");
+        }
 
         // Set initial capacity estimate if the size is small.
         var startCapacity = source.Length < 1028
@@ -175,7 +178,9 @@ public class CustomBase62Converter
         var output = new byte[result.Count];
 
         for (int i = 0; i < result.Count; i++)
+        {
             output[i] = (byte)result[i];
+        }
 
         return output;
     }
@@ -188,11 +193,11 @@ public class CustomBase62Converter
         /// <summary>
         /// Alpha numeric character set, using capital letters first before lowercase.
         /// </summary>
-        DEFAULT,
+        DEFAULT = 0,
 
         /// <summary>
         /// Alpha numeric character set, using lower case letters first before uppercase.
         /// </summary>
-        INVERTED
+        INVERTED = 1
     }
 }

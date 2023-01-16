@@ -7,7 +7,6 @@ using SolidNetsEasyClient.Models.Options;
 using SolidNetsEasyClient.Tests.Tools;
 
 namespace SolidNetsEasyClient.Tests.ClientTests.Unit;
-#nullable enable
 public static class Setup
 {
     private const string NetsBaseURI = "https://api.dibspayment.eu";

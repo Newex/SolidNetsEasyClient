@@ -13,7 +13,7 @@ public record ReservationFailed : Webhook<ReservationFailedData>
     /// </summary>
     public IList<Item> OrderItems
     {
-        get { return Data.OrderItems; }
-        init { Data.OrderItems = value; }
+        get => Data.OrderItems;
+        init => Data.OrderItems = value;
     }
 }

@@ -11,15 +11,15 @@ public enum SubscriptionStatus
     /// <summary>
     /// Pending status
     /// </summary>
-    Pending,
+    Pending = 0,
 
     /// <summary>
     /// Succeeded status
     /// </summary>
-    Succeeded,
+    Succeeded = 1,
 
     /// <summary>
     /// Failed status
     /// </summary>
-    Failed
+    Failed = 2
 }

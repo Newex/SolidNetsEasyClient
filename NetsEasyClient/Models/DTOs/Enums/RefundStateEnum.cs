@@ -12,25 +12,25 @@ public enum RefundStateEnum
     /// <summary>
     /// Pending refund
     /// </summary>
-    Pending,
+    Pending = 0,
 
     /// <summary>
     /// Refund cancelled
     /// </summary>
-    Cancelled,
+    Cancelled = 1,
 
     /// <summary>
     /// Refund failed
     /// </summary>
-    Failed,
+    Failed = 2,
 
     /// <summary>
     /// Refund completed
     /// </summary>
-    Completed,
+    Completed = 3,
 
     /// <summary>
     /// Refund expired
     /// </summary>
-    Expired
+    Expired = 4
 }

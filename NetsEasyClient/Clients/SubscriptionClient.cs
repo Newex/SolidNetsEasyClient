@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Json;
+using System.Runtime.Serialization;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
@@ -76,7 +78,7 @@ public class SubscriptionClient : ISubscriptionClient
             if (result is null)
             {
                 logger.LogError("Could not deserialize response from {@HttpClient}", client);
-                throw new Exception("Could not deserialize response from the http client to a SubscriptionDetails");
+                throw new SerializationException("Could not deserialize response from the http client to a SubscriptionDetails");
             }
 
             logger.LogInformation("Retrieved {@Subscription}", result);
@@ -111,7 +113,7 @@ public class SubscriptionClient : ISubscriptionClient
             if (result is null)
             {
                 logger.LogError("Could not deserialize response from {@HttpClient}", client);
-                throw new Exception("Could not deserialize response from the http client to a SubscriptionDetails");
+                throw new SerializationException("Could not deserialize response from the http client to a SubscriptionDetails");
             }
 
             logger.LogInformation("Retrieved {@Subscription}", result);
@@ -154,7 +156,7 @@ public class SubscriptionClient : ISubscriptionClient
             if (result is null)
             {
                 logger.LogError("Could not deserialize response from {@HttpClient}", client);
-                throw new Exception("Could not deserialize response from the http client to a BulkId");
+                throw new SerializationException("Could not deserialize response from the http client to a BulkId");
             }
             logger.LogInformation("Bulk charge id: {BulkChargeId}", result);
             return result;
@@ -181,7 +183,7 @@ public class SubscriptionClient : ISubscriptionClient
             if (result is null)
             {
                 logger.LogError("Could not deserialize {@Response} to PaginatedSubscriptions", msg);
-                throw new Exception("Could not deserialize response from the http client to a PaginatedSubscriptions");
+                throw new SerializationException("Could not deserialize response from the http client to a PaginatedSubscriptions");
             }
 
             logger.LogInformation("Retrieved bulk subscriptions: {@PaginatedSubscriptions}", result);
@@ -209,7 +211,7 @@ public class SubscriptionClient : ISubscriptionClient
             if (result is null)
             {
                 logger.LogError("Could not deserialize {Response} to PaginatedSubscriptions", msg);
-                throw new Exception("Could not deserialize response from the http client to a PaginatedSubscriptions");
+                throw new SerializationException("Could not deserialize response from the http client to a PaginatedSubscriptions");
             }
 
             logger.LogInformation("Retrieved bulk subscriptions: {@PaginatedSubscriptions}", result);
@@ -237,7 +239,7 @@ public class SubscriptionClient : ISubscriptionClient
             if (result is null)
             {
                 logger.LogError("Could not deserialize {Response} to PaginatedSubscriptions", msg);
-                throw new Exception("Could not deserialize response from the http client to a PaginatedSubscriptions");
+                throw new SerializationException("Could not deserialize response from the http client to a PaginatedSubscriptions");
             }
 
             logger.LogInformation("Retrieved bulk subscriptions: {@PaginatedSubscriptions}", result);
@@ -276,7 +278,7 @@ public class SubscriptionClient : ISubscriptionClient
             if (result is null)
             {
                 logger.LogError("Could not deserialize {Response} to BulkId", msg);
-                throw new Exception("Could not deserialize response from the http client to a BulkId");
+                throw new SerializationException("Could not deserialize response from the http client to a BulkId");
             }
 
             logger.LogInformation("Verified {@Subscriptions}, with {BulkId}", verifications, result);
@@ -312,10 +314,10 @@ public class SubscriptionClient : ISubscriptionClient
 
             var root = NetsEndpoints.Relative.Subscription + "/verifications/" + bulkId;
             var path = UrlQueryHelpers.AddQuery(root,
-                                (nameof(skip), skip?.ToString()),
-                                (nameof(take), take?.ToString()),
-                                (nameof(pageSize), pageSize?.ToString()),
-                                (nameof(pageNumber), pageNumber?.ToString()));
+                                (nameof(skip), skip?.ToString(CultureInfo.InvariantCulture)),
+                                (nameof(take), take?.ToString(CultureInfo.InvariantCulture)),
+                                (nameof(pageSize), pageSize?.ToString(CultureInfo.InvariantCulture)),
+                                (nameof(pageNumber), pageNumber?.ToString(CultureInfo.InvariantCulture)));
             var response = await client.GetAsync(path, cancellationToken);
             var msg = await response.Content.ReadAsStringAsync(cancellationToken);
             logger.LogTrace("Content is: {@MessageContent}", msg);
@@ -324,7 +326,7 @@ public class SubscriptionClient : ISubscriptionClient
             if (result is null)
             {
                 logger.LogError("Could not deserialize {Response} to bulkId", msg);
-                throw new Exception("Could not deserialize response from the http client to a PaginatedSubscription");
+                throw new SerializationException("Could not deserialize response from the http client to a PaginatedSubscription");
             }
 
             logger.LogInformation("Retrieved verified {@PaginatedSubscriptions}", result);
@@ -343,10 +345,10 @@ public class SubscriptionClient : ISubscriptionClient
         AddHeaders(ref client);
         var root = NetsEndpoints.Relative.Subscription + "/charges/" + bulkId.ToString();
         var path = UrlQueryHelpers.AddQuery(root,
-                            (nameof(skip), skip?.ToString()),
-                            (nameof(take), take?.ToString()),
-                            (nameof(pageSize), pageSize?.ToString()),
-                            (nameof(pageNumber), pageNumber?.ToString()));
+                            (nameof(skip), skip?.ToString(CultureInfo.InvariantCulture)),
+                            (nameof(take), take?.ToString(CultureInfo.InvariantCulture)),
+                            (nameof(pageSize), pageSize?.ToString(CultureInfo.InvariantCulture)),
+                            (nameof(pageNumber), pageNumber?.ToString(CultureInfo.InvariantCulture)));
         var response = await client.GetAsync(path, cancellationToken);
         return response;
     }

@@ -89,7 +89,7 @@ public sealed class WebhookIPFilterAttribute : ActionFilterAttribute, IAuthoriza
             remoteIp = remoteIp.MapToIPv4();
         }
 
-        var deny = ipBlacklist.Select(b => IPAddress.Parse(b)).Any(x => x.Equals(remoteIp));
+        var deny = ipBlacklist.Select(IPAddress.Parse).Any(x => x.Equals(remoteIp));
         if (deny)
         {
             logger.LogWarning("Webhook request blacklisted {@IP} in {@Blacklist}", remoteIp, ipBlacklist);
@@ -107,7 +107,7 @@ public sealed class WebhookIPFilterAttribute : ActionFilterAttribute, IAuthoriza
             return;
         }
 
-        var allowedSingle = WhitelistIPs?.Split(";").Select(x => IPAddress.Parse(x)).Any(x => x.Equals(remoteIp)) ?? false;
+        var allowedSingle = WhitelistIPs?.Split(";").Select(IPAddress.Parse).Any(x => x.Equals(remoteIp)) ?? false;
         var allowed = allowedSingle || ipWhitelistRange.Select(w => IPAddressRange.Parse(w)).Any(x => x.Contains(remoteIp));
         if (!allowed)
         {

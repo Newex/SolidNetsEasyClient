@@ -1,4 +1,5 @@
 using System;
+using System.Globalization;
 using System.Text.Json;
 using SolidNetsEasyClient.Models.DTOs.Enums;
 using SolidNetsEasyClient.Models.DTOs.Responses.Webhooks;
@@ -36,7 +37,7 @@ public class RefundFailedSerializationTests
         {
             Id = new("458a4e068f454f768a40b9e576914820"),
             MerchantId = 100017120,
-            Timestamp = DateTimeOffset.Parse("2021-05-04T22:08:16.6623+02:00"),
+            Timestamp = DateTimeOffset.Parse("2021-05-04T22:08:16.6623+02:00", CultureInfo.InvariantCulture),
             Event = EventName.RefundFailed,
             Data = new()
             {

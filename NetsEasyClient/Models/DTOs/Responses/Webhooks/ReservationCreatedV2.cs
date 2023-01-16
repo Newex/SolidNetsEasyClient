@@ -14,7 +14,7 @@ public record ReservationCreatedV2 : Webhook<ReservationCreatedDataV2>
     [JsonPropertyName("merchantNumber")]
     public int MerchantNumber
     {
-        get { return MerchantId; }
-        init { MerchantId = value; }
+        get => MerchantId;
+        init => MerchantId = value;
     }
 }
