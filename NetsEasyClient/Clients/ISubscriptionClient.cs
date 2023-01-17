@@ -89,6 +89,9 @@ public interface ISubscriptionClient
     /// <summary>
     /// Verifies the specified set of subscriptions in bulk. The bulkId returned from a successful request can be used for querying the status of the subscriptions.
     /// </summary>
+    /// <remarks>
+    /// Subscriptions become invalid over time. For example, payment cards expire or could be reported stolen. You can verify your subscriptions before charging so that your customers have time to update their subscriptions.
+    /// </remarks>
     /// <param name="verifications">The set of subscriptions that should be verified. Each item in the array should define either a subscriptioId or an externalReference, but not both.</param>
     /// <param name="cancellationToken">The cancellation token</param>
     /// <returns>A bulk id</returns>
