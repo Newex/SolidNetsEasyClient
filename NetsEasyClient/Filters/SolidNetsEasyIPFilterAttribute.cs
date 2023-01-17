@@ -11,6 +11,7 @@ using Microsoft.Extensions.Options;
 using NetTools;
 using SolidNetsEasyClient.Constants;
 using SolidNetsEasyClient.Encryption;
+using SolidNetsEasyClient.Logging.SolidNetsEasyIPFilterAttributeLogging;
 using SolidNetsEasyClient.Models.Options;
 
 namespace SolidNetsEasyClient.Filters;
@@ -61,7 +62,7 @@ public sealed class SolidNetsEasyIPFilterAttribute : ActionFilterAttribute, IAut
         var logger = GetLogger(context.HttpContext.RequestServices);
         if (!HttpMethods.IsPost(context.HttpContext.Request.Method))
         {
-            logger.LogWarning("Webhook request is not a POST {@Request}", context.HttpContext.Request);
+            logger.WarningNotPOSTRequest(context.HttpContext.Request);
 
             // 400 user error
             context.Result = new BadRequestResult();
@@ -75,11 +76,11 @@ public sealed class SolidNetsEasyIPFilterAttribute : ActionFilterAttribute, IAut
         var ipRangeBlacklist = BlacklistIPRanges?.Split(";") ?? options?.Value.BlacklistIPRangesForWebhook?.Split(";") ?? Array.Empty<string>();
 
         var remoteIp = context.HttpContext.Connection.RemoteIpAddress;
-        logger.LogTrace("Remote IP address: {@IP}", remoteIp);
+        logger.TraceRemoteIP(remoteIp);
 
         if (remoteIp is null)
         {
-            logger.LogWarning("Cannot retrieve the remote IP of the client. Denying request for webhook {@HttpContext}", context);
+            logger.WarningNoRemoteIP(context);
             context.Result = new StatusCodeResult(StatusCodes.Status403Forbidden);
             return;
         }
@@ -92,7 +93,7 @@ public sealed class SolidNetsEasyIPFilterAttribute : ActionFilterAttribute, IAut
         var deny = ipBlacklist.Select(IPAddress.Parse).Any(x => x.Equals(remoteIp));
         if (deny)
         {
-            logger.LogWarning("Webhook request blacklisted {@IP} in {@Blacklist}", remoteIp, ipBlacklist);
+            logger.WarningBlacklistedIP(remoteIp, ipBlacklist);
             context.Result = new StatusCodeResult(StatusCodes.Status403Forbidden);
             return;
         }
@@ -102,7 +103,7 @@ public sealed class SolidNetsEasyIPFilterAttribute : ActionFilterAttribute, IAut
             .Any(x => x.Contains(remoteIp));
         if (deny)
         {
-            logger.LogWarning("Webhook request blacklisted {@IP} in {@Blacklist}", remoteIp, ipRangeBlacklist);
+            logger.WarningBlacklistedIP(remoteIp, ipRangeBlacklist);
             context.Result = new StatusCodeResult(StatusCodes.Status403Forbidden);
             return;
         }
@@ -111,7 +112,7 @@ public sealed class SolidNetsEasyIPFilterAttribute : ActionFilterAttribute, IAut
         var allowed = allowedSingle || ipWhitelistRange.Select(w => IPAddressRange.Parse(w)).Any(x => x.Contains(remoteIp));
         if (!allowed)
         {
-            logger.LogWarning("Webhook request IP {@IP} not specified as Nets Easy endpoint", remoteIp);
+            logger.WarningNotNetsEasyEndpoint(remoteIp);
             context.Result = new StatusCodeResult(StatusCodes.Status403Forbidden);
         }
     }
@@ -134,7 +135,7 @@ public sealed class SolidNetsEasyIPFilterAttribute : ActionFilterAttribute, IAut
         var hasOrderId = context.ActionArguments.TryGetValue("orderId", out var orderObject);
         if (!hasOrderId || orderObject is not string)
         {
-            logger.LogWarning("Webhook must have an order id to validate the request {@Context}", context);
+            logger.WarningMissingOrderID(context);
             context.Result = new StatusCodeResult(StatusCodes.Status500InternalServerError);
             return;
         }
@@ -146,7 +147,7 @@ public sealed class SolidNetsEasyIPFilterAttribute : ActionFilterAttribute, IAut
         var key = options?.Value.WebhookAuthorizationKey;
         if (key is null)
         {
-            logger.LogWarning("Webhook must have a signing key defined in the options startup or in configuration settings. Currently found: {@Options}", options);
+            logger.WarningMissingSigningKey(options?.Value);
             context.Result = new StatusCodeResult(StatusCodes.Status500InternalServerError);
             return;
         }
@@ -154,7 +155,7 @@ public sealed class SolidNetsEasyIPFilterAttribute : ActionFilterAttribute, IAut
         var isValid = context.HttpContext.Request.ValidateOrderReference(orderId, key);
         if (!isValid)
         {
-            logger.LogWarning("Webhook request does not have a valid authorization {@Header} in the {@Context}", context.HttpContext.Request.Headers, context);
+            logger.WarningInvalidAuthorizationHeader(context.HttpContext.Request.Headers, context);
             context.Result = new StatusCodeResult(StatusCodes.Status403Forbidden);
         }
     }
@@ -175,9 +176,9 @@ public sealed class SolidNetsEasyIPFilterAttribute : ActionFilterAttribute, IAut
                 return Task.CompletedTask;
             }
 
-            if (status > 200 && status <= 299)
+            if (status is > 200 and <= 299)
             {
-                logger.LogWarning("Webhook success response must be 200 OK - instead found {StatusCode} for {@Request}", status, ctx.HttpContext.Request);
+                logger.WarningWrongResponseCode(status, ctx.HttpContext.Request);
                 ctx.HttpContext.Response.StatusCode = StatusCodes.Status200OK;
                 return Task.CompletedTask;
             }
