@@ -21,7 +21,7 @@ namespace SolidNetsEasyClient.Filters;
 /// <remarks>
 /// Remember to add the authorization middleware to the pipeline. If there are calls to app.UseRouting() and app.UseEndpoints(...), the call to app.UseAuthorization() must go between them.
 /// </remarks>
-public sealed class WebhookIPFilterAttribute : ActionFilterAttribute, IAuthorizationFilter
+public sealed class SolidNetsEasyIPFilterAttribute : ActionFilterAttribute, IAuthorizationFilter
 {
     /// <summary>
     /// Override the configured blacklist of single IPs separated by a semi-colon (;)
@@ -185,10 +185,10 @@ public sealed class WebhookIPFilterAttribute : ActionFilterAttribute, IAuthoriza
         }, context);
     }
 
-    private static ILogger<WebhookIPFilterAttribute> GetLogger(IServiceProvider services)
+    private static ILogger<SolidNetsEasyIPFilterAttribute> GetLogger(IServiceProvider services)
     {
         // Reason for this is to circumvent extension method to make this class testable
-        return (services.GetService(typeof(ILogger<WebhookIPFilterAttribute>)) as ILogger<WebhookIPFilterAttribute>) ?? NullLogger<WebhookIPFilterAttribute>.Instance;
+        return (services.GetService(typeof(ILogger<SolidNetsEasyIPFilterAttribute>)) as ILogger<SolidNetsEasyIPFilterAttribute>) ?? NullLogger<SolidNetsEasyIPFilterAttribute>.Instance;
     }
 
     private static IOptions<PlatformPaymentOptions>? GetOptions(IServiceProvider services)

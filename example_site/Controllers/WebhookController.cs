@@ -17,7 +17,7 @@ public class WebhookController : Controller
         this.logger = logger ?? NullLogger<WebhookController>.Instance;
     }
 
-    [WebhookIPFilter(VerifyAuthorization = false, WhitelistIPs = "::1")]
+    [SolidNetsEasyIPFilter(VerifyAuthorization = false, WhitelistIPs = "::1")]
     [HttpPost("/webhook")]
     public ActionResult Post([FromBody] dynamic jsonData)
     {
