@@ -9,7 +9,7 @@
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <Authors>Johnny Kristian Moeberg Sørensen</Authors>
     <Company>Digify Strategy Solutions</Company>
-    <NoWarn>$(NoWarn);NU1803</NoWarn>
+    <NoWarn>$(NoWarn);NU1803;SYSLIB1006</NoWarn>
     <Description>A client for the Nets Easy API</Description>
     <RepositoryUrl>https://github.com/Newex/SolidNetsEasyClient</RepositoryUrl>
   </PropertyGroup>
