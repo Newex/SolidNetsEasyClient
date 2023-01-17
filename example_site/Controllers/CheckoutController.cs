@@ -44,7 +44,7 @@ public class CheckoutController : Controller
             )
             .ChargePaymentOnCreation(false)
             .AsUnscheduledSubscription(true)
-            //.AsRegularSubscription(interval: 0, DateTimeOffset.UtcNow.AddYears(5), onTheEndOfTheMonth: true, onMidnight: true)
+            .AsRegularSubscription(interval: 0, years: 5, onTheEndOfTheMonth: true, onMidnight: true)
             .SubscribeToEvent(EventName.ChargeCreated, webhookUrl, order.SignOrder(signingKey))
             .SubscribeToEvent(EventName.ChargeFailed, webhookUrl, order.SignOrder(signingKey))
             .SubscribeToEvent(EventName.CheckoutCompleted, webhookUrl, order.SignOrder(signingKey))
