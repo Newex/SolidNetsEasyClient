@@ -230,13 +230,16 @@ public sealed class NetsPaymentBuilder
     /// Create the payment as part of a regular subscription
     /// </summary>
     /// <param name="interval">The minimum number of days between charges, an interval of zero means no restriction. This interval commences from either the day the subscription was created or the most recent subscription charge, whichever is later</param>
-    /// <param name="endDate">The date and time when the subscription expires. It is not possible to charge this subscription after this date</param>
+    /// <param name="years">The number of years the subscription should last</param>
+    /// <param name="months">The number of months the subscription should last</param>
+    /// <param name="days">The number of days the subscription should last</param>
     /// <param name="onTheEndOfTheMonth">True if the end date should fall on the last day of the month otherwise false</param>
-    /// <param name="onMidnight">True if the end date should fall on midnight otherwise false. Note that midnight is the same zone as the <paramref name="endDate"/></param>
+    /// <param name="onMidnight">True if the end date should fall on midnight otherwise false</param>
     /// <returns>A payment builder</returns>
-    public NetsPaymentBuilder AsRegularSubscription(int interval, DateTimeOffset endDate, bool onTheEndOfTheMonth = false, bool onMidnight = false)
+    public NetsPaymentBuilder AsRegularSubscription(int interval, int years, int months = 0, int days = 0, bool onTheEndOfTheMonth = false, bool onMidnight = false)
     {
         // Must have end date if creating subscription
+        var endDate = DateTimeOffset.UtcNow.AddYears(years).AddMonths(months).AddDays(days);
         var date = onTheEndOfTheMonth ? endDate.AtTheEndOfTheMonth() : endDate;
         var maybeMidnight = onMidnight ? date.AtMidnight() : date;
         unscheduled = null;
@@ -244,6 +247,24 @@ public sealed class NetsPaymentBuilder
         {
             Interval = interval,
             EndDate = maybeMidnight
+        };
+        return this;
+    }
+
+    /// <summary>
+    /// Create the payment as part of a regular subscription
+    /// </summary>
+    /// <param name="interval">The minimum number of days between charges, an interval of zero means no restriction. This interval commences from either the day the subscription was created or the most recent subscription charge, whichever is later</param>
+    /// <param name="endDate">The date and time when the subscription expires. It is not possible to charge this subscription after this date</param>
+    /// <returns>A payment builder</returns>
+    public NetsPaymentBuilder AsRegularSubscription(int interval, DateTimeOffset endDate)
+    {
+        // Must have end date if creating subscription
+        unscheduled = null;
+        subscription = new()
+        {
+            Interval = interval,
+            EndDate = endDate
         };
         return this;
     }
