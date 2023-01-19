@@ -16,6 +16,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.Net.Http.Headers;
 using SolidNetsEasyClient.Constants;
 using SolidNetsEasyClient.Extensions;
+using SolidNetsEasyClient.Logging.SubscriptionClientLogging;
 using SolidNetsEasyClient.Models.DTOs.Requests.Payments.Subscriptions;
 using SolidNetsEasyClient.Models.DTOs.Requests.Webhooks;
 using SolidNetsEasyClient.Models.DTOs.Responses.Payments;
@@ -62,13 +63,13 @@ public class SubscriptionClient : ISubscriptionClient
         var isValid = subscriptionId != Guid.Empty;
         if (!isValid)
         {
-            logger.LogError("Invalid {SubscriptionID}", subscriptionId);
+            logger.ErrorInvalidSubscriptionID(subscriptionId);
             throw new ArgumentException("Guid cannot be empty", nameof(subscriptionId));
         }
 
         try
         {
-            logger.LogTrace("Retrieving subscription with {ID}", subscriptionId);
+            logger.TraceSubscriptionRetrieval(subscriptionId);
             var client = httpClientFactory.CreateClient(mode);
             AddHeaders(ref client);
 
@@ -77,16 +78,16 @@ public class SubscriptionClient : ISubscriptionClient
 
             if (result is null)
             {
-                logger.LogError("Could not deserialize response from {@HttpClient}", client);
+                logger.ErrorSubscriptionDetailSerialization(subscriptionId);
                 throw new SerializationException("Could not deserialize response from the http client to a SubscriptionDetails");
             }
 
-            logger.LogInformation("Retrieved {@Subscription}", result);
+            logger.InfoRetrievedSubscription(result);
             return result;
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "An exception occurred trying to retrieve subscription with {SubscriptionID}", subscriptionId);
+            logger.ExceptionRetrieveSubscription(subscriptionId, ex);
             throw;
         }
     }
@@ -97,13 +98,13 @@ public class SubscriptionClient : ISubscriptionClient
         var isValid = !string.IsNullOrWhiteSpace(externalReference);
         if (!isValid)
         {
-            logger.LogError("Invalid {ExternalReference}", externalReference);
+            logger.ErrorInvalidExternalReference(externalReference);
             throw new ArgumentException("External reference cannot be empty", nameof(externalReference));
         }
 
         try
         {
-            logger.LogTrace("Retrieving subscription with external reference {ID}", externalReference);
+            logger.TraceRetrieveByExternal(externalReference);
             var client = httpClientFactory.CreateClient(mode);
             AddHeaders(ref client);
 
@@ -112,16 +113,16 @@ public class SubscriptionClient : ISubscriptionClient
 
             if (result is null)
             {
-                logger.LogError("Could not deserialize response from {@HttpClient}", client);
+                logger.ErrorRetrieveByExternal(externalReference);
                 throw new SerializationException("Could not deserialize response from the http client to a SubscriptionDetails");
             }
 
-            logger.LogInformation("Retrieved {@Subscription}", result);
+            logger.InfoRetrieveByExternal(result);
             return result;
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "An exception occurred trying to retrieve subscription with {ExternalReference}", externalReference);
+            logger.ExceptionRetrieveByExternal(externalReference, ex);
             throw;
         }
     }
@@ -133,13 +134,13 @@ public class SubscriptionClient : ISubscriptionClient
         var isValid = subscriptions.All(SubscriptionValidator.OnlyEitherSubscriptionIdOrExternalRef) && subscriptions.Count > 0 && (externalBulkChargeId is null || (externalBulkChargeId.Length > 1 && externalBulkChargeId.Length < 64));
         if (!isValid)
         {
-            logger.LogError("Invalid {@Subscriptions}", subscriptions);
+            logger.ErrorInvalidBulkCharge(subscriptions);
             throw new ArgumentException("Must have at least 1 subscription where each subscription can only have either an id or an external reference not both. Also external bulk charge id must be between 1 - 64 characters");
         }
 
         try
         {
-            logger.LogTrace("Bulk charge {@Subscriptions}", subscriptions);
+            logger.TraceBulkCharge(subscriptions);
             var client = httpClientFactory.CreateClient(mode);
             AddHeaders(ref client);
 
@@ -155,15 +156,16 @@ public class SubscriptionClient : ISubscriptionClient
             var result = await response.Content.ReadFromJsonAsync<BulkId>();
             if (result is null)
             {
-                logger.LogError("Could not deserialize response from {@HttpClient}", client);
+                logger.ErrorBulkCharge(subscriptions);
                 throw new SerializationException("Could not deserialize response from the http client to a BulkId");
             }
-            logger.LogInformation("Bulk charge id: {BulkChargeId}", result);
+
+            logger.InfoBulkCharge(result);
             return result;
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "An exception occurred trying to bulk charge {@Subscriptions}", subscriptions);
+            logger.ExceptionBulkCharge(subscriptions, ex);
             throw;
         }
     }
@@ -173,25 +175,25 @@ public class SubscriptionClient : ISubscriptionClient
     {
         try
         {
-            logger.LogTrace("Retrieving bulk {BulkId}", bulkId);
+            logger.TraceBulkId(bulkId);
             var response = await RetrieveBulkChargesAsync(bulkId, null, null, null, null, cancellationToken);
             var msg = await response.Content.ReadAsStringAsync(cancellationToken);
-            logger.LogTrace("Content is: {@MessageContent}", msg);
+            logger.TraceMessageContent(msg);
             _ = response.EnsureSuccessStatusCode();
 
             var result = JsonSerializer.Deserialize<PageResult<SubscriptionProcessStatus>>(msg);
             if (result is null)
             {
-                logger.LogError("Could not deserialize {@Response} to PaginatedSubscriptions", msg);
+                logger.ErrorPaginatedSubscription(msg);
                 throw new SerializationException("Could not deserialize response from the http client to a PaginatedSubscriptions");
             }
 
-            logger.LogInformation("Retrieved bulk subscriptions: {@PaginatedSubscriptions}", result);
+            logger.InfoPaginatedSubscriptions(result);
             return result;
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "An exception occurred trying to bulk retrieve {BulkId}", bulkId);
+            logger.ExceptionPaginatedSubscriptions(bulkId, ex);
             throw;
         }
     }
@@ -201,25 +203,26 @@ public class SubscriptionClient : ISubscriptionClient
     {
         try
         {
-            logger.LogTrace("Retrieving bulk {BulkId}, {Skipping} and {Taking}", bulkId, skip, take);
+            logger.TracePageSkipTake(bulkId, skip, take);
             var response = await RetrieveBulkChargesAsync(bulkId, skip, take, null, null, cancellationToken);
             var msg = await response.Content.ReadAsStringAsync(cancellationToken);
-            logger.LogTrace("Content is: {@MessageContent}", msg);
+
+            logger.TraceMessageContent(msg);
             _ = response.EnsureSuccessStatusCode();
 
             var result = JsonSerializer.Deserialize<PageResult<SubscriptionProcessStatus>>(msg);
             if (result is null)
             {
-                logger.LogError("Could not deserialize {Response} to PaginatedSubscriptions", msg);
+                logger.ErrorPaginatedSubscription(msg);
                 throw new SerializationException("Could not deserialize response from the http client to a PaginatedSubscriptions");
             }
 
-            logger.LogInformation("Retrieved bulk subscriptions: {@PaginatedSubscriptions}", result);
+            logger.InfoPaginatedSubscriptions(result);
             return result;
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "An exception occurred trying to bulk retrieve {BulkId}", bulkId);
+            logger.ExceptionPaginatedSubscriptions(bulkId, ex);
             throw;
         }
     }
@@ -229,25 +232,26 @@ public class SubscriptionClient : ISubscriptionClient
     {
         try
         {
-            logger.LogTrace("Retrieving bulk {BulkId}, {PageSize} and {PageNumber}", bulkId, pageSize, pageNumber);
+            logger.TracePageSizeNumber(bulkId, pageSize, pageNumber);
             var response = await RetrieveBulkChargesAsync(bulkId, null, null, pageSize, pageNumber, cancellationToken);
             var msg = await response.Content.ReadAsStringAsync(cancellationToken);
-            logger.LogTrace("Content is: {@MessageContent}", msg);
+
+            logger.TraceMessageContent(msg);
             _ = response.EnsureSuccessStatusCode();
 
             var result = JsonSerializer.Deserialize<PageResult<SubscriptionProcessStatus>>(msg);
             if (result is null)
             {
-                logger.LogError("Could not deserialize {Response} to PaginatedSubscriptions", msg);
+                logger.ErrorPaginatedSubscription(msg);
                 throw new SerializationException("Could not deserialize response from the http client to a PaginatedSubscriptions");
             }
 
-            logger.LogInformation("Retrieved bulk subscriptions: {@PaginatedSubscriptions}", result);
+            logger.InfoPaginatedSubscriptions(result);
             return result;
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "An exception occurred trying to bulk retrieve {BulkId}", bulkId);
+            logger.ExceptionPaginatedSubscriptions(bulkId, ex);
             throw;
         }
     }
@@ -259,34 +263,35 @@ public class SubscriptionClient : ISubscriptionClient
             && (verifications.Subscriptions?.All(SubscriptionValidator.OnlyEitherSubscriptionIdOrExternalRef) ?? verifications.Subscriptions?.Any() ?? false);
         if (!isValid)
         {
-            logger.LogError("Invalid subscription {@Verifications}", verifications);
+            logger.ErrorInvalidSubscriptionVerifications(verifications);
             throw new ArgumentException("Invalid bulk verifications. Must have at least 1 verification and/or exernal bulk verification id must be between 1-64 characters long");
         }
 
         try
         {
-            logger.LogTrace("Verifying subscriptions {@Subscriptions}", verifications);
+            logger.TraceVerification(verifications);
             var client = httpClientFactory.CreateClient(mode);
             AddHeaders(ref client);
 
             var path = NetsEndpoints.Relative.Subscription + "/verifications";
             var response = await client.PostAsJsonAsync(path, verifications, cancellationToken);
             var msg = await response.Content.ReadAsStringAsync(cancellationToken);
-            logger.LogTrace("Content is: {MessageContent}", msg);
+
+            logger.TraceMessageContent(msg);
             _ = response.EnsureSuccessStatusCode();
             var result = JsonSerializer.Deserialize<BulkId>(msg);
             if (result is null)
             {
-                logger.LogError("Could not deserialize {Response} to BulkId", msg);
+                logger.ErrorResponseToBulkID(msg);
                 throw new SerializationException("Could not deserialize response from the http client to a BulkId");
             }
 
-            logger.LogInformation("Verified {@Subscriptions}, with {BulkId}", verifications, result);
+            logger.InfoVerifications(verifications, result);
             return result;
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "An exception occurred trying to verify bulk subscriptions of {@Bulk}", verifications);
+            logger.ExceptionVerifications(verifications, ex);
             throw;
         }
     }
@@ -302,13 +307,13 @@ public class SubscriptionClient : ISubscriptionClient
 
         if (!isValid)
         {
-            logger.LogError("Invalid {BulkId} or paging parameters must have values greater than or equal to zero", bulkId);
+            logger.ErrorInvalidBulkIdOrPage(bulkId);
             throw new ArgumentException("Invalid bulk id or paging parameters; must be greater than or equal to zero (or null)");
         }
 
         try
         {
-            logger.LogTrace("Retrieving verifications of {@BulkId}", bulkId);
+            logger.TracePageVerifications(bulkId);
             var client = httpClientFactory.CreateClient(mode);
             AddHeaders(ref client);
 
@@ -320,21 +325,22 @@ public class SubscriptionClient : ISubscriptionClient
                                 (nameof(pageNumber), pageNumber?.ToString(CultureInfo.InvariantCulture)));
             var response = await client.GetAsync(path, cancellationToken);
             var msg = await response.Content.ReadAsStringAsync(cancellationToken);
-            logger.LogTrace("Content is: {@MessageContent}", msg);
+
+            logger.TraceMessageContent(msg);
             _ = response.EnsureSuccessStatusCode();
             var result = JsonSerializer.Deserialize<PageResult<SubscriptionProcessStatus>>(msg);
             if (result is null)
             {
-                logger.LogError("Could not deserialize {Response} to bulkId", msg);
+                logger.ErrorResponseToBulkID(msg);
                 throw new SerializationException("Could not deserialize response from the http client to a PaginatedSubscription");
             }
 
-            logger.LogInformation("Retrieved verified {@PaginatedSubscriptions}", result);
+            logger.InfoPaginatedSubscriptions(result);
             return result;
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "An exception occurred trying to retrieve verifications of {BulkId}", bulkId);
+            logger.ExceptionPageVerifications(bulkId, ex);
             throw;
         }
     }
