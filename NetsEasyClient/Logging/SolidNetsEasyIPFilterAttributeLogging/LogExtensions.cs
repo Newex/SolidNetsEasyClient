@@ -2,7 +2,6 @@ using System.Net;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.Logging;
-using SolidNetsEasyClient.Models.Options;
 
 namespace SolidNetsEasyClient.Logging.SolidNetsEasyIPFilterAttributeLogging;
 
@@ -75,46 +74,6 @@ public static partial class LogExtensions
         SkipEnabledCheck = true
     )]
     public static partial void WarningNotNetsEasyEndpoint(this ILogger logger, IPAddress ip);
-
-    /// <summary>
-    /// Warning request is not from a Nets Easy endpoint range
-    /// </summary>
-    /// <param name="logger">The logger</param>
-    /// <param name="context">The context</param>
-    [LoggerMessage(
-        EventId = LogEventIDs.Errors.Missing,
-        Level = LogLevel.Warning,
-        Message = "Webhook must have an order id to validate the request {Context}",
-        SkipEnabledCheck = true
-    )]
-    public static partial void WarningMissingOrderID(this ILogger logger, ActionExecutingContext context);
-
-    /// <summary>
-    /// Warning missing signing key
-    /// </summary>
-    /// <param name="logger">The logger</param>
-    /// <param name="options">The platform payment options</param>
-    [LoggerMessage(
-        EventId = LogEventIDs.Errors.Missing,
-        Level = LogLevel.Warning,
-        Message = "Webhook must have a signing key defined in the options startup or in configuration settings. Currently found: {Options}",
-        SkipEnabledCheck = true
-    )]
-    public static partial void WarningMissingSigningKey(this ILogger logger, PlatformPaymentOptions? options);
-
-    /// <summary>
-    /// Warning headers do not have valid authorization
-    /// </summary>
-    /// <param name="logger">The logger</param>
-    /// <param name="headers">The request headers</param>
-    /// <param name="context">The context</param>
-    [LoggerMessage(
-        EventId = LogEventIDs.Errors.Invalid,
-        Level = LogLevel.Warning,
-        Message = "Webhook request does not have a valid authorization {Headers} in the {Context}",
-        SkipEnabledCheck = true
-    )]
-    public static partial void WarningInvalidAuthorizationHeader(this ILogger logger, IHeaderDictionary headers, ActionExecutingContext context);
 
     /// <summary>
     /// Warning success response must be 200 OK but was something else
