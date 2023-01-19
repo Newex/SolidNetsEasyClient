@@ -108,23 +108,6 @@ public sealed class SolidNetsEasyIPFilterAttribute : ActionFilterAttribute, IAut
     }
 
     /// <summary>
-    /// Validate the request and verify the authorization signature. If it is a Nets Easy webhook callback
-    /// </summary>
-    /// <param name="context">The action executing context</param>
-    public override void OnActionExecuting(ActionExecutingContext context)
-    {
-        var logger = GetLogger(context.HttpContext.RequestServices);
-
-        // Must have orderId!
-        var hasOrderId = context.ActionArguments.TryGetValue("orderId", out var orderObject);
-        if (!hasOrderId || orderObject is not string)
-        {
-            logger.WarningMissingOrderID(context);
-            context.Result = new StatusCodeResult(StatusCodes.Status500InternalServerError);
-        }
-    }
-
-    /// <summary>
     /// If successfully executed the action, then change the response to 200 OK if not
     /// </summary>
     /// <param name="context">The context</param>
