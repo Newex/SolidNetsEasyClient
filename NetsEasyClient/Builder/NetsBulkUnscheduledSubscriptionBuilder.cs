@@ -13,14 +13,12 @@ namespace SolidNetsEasyClient.Builder;
 /// </summary>
 public sealed class NetsBulkUnscheduledSubscriptionBuilder
 {
-    private readonly string? key;
     private readonly List<ChargeUnscheduledSubscription> subscriptions = new();
     private readonly List<WebHook> webhooks = new(32);
     private string externalBulkChargeId = string.Empty;
 
-    private NetsBulkUnscheduledSubscriptionBuilder(string? key)
+    private NetsBulkUnscheduledSubscriptionBuilder()
     {
-        this.key = key;
     }
 
     /// <summary>
@@ -97,11 +95,10 @@ public sealed class NetsBulkUnscheduledSubscriptionBuilder
     /// <summary>
     /// Create an unscheduled subscription builder
     /// </summary>
-    /// <param name="key">The secret key used to encode the web hook authorization header</param>
     /// <returns>A builder</returns>
-    public static NetsBulkUnscheduledSubscriptionBuilder CreateBulkBuilder(string? key = null)
+    public static NetsBulkUnscheduledSubscriptionBuilder CreateBulkBuilder()
     {
-        return new NetsBulkUnscheduledSubscriptionBuilder(key);
+        return new NetsBulkUnscheduledSubscriptionBuilder();
     }
 
     /// <summary>

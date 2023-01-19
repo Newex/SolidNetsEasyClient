@@ -10,7 +10,6 @@ using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 using NetTools;
 using SolidNetsEasyClient.Constants;
-using SolidNetsEasyClient.Encryption;
 using SolidNetsEasyClient.Logging.SolidNetsEasyIPFilterAttributeLogging;
 using SolidNetsEasyClient.Models.Options;
 
@@ -43,15 +42,6 @@ public sealed class SolidNetsEasyIPFilterAttribute : ActionFilterAttribute, IAut
     /// Override the configured Nets Easy endpoints of IP ranges separated by a semi-colon (;). The ranges must be specified in the CIDR format e.g. 192.168.0.1/24
     /// </summary>
     public string? WhitelistIPRanges { get; set; }
-
-    /// <summary>
-    /// Verify the authorization header using the in-built encryption and key
-    /// </summary>
-    /// <remarks>
-    /// The action method must have a parameter called 'orderId' to decrypt and verify the signature.
-    /// Furthermore the key must be defined in the configuration <see cref="PlatformPaymentOptions.WebhookAuthorizationKey"/>
-    /// </remarks>
-    public bool VerifyAuthorization { get; set; } = true;
 
     /// <summary>
     /// Check the client IP against the blacklist and known Nets Easy endpoint IPs
@@ -123,12 +113,6 @@ public sealed class SolidNetsEasyIPFilterAttribute : ActionFilterAttribute, IAut
     /// <param name="context">The action executing context</param>
     public override void OnActionExecuting(ActionExecutingContext context)
     {
-        if (!VerifyAuthorization)
-        {
-            // Continue
-            return;
-        }
-
         var logger = GetLogger(context.HttpContext.RequestServices);
 
         // Must have orderId!
@@ -137,26 +121,6 @@ public sealed class SolidNetsEasyIPFilterAttribute : ActionFilterAttribute, IAut
         {
             logger.WarningMissingOrderID(context);
             context.Result = new StatusCodeResult(StatusCodes.Status500InternalServerError);
-            return;
-        }
-
-        var orderId = (string)orderObject;
-
-        // Must have key
-        var options = GetOptions(context.HttpContext.RequestServices);
-        var key = options?.Value.WebhookAuthorizationKey;
-        if (key is null)
-        {
-            logger.WarningMissingSigningKey(options?.Value);
-            context.Result = new StatusCodeResult(StatusCodes.Status500InternalServerError);
-            return;
-        }
-
-        var isValid = context.HttpContext.Request.ValidateOrderReference(orderId, key);
-        if (!isValid)
-        {
-            logger.WarningInvalidAuthorizationHeader(context.HttpContext.Request.Headers, context);
-            context.Result = new StatusCodeResult(StatusCodes.Status403Forbidden);
         }
     }
 
