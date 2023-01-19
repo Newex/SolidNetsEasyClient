@@ -1,9 +1,10 @@
+using System;
 using System.Collections.Generic;
-using SolidNetsEasyClient.Encryption;
 using SolidNetsEasyClient.Models.DTOs;
 using SolidNetsEasyClient.Models.DTOs.Enums;
 using SolidNetsEasyClient.Models.DTOs.Requests.Payments.Subscriptions;
 using SolidNetsEasyClient.Models.DTOs.Requests.Webhooks;
+using SolidNetsEasyClient.Validators;
 
 namespace SolidNetsEasyClient.Builder;
 
@@ -72,12 +73,16 @@ public sealed class NetsBulkUnscheduledSubscriptionBuilder
     /// </remarks>
     /// <param name="eventName">The event to subscribe to</param>
     /// <param name="callbackUrl">The url in which to listen for the event</param>
-    /// <param name="authorizationMessage">The optional authorization header value</param>
-    /// <param name="encode">True if the authorization header should be encoded otherwise false</param>
+    /// <param name="authorization">The credentials that will be sent in the HTTP Authorization request header of the callback. Must be between 8 and 32 characters long and contain alphanumeric characters.</param>
     /// <returns>A builder</returns>
-    public NetsBulkUnscheduledSubscriptionBuilder SubscribeToEvent(EventName eventName, string callbackUrl, string? authorizationMessage = null, bool encode = true)
+    /// <exception cref="ArgumentException">Thrown when invalid authorization</exception>
+    public NetsBulkUnscheduledSubscriptionBuilder SubscribeToEvent(EventName eventName, string callbackUrl, string? authorization = null)
     {
-        var authorization = encode && authorizationMessage is not null && key is not null ? PaymentRequestHmac.Encode(authorizationMessage, key) : authorizationMessage;
+        var validAuthorization = PaymentValidator.ProperAuthorization(callbackUrl);
+        if (!validAuthorization)
+        {
+            throw new ArgumentException("Authorization must be between 8 and 32 long and contain alphanumeric characters");
+        }
         var webhook = new WebHook()
         {
             EventName = eventName,

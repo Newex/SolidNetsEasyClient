@@ -213,6 +213,18 @@ internal static class PaymentValidator
         return allMethods || allTypes;
     }
 
+    internal static bool ProperAuthorization(string? header)
+    {
+        if (header is null)
+        {
+            return true;
+        }
+
+        // Must only contain alphanumeric characters
+        var size = header.All(char.IsLetterOrDigit) && header.Length >= 8 && header.Length <= 32;
+        return size;
+    }
+
     private static bool ProperWebHookUrl(string? url)
     {
         if (url is null)
@@ -223,17 +235,5 @@ internal static class PaymentValidator
         var isHttps = url.StartsWith("https", StringComparison.OrdinalIgnoreCase);
         var hasLength = url.Length <= 256;
         return isHttps && hasLength;
-    }
-
-    private static bool ProperAuthorization(string? header)
-    {
-        if (header is null)
-        {
-            return true;
-        }
-
-        // Must only contain alphanumeric characters
-        var size = header.All(char.IsLetterOrDigit) && header.Length >= 8 && header.Length <= 32;
-        return size;
     }
 }

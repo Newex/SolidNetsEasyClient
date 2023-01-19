@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using Microsoft.AspNetCore.WebUtilities;
 using SolidNetsEasyClient.Extensions;
 using SolidNetsEasyClient.Models.DTOs.Contacts;
 using SolidNetsEasyClient.Models.DTOs.Enums;
@@ -8,6 +7,7 @@ using SolidNetsEasyClient.Models.DTOs.Requests.Customers;
 using SolidNetsEasyClient.Models.DTOs.Requests.Orders;
 using SolidNetsEasyClient.Models.DTOs.Requests.Payments;
 using SolidNetsEasyClient.Models.DTOs.Requests.Webhooks;
+using SolidNetsEasyClient.Validators;
 
 namespace SolidNetsEasyClient.Builder;
 
@@ -299,23 +299,23 @@ public sealed class NetsPaymentBuilder
     /// <summary>
     /// Subscribe to an event
     /// </summary>
-    /// <remarks>
-    /// The callback url must be an https endpoint and be acknowledged with a 200 OK status.
-    /// This builder appends a query parameter with the order reference i.e. https://webhook.url/callback?orderId=my-order-id
-    /// </remarks>
     /// <param name="eventName">The event name</param>
     /// <param name="callbackUrl">The callback url</param>
-    /// <param name="authorization">The authorization credentials</param>
-    /// <param name="append">Append the order reference id as query parameter to the url</param>
+    /// <param name="authorization">The credentials that will be sent in the HTTP Authorization request header of the callback. Must be between 8 and 32 characters long and contain alphanumeric characters.</param>
     /// <returns>A payment builder</returns>
-    public NetsPaymentBuilder SubscribeToEvent(EventName eventName, string callbackUrl, string? authorization = null, bool append = true)
+    /// <exception cref="ArgumentException">Thrown when invalid authorization</exception>
+    public NetsPaymentBuilder SubscribeToEvent(EventName eventName, string callbackUrl, string? authorization = null)
     {
-        var url = append ? QueryHelpers.AddQueryString(callbackUrl, "orderId", order.Reference ?? "none") : callbackUrl;
+        var validAuthorization = PaymentValidator.ProperAuthorization(authorization);
+        if (!validAuthorization)
+        {
+            throw new ArgumentException("Authorization must be between 8 and 32 long and contain alphanumeric characters");
+        }
         webHooks.Add(new()
         {
             Authorization = authorization,
             EventName = eventName,
-            Url = url
+            Url = callbackUrl
         });
 
         return this;
