@@ -219,7 +219,7 @@ public sealed class NetsPaymentBuilder
             MerchantHandlesConsumerData = !retypeCostumerData,
             ConsumerType = !retypeCostumerData ? null : new()
             {
-                Default = ConsumerTypeEnum.B2C
+                Default = ConsumerTypeEnum.B2B
             }
         };
 
