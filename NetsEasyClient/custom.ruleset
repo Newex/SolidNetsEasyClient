@@ -2,6 +2,7 @@
 <RuleSet Name="Library roslynator rules" ToolsVersion="15.0">
   <Include Path="/home/repro/.local/share/JosefPihrt/Roslynator/VisualStudioCode/roslynator.ruleset" Action="Default" />
   <Rules AnalyzerId="Roslynator.CSharp.Analyzers" RuleNamespace="Roslynator.CSharp.Analyzers">
+    <Rule Id="CA1715" Action="None" />
     <Rule Id="CA1711" Action="None" />
     <Rule Id="IDE0005" Action="Warning" />
     <Rule Id="IDE0008" Action="None" />
@@ -15,11 +16,5 @@
     <Rule Id="RCS1118" Action="None" />
     <Rule Id="RCS1124" Action="None" />
     <Rule Id="RCS1160" Action="None" />
-    <Rule Id="IDE0037" Action="None" />
-    <Rule Id="CA1715" Action="None" />
-    <Rule Id="IDE007" Action="None" />
-    <Rule Id="IDE008" Action="None" />
-    <Rule Id="IDE022" Action="None" />
-    <Rule Id="IDE0160" Action="None" />
   </Rules>
 </RuleSet>
