@@ -16,7 +16,7 @@ public record RefundInitiated : Webhook<RefundInitiatedData>
     [JsonPropertyName("merchantNumber")]
     public int MerchantNumber
     {
-        get { return MerchantId; }
-        init { MerchantId = value; }
+        get => MerchantId;
+        init => MerchantId = value;
     }
 }

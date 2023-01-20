@@ -12,80 +12,80 @@ public enum PaymentMethodEnum
     /// <summary>
     /// Visa payment method
     /// </summary>
-    Visa,
+    Visa = 0,
 
     /// <summary>
     /// MasterCard payment method
     /// </summary>
-    MasterCard,
+    MasterCard = 1,
 
     /// <summary>
     /// Dankort payment method
     /// </summary>
-    Dankort,
+    Dankort = 2,
 
     /// <summary>
     /// AmericanExpress payment method
     /// </summary>
-    AmericanExpress,
+    AmericanExpress = 3,
 
     /// <summary>
     /// PayPal payment method
     /// </summary>
-    PayPal,
+    PayPal = 4,
 
     /// <summary>
     /// Vipps payment method
     /// </summary>
-    Vipps,
+    Vipps = 5,
 
     /// <summary>
     /// MobilePay payment method
     /// </summary>
-    MobilePay,
+    MobilePay = 6,
 
     /// <summary>
     /// Swish payment method
     /// </summary>
-    Swish,
+    Swish = 7,
 
     /// <summary>
     /// Arvato payment method
     /// </summary>
-    Arvato,
+    Arvato = 8,
 
     /// <summary>
     /// EasyInvoice payment method
     /// </summary>
-    EasyInvoice,
+    EasyInvoice = 9,
 
     /// <summary>
     /// EasyCampaign payment method
     /// </summary>
-    EasyCampaign,
+    EasyCampaign = 10,
 
     /// <summary>
     /// RatePayInvoice payment method
     /// </summary>
-    RatePayInvoice,
+    RatePayInvoice = 11,
 
     /// <summary>
     /// RatePayInstallment payment method
     /// </summary>
-    RatePayInstallment,
+    RatePayInstallment = 12,
 
     /// <summary>
     /// RatePaySepa payment method
     /// </summary>
-    RatePaySepa,
+    RatePaySepa = 13,
 
     /// <summary>
     /// Sofort payment method
     /// </summary>
-    Sofort,
+    Sofort = 14,
 
     /// <summary>
     /// Trustly payment method
     /// </summary>
-    Trustly
+    Trustly = 15
 }

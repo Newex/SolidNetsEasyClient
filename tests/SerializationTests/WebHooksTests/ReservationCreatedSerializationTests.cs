@@ -1,4 +1,5 @@
 using System;
+using System.Globalization;
 using System.Text.Json;
 using SolidNetsEasyClient.Models.DTOs.Enums;
 using SolidNetsEasyClient.Models.DTOs.Responses.Webhooks;
@@ -50,7 +51,7 @@ public class ReservationCreatedSerializationTests
         {
             Id = new("6f081ae39b9846c4bacff88fa2cecc98"),
             MerchantId = 100001234,
-            Timestamp = DateTimeOffset.Parse("2022-09-21T09:50:05.9440+00:00"),
+            Timestamp = DateTimeOffset.Parse("2022-09-21T09:50:05.9440+00:00", CultureInfo.InvariantCulture),
             Event = EventName.ReservationCreatedV1,
             Data = new()
             {
@@ -115,7 +116,7 @@ public class ReservationCreatedSerializationTests
         var expected = new ReservationCreatedV2
         {
             Id = new("c25459e92ba54be1925493f987fb05a7"),
-            Timestamp = DateTimeOffset.Parse("2021-05-04T22:09:08.4342+02:00"),
+            Timestamp = DateTimeOffset.Parse("2021-05-04T22:09:08.4342+02:00", CultureInfo.InvariantCulture),
             MerchantNumber = 100017120,
             Event = EventName.ReservationCreatedV2,
             Data = new()
@@ -147,7 +148,7 @@ public class ReservationCreatedSerializationTests
         {
             Id = new("ffb26a376517427da7236b55e06478d9"),
             MerchantId = 123456,
-            Timestamp = DateTimeOffset.Parse("2022-11-12T06:33:24.3795+00:00"),
+            Timestamp = DateTimeOffset.Parse("2022-11-12T06:33:24.3795+00:00", CultureInfo.InvariantCulture),
             Event = EventName.ReservationCreatedV1,
             Data = new()
             {
@@ -197,7 +198,7 @@ public class ReservationCreatedSerializationTests
         var expected = new ReservationCreatedV2
         {
             Id = new("ffb26a376517427da7236b55e06478d9"),
-            Timestamp = DateTimeOffset.Parse("2022-11-12T06:33:24.3795+00:00"),
+            Timestamp = DateTimeOffset.Parse("2022-11-12T06:33:24.3795+00:00", CultureInfo.InvariantCulture),
             MerchantNumber = 123456,
             Event = EventName.ReservationCreatedV2,
             Data = new()

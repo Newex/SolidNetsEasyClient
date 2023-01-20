@@ -13,10 +13,8 @@ builder.Logging.AddFilter((_, category, level) =>
     {
         return true;
     }
-    else
-    {
-        return level >= LogLevel.Warning;
-    }
+
+    return level >= LogLevel.Warning;
 });
 
 builder.Services.AddHealthChecks();

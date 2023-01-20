@@ -1,4 +1,3 @@
-using System;
 using System.Threading;
 using System.Threading.Tasks;
 using ExampleSite.Models;
@@ -6,7 +5,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using SolidNetsEasyClient.Builder;
 using SolidNetsEasyClient.Clients;
-using SolidNetsEasyClient.Encryption;
 using SolidNetsEasyClient.Models.DTOs.Enums;
 
 namespace ExampleSite.Controllers;
@@ -15,13 +13,11 @@ public class CheckoutController : Controller
 {
     private readonly PaymentClient client;
     private readonly string webhookUrl;
-    private readonly string signingKey;
 
     public CheckoutController(PaymentClient client, IOptions<MyOptions> options)
     {
         this.client = client;
         webhookUrl = options.Value.WebhookCallbackUrl;
-        signingKey = options.Value.MySigningKey;
     }
 
     [HttpPost("/checkout")]
@@ -45,19 +41,19 @@ public class CheckoutController : Controller
             )
             .ChargePaymentOnCreation(false)
             .AsUnscheduledSubscription(true)
-            //.AsRegularSubscription(interval: 0, DateTimeOffset.UtcNow.AddYears(5), onTheEndOfTheMonth: true, onMidnight: true)
-            .SubscribeToEvent(EventName.ChargeCreated, webhookUrl, order.SignOrder(signingKey))
-            .SubscribeToEvent(EventName.ChargeFailed, webhookUrl, order.SignOrder(signingKey))
-            .SubscribeToEvent(EventName.CheckoutCompleted, webhookUrl, order.SignOrder(signingKey))
-            .SubscribeToEvent(EventName.PaymentCreated, webhookUrl, order.SignOrder(signingKey))
-            .SubscribeToEvent(EventName.RefundCompleted, webhookUrl, order.SignOrder(signingKey))
-            .SubscribeToEvent(EventName.RefundFailed, webhookUrl, order.SignOrder(signingKey))
-            .SubscribeToEvent(EventName.RefundInitiated, webhookUrl, order.SignOrder(signingKey))
-            .SubscribeToEvent(EventName.ReservationCancellationFailed, webhookUrl, order.SignOrder(signingKey))
-            .SubscribeToEvent(EventName.ReservationCancelled, webhookUrl, order.SignOrder(signingKey))
-            .SubscribeToEvent(EventName.ReservationCreatedV1, webhookUrl, order.SignOrder(signingKey))
-            .SubscribeToEvent(EventName.ReservationCreatedV2, webhookUrl, order.SignOrder(signingKey))
-            .SubscribeToEvent(EventName.ReservationFailed, webhookUrl, order.SignOrder(signingKey));
+            .AsRegularSubscription(interval: 0, years: 5, onTheEndOfTheMonth: true, onMidnight: true)
+            .SubscribeToEvent(EventName.ChargeCreated, webhookUrl)
+            .SubscribeToEvent(EventName.ChargeFailed, webhookUrl)
+            .SubscribeToEvent(EventName.CheckoutCompleted, webhookUrl)
+            .SubscribeToEvent(EventName.PaymentCreated, webhookUrl)
+            .SubscribeToEvent(EventName.RefundCompleted, webhookUrl)
+            .SubscribeToEvent(EventName.RefundFailed, webhookUrl)
+            .SubscribeToEvent(EventName.RefundInitiated, webhookUrl)
+            .SubscribeToEvent(EventName.ReservationCancellationFailed, webhookUrl)
+            .SubscribeToEvent(EventName.ReservationCancelled, webhookUrl)
+            .SubscribeToEvent(EventName.ReservationCreatedV1, webhookUrl)
+            .SubscribeToEvent(EventName.ReservationCreatedV2, webhookUrl)
+            .SubscribeToEvent(EventName.ReservationFailed, webhookUrl);
 
         var payment = await client.CreatePaymentAsync(paymentBuilder.BuildPaymentRequest(), cts);
         var vm = new CheckoutViewModel

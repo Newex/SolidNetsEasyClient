@@ -12,10 +12,10 @@ public enum ConsumerTypeEnum
     /// <summary>
     /// A business-2-consumer relation
     /// </summary>
-    B2C,
+    B2C = 0,
 
     /// <summary>
     /// A business-2-business relation
     /// </summary>
-    B2B
+    B2B = 1
 }

@@ -1,7 +1,5 @@
-using System;
 using System.Text.Json;
 using SolidNetsEasyClient.Models.DTOs.Responses.Customers;
-using SolidNetsEasyClient.Models.DTOs.Responses.Payments;
 
 namespace SolidNetsEasyClient.Tests.SerializationTests;
 
@@ -12,7 +10,7 @@ public class DateTimeSerializationTests
     public void Date_time_string_should_return_valid_date_time_object()
     {
         // Arrange
-        const string jsonDateTime = @"
+        const string jsonDateTime = /*lang=json,strict*/ @"
         {
             ""dateOfBirth"": ""2019-08-24T14:15:22Z""
         }";

@@ -18,7 +18,7 @@ public class WebhookIPFilterTests
             .Create(fromIP: ipString)
             .AddOptions(new() { BlacklistIPsForWebhook = $"127.0.0.1;{ipString}" });
         var context = builder.Build();
-        var attribute = new WebhookIPFilterAttribute();
+        var attribute = new SolidNetsEasyIPFilterAttribute();
 
         // Act
         attribute.OnAuthorization(context);
@@ -37,7 +37,7 @@ public class WebhookIPFilterTests
             .Create(fromIP: ipString)
             .AddOptions(new() { BlacklistIPsForWebhook = "127.0.0.1" });
         var context = builder.Build();
-        var attribute = new WebhookIPFilterAttribute()
+        var attribute = new SolidNetsEasyIPFilterAttribute()
         {
             BlacklistIPs = ipString
         };
@@ -59,7 +59,7 @@ public class WebhookIPFilterTests
             .Create(fromIP: ipString)
             .AddOptions(new() { NetsIPWebhookEndpoints = $"{ipString}/24", });
         var context = builder.Build();
-        var attribute = new WebhookIPFilterAttribute();
+        var attribute = new SolidNetsEasyIPFilterAttribute();
 
         // Act
         attribute.OnAuthorization(context);
@@ -82,7 +82,7 @@ public class WebhookIPFilterTests
                 NetsIPWebhookEndpoints = $"{ipString}/24",
             });
         var context = builder.Build();
-        var attribute = new WebhookIPFilterAttribute()
+        var attribute = new SolidNetsEasyIPFilterAttribute()
         {
             WhitelistIPs = ipString
         };

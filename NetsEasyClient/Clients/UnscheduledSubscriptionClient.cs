@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Json;
@@ -14,6 +15,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.Net.Http.Headers;
 using SolidNetsEasyClient.Constants;
 using SolidNetsEasyClient.Extensions;
+using SolidNetsEasyClient.Logging.UnscheduledSubscriptionClientLogging;
 using SolidNetsEasyClient.Models.DTOs.Requests.Orders;
 using SolidNetsEasyClient.Models.DTOs.Requests.Payments.Subscriptions;
 using SolidNetsEasyClient.Models.DTOs.Requests.Webhooks;
@@ -67,34 +69,35 @@ public class UnscheduledSubscriptionClient : IUnscheduledSubscriptionClient
         var isValid = !string.IsNullOrWhiteSpace(externalReference);
         if (!isValid)
         {
-            logger.LogError("Invalid {ExternalReference}", externalReference);
+            logger.ErrorInvalidExternalReference(externalReference);
             throw new ArgumentException("External cannot be empty or only whitespaces", nameof(externalReference));
         }
 
         try
         {
-            logger.LogTrace("Retrieving unscheduled subscription with {ExternalReference}", externalReference);
+            logger.TraceRetrieveByExternal(externalReference);
             var client = httpClientFactory.CreateClient(mode);
             AddHeaders(ref client);
 
             var path = NetsEndpoints.Relative.UnscheduledSubscriptions + $"?externalReference={HttpUtility.UrlEncode(externalReference)}";
             var response = await client.GetAsync(path, cancellationToken);
             var content = await response.Content.ReadAsStringAsync(cancellationToken);
-            logger.LogDebug("Raw response is: {ResponseContent}", content);
+
+            logger.TraceResponse(content);
             _ = response.EnsureSuccessStatusCode();
             var result = JsonSerializer.Deserialize<UnscheduledSubscriptionDetails>(content);
             if (result is null)
             {
-                logger.LogError("Could not deserialize response from {@HttpClient} with {Content} to UnscheduledSubscriptionDetails", client, content);
+                logger.ErrorDeserializeRetrieveByExternal(content);
                 throw new SerializationException("Could not deserialize response to UnscheduledSubscriptionDetails object");
             }
 
-            logger.LogInformation("Retrieved unscheduled subscription {@UnscheduledSubscription}", result);
+            logger.InfoRetrievedByExternal(result);
             return result;
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "An exception occurred trying to retrieve unscheduled subscription with {ExternalReference}", externalReference);
+            logger.ExceptionRetrieveByExternal(externalReference, ex);
             throw;
         }
     }
@@ -105,13 +108,13 @@ public class UnscheduledSubscriptionClient : IUnscheduledSubscriptionClient
         var isValid = unscheduledSubscriptionId != Guid.Empty && order.Items.Any() && notifications.WebHooks.Count < 33;
         if (!isValid)
         {
-            logger.LogError("Unscheduled subscription must contain an {UnscheduledSubscriptionId} and the {@Order} must have at least 1 item! And the max webhooks are 32", unscheduledSubscriptionId, order);
+            logger.ErrorInvalidCharge(unscheduledSubscriptionId, order);
             throw new ArgumentException("Unscheduled subscription must contain an ID and an order must have at least 1 item!", nameof(unscheduledSubscriptionId));
         }
 
         try
         {
-            logger.LogTrace("Charging unscheduled subscription {UnscheduledSubscriptionId}, with {@Order}", unscheduledSubscriptionId, order);
+            logger.TraceCharge(unscheduledSubscriptionId, order);
             var client = httpClientFactory.CreateClient(mode);
             AddHeaders(ref client);
 
@@ -123,22 +126,22 @@ public class UnscheduledSubscriptionClient : IUnscheduledSubscriptionClient
             };
             var response = await client.PostAsJsonAsync(path, body, cancellationToken: cancellationToken);
             var content = await response.Content.ReadAsStringAsync(cancellationToken);
-            logger.LogDebug("Raw response is: {ResponseContent}", content);
+            logger.TraceResponse(content);
             _ = response.EnsureSuccessStatusCode();
 
             var result = JsonSerializer.Deserialize<UnscheduledSubscriptionChargeResult>(content);
             if (result is null)
             {
-                logger.LogError("Could not deserialize response {Content} from {@HttpClient} to UnscheduledSubscriptionChargeResult", content, client);
+                logger.ErrorDeserializeCharge(content);
                 throw new SerializationException("Could not deserialize response to UnscheduledSubscriptionResult");
             }
 
-            logger.LogInformation("Charged {@UnscheduledSubscription}", body);
+            logger.InfoCharge(body, result);
             return result;
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "An exception occurred trying to charge unscheduled subscription {UnscheduledSubscriptionId}", unscheduledSubscriptionId);
+            logger.ExceptionCharge(unscheduledSubscriptionId, ex);
             throw;
         }
     }
@@ -149,35 +152,35 @@ public class UnscheduledSubscriptionClient : IUnscheduledSubscriptionClient
         var isValid = bulk.UnscheduledSubscriptions.All(SubscriptionValidator.OnlyEitherSubscriptionIdOrExternalRef) && !string.IsNullOrWhiteSpace(bulk.ExternalBulkChargeId) && PaymentValidator.CheckWebHooks(bulk.Notifications);
         if (!isValid)
         {
-            logger.LogError("Invalid {@Bulk}", bulk);
+            logger.ErrorInvalidBulk(bulk);
             throw new ArgumentException("Invalid bulk");
         }
 
         try
         {
-            logger.LogTrace("Charging {@Bulk} unscheduled subscription", bulk);
+            logger.TraceBulkCharge(bulk);
             var client = httpClientFactory.CreateClient(mode);
             AddHeaders(ref client);
 
             var path = NetsEndpoints.Relative.UnscheduledSubscriptions + "/charges";
             var response = await client.PostAsJsonAsync(path, bulk, cancellationToken);
             var content = await response.Content.ReadAsStringAsync(cancellationToken);
-            logger.LogDebug("Raw response is: {ResponseContent}", content);
+            logger.TraceResponse(content);
             _ = response.EnsureSuccessStatusCode();
 
             var result = JsonSerializer.Deserialize<BulkId>(content);
             if (result is null)
             {
-                logger.LogError("Could not deserialize response {Content} from {@HttpClient} to BulkId", content, client);
+                logger.ErrorDeserializeBulkCharge(content);
                 throw new SerializationException("Could not deserialize response to BulkId");
             }
 
-            logger.LogInformation("Charged {@Bulk}, with {@BulkId}", bulk, result);
+            logger.InfoBulkCharged(bulk, result);
             return result;
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "An exception occurred trying to charge {@Bulk} unscheduled subscriptions", bulk);
+            logger.ExceptionBulkCharge(bulk, ex);
             throw;
         }
     }
@@ -188,13 +191,13 @@ public class UnscheduledSubscriptionClient : IUnscheduledSubscriptionClient
         var isValid = bulk.All(SubscriptionValidator.OnlyEitherSubscriptionIdOrExternalRef) && !string.IsNullOrWhiteSpace(externalBulkChargeId) && PaymentValidator.CheckWebHooks(notifications);
         if (!isValid)
         {
-            logger.LogError("Invalid {@Bulk} or missing external {ExternalBulkChargeId} or {@Notifications}", bulk, externalBulkChargeId, notifications);
+            logger.ErrorInvalidBulkCharge(bulk, externalBulkChargeId, notifications);
             throw new ArgumentException("Invalid bulk, external bulk charge id or notifications");
         }
 
         try
         {
-            logger.LogTrace("Charging {@Bulk} unscheduled subscription {ExternalBulkChargeId}", bulk, externalBulkChargeId);
+            logger.TraceBulkCharge(bulk, externalBulkChargeId);
             var client = httpClientFactory.CreateClient(mode);
             AddHeaders(ref client);
 
@@ -207,22 +210,22 @@ public class UnscheduledSubscriptionClient : IUnscheduledSubscriptionClient
             };
             var response = await client.PostAsJsonAsync(path, body, cancellationToken);
             var content = await response.Content.ReadAsStringAsync(cancellationToken);
-            logger.LogDebug("Raw response is: {ResponseContent}", content);
+            logger.TraceResponse(content);
             _ = response.EnsureSuccessStatusCode();
 
             var result = JsonSerializer.Deserialize<BulkId>(content);
             if (result is null)
             {
-                logger.LogError("Could not deserialize response {Content} from {@HttpClient} to BulkId", content, client);
+                logger.ErrorDeserializeBulkCharge(content);
                 throw new SerializationException("Could not deserialize response to BulkId");
             }
 
-            logger.LogInformation("Charged {@Bulk}, with {@BulkId}", body, result);
+            logger.InfoBulkCharged(body, result);
             return result;
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "An exception occurred trying to charge {@Bulk} unscheduled subscription {ExternalBulkChargeId}", bulk, externalBulkChargeId);
+            logger.ExceptionBulkCharge(bulk, externalBulkChargeId, ex);
             throw;
         }
     }
@@ -232,25 +235,25 @@ public class UnscheduledSubscriptionClient : IUnscheduledSubscriptionClient
     {
         try
         {
-            logger.LogTrace("Retrieving bulk {BulkId}", bulkId);
+            logger.TraceRetrieveBulk(bulkId);
             var response = await RetrieveBulkChargesAsync(bulkId, null, null, null, null, cancellationToken);
             var content = await response.Content.ReadAsStringAsync(cancellationToken);
-            logger.LogTrace("Content is: {@MessageContent}", content);
+            logger.TraceResponse(content);
             _ = response.EnsureSuccessStatusCode();
 
             var result = JsonSerializer.Deserialize<PageResult<UnscheduledSubscriptionProcessStatus>>(content);
             if (result is null)
             {
-                logger.LogError("Could not deserialize {Response} to paginated unscheduled subscription process", content);
+                logger.ErrorDeserializeRetrieveBulk(content);
                 throw new SerializationException("Could not deserialize response from the http client to a paginated unscheduled subscription");
             }
 
-            logger.LogInformation("Retrieved bulk unscheduled subscriptions: {@PaginatedUnscheduledSubscripions}", result);
+            logger.InfoRetrieveBulk(result);
             return result;
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "An exception occurred trying to retrieve {BulkId}", bulkId);
+            logger.ExceptionRetrieveBulk(bulkId, ex);
             throw;
         }
     }
@@ -260,25 +263,26 @@ public class UnscheduledSubscriptionClient : IUnscheduledSubscriptionClient
     {
         try
         {
-            logger.LogTrace("Retrieving bulk {BulkId}, {Skip} and {Take}", bulkId, skip, take);
+            logger.TraceRetrieveBulkSkipTake(bulkId, skip, take);
             var response = await RetrieveBulkChargesAsync(bulkId, skip, take, null, null, cancellationToken);
             var content = await response.Content.ReadAsStringAsync(cancellationToken);
-            logger.LogTrace("Content is: {@MessageContent}", content);
+
+            logger.TraceResponse(content);
             _ = response.EnsureSuccessStatusCode();
 
             var result = JsonSerializer.Deserialize<PageResult<UnscheduledSubscriptionProcessStatus>>(content);
             if (result is null)
             {
-                logger.LogError("Could not deserialize {Response} to paginated unscheduled subscription process", content);
+                logger.ErrorDeserializeRetrieveBulk(content);
                 throw new SerializationException("Could not deserialize response from the http client to a paginated unscheduled subscription");
             }
 
-            logger.LogInformation("Retrieved bulk unscheduled subscriptions: {@PaginatedUnscheduledSubscripions}", result);
+            logger.InfoRetrieveBulk(result);
             return result;
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "An exception occurred trying to retrieve {BulkId}", bulkId);
+            logger.ExceptionRetrieveBulk(bulkId, ex);
             throw;
         }
     }
@@ -288,25 +292,26 @@ public class UnscheduledSubscriptionClient : IUnscheduledSubscriptionClient
     {
         try
         {
-            logger.LogTrace("Retrieving bulk {BulkId}, {PageSize} and {PageNumber}", bulkId, pageSize, pageNumber);
+            logger.TraceRetrieveBulkSizeNumber(bulkId, pageSize, pageNumber);
             var response = await RetrieveBulkChargesAsync(bulkId, null, null, pageNumber, pageSize, cancellationToken);
             var content = await response.Content.ReadAsStringAsync(cancellationToken);
-            logger.LogTrace("Content is: {@MessageContent}", content);
+
+            logger.TraceResponse(content);
             _ = response.EnsureSuccessStatusCode();
 
             var result = JsonSerializer.Deserialize<PageResult<UnscheduledSubscriptionProcessStatus>>(content);
             if (result is null)
             {
-                logger.LogError("Could not deserialize {Response} to paginated unscheduled subscription process", content);
+                logger.ErrorDeserializeRetrieveBulk(content);
                 throw new SerializationException("Could not deserialize response from the http client to a paginated unscheduled subscription");
             }
 
-            logger.LogInformation("Retrieved bulk unscheduled subscriptions: {@PaginatedUnscheduledSubscripions}", result);
+            logger.InfoRetrieveBulk(result);
             return result;
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "An exception occurred trying to retrieve {BulkId}", bulkId);
+            logger.ExceptionRetrieveBulk(bulkId, ex);
             throw;
         }
     }
@@ -317,13 +322,13 @@ public class UnscheduledSubscriptionClient : IUnscheduledSubscriptionClient
         var isValid = subscriptions.All(SubscriptionValidator.OnlyEitherSubscriptionIdOrExternalRef) && !string.IsNullOrWhiteSpace(externalBulkVerificationId) && externalBulkVerificationId.Length < 65;
         if (!isValid)
         {
-            logger.LogError("Invalid {@Subscriptions} or missing external {ExternalVerificationId}", subscriptions, externalBulkVerificationId);
+            logger.ErrorInvalidVerifyBulk(subscriptions, externalBulkVerificationId);
             throw new ArgumentException("Invalid subscriptions or external verification id");
         }
 
         try
         {
-            logger.LogTrace("Verifying {@UnscheduledSubscriptions}", subscriptions);
+            logger.TraceVerifyBulk(subscriptions);
             var path = NetsEndpoints.Relative.UnscheduledSubscriptions + "/verifications";
             var client = httpClientFactory.CreateClient(mode);
             AddHeaders(ref client);
@@ -334,22 +339,23 @@ public class UnscheduledSubscriptionClient : IUnscheduledSubscriptionClient
             };
             var response = await client.PostAsJsonAsync(path, body, cancellationToken);
             var content = await response.Content.ReadAsStringAsync(cancellationToken);
-            logger.LogTrace("Content is: {@MessageContent}", content);
+
+            logger.TraceResponse(content);
             _ = response.EnsureSuccessStatusCode();
 
             var result = JsonSerializer.Deserialize<BulkId>(content);
             if (result is null)
             {
-                logger.LogError("Could not deserialize {Response} to BulkId", content);
+                logger.ErrorDeserializeVerifyBulk(content);
                 throw new SerializationException("Could not deserialize response from the http client to a bulk id");
             }
 
-            logger.LogInformation("Retrieved bulk id: {@BulkId}", result);
+            logger.InfoVerifyBulk(result);
             return result;
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "An exception occurred trying to verify {@UnscheduledSubscriptions}", subscriptions);
+            logger.ExceptionVerifyBulk(subscriptions, ex);
             throw;
         }
     }
@@ -363,41 +369,42 @@ public class UnscheduledSubscriptionClient : IUnscheduledSubscriptionClient
         isValid &= pageNumber is null or >= 0;
         if (!isValid)
         {
-            logger.LogError("Invalid {BulkId}, or skip, take, pageNumber or pageSize parameters. Must be non-negative", bulkId);
+            logger.ErrorInvalidRetrieveBulkVerification(bulkId);
             throw new ArgumentException("Invalid bulk id or paging parameters.", nameof(bulkId));
         }
 
         try
         {
-            logger.LogTrace("Retrieving page verifications for {BulkId}", bulkId);
+            logger.TraceRetrieveBulkVerification(bulkId);
             var root = NetsEndpoints.Relative.UnscheduledSubscriptions + $"/verifications/{bulkId}";
             var path = UrlQueryHelpers.AddQuery(root,
-                (nameof(skip), skip?.ToString()),
-                (nameof(take), take?.ToString()),
-                (nameof(pageSize), pageSize?.ToString()),
-                (nameof(pageNumber), pageNumber?.ToString()));
+                (nameof(skip), skip?.ToString(CultureInfo.InvariantCulture)),
+                (nameof(take), take?.ToString(CultureInfo.InvariantCulture)),
+                (nameof(pageSize), pageSize?.ToString(CultureInfo.InvariantCulture)),
+                (nameof(pageNumber), pageNumber?.ToString(CultureInfo.InvariantCulture)));
 
             var client = httpClientFactory.CreateClient(mode);
             AddHeaders(ref client);
 
             var response = await client.GetAsync(path, cancellationToken);
             var content = await response.Content.ReadAsStringAsync();
-            logger.LogTrace("Content is: {@MessageContent}", content);
+
+            logger.TraceResponse(content);
             _ = response.EnsureSuccessStatusCode();
 
             var result = JsonSerializer.Deserialize<PageResult<UnscheduledSubscriptionProcessStatus>>(content);
             if (result is null)
             {
-                logger.LogError("Could not deserialize {ResponseContent} to PageResult of UnscheduledSubscriptionProcessStatus", content);
+                logger.ErrorDeserializeRetrieveBulk(content);
                 throw new SerializationException("Could not deserialize response to page result");
             }
 
-            logger.LogInformation("Retrieved page of verifications: {@Result}", result);
+            logger.InfoRetrieveBulk(result);
             return result;
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "An exception occurred trying to retrieve bulk verifications for {BulkId}", bulkId);
+            logger.ExceptionRetrieveBulkVerifications(bulkId, ex);
             throw;
         }
     }
@@ -411,7 +418,7 @@ public class UnscheduledSubscriptionClient : IUnscheduledSubscriptionClient
 
         if (!isValid)
         {
-            logger.LogError("Invalid {BulkId} or paging parameters, must have values greater than zero", bulkId);
+            logger.ErrorInvalidRetrieveBulk(bulkId);
             throw new ArgumentException("Invalid bulk id or paging parameters");
         }
 
@@ -419,10 +426,10 @@ public class UnscheduledSubscriptionClient : IUnscheduledSubscriptionClient
         AddHeaders(ref client);
         var root = NetsEndpoints.Relative.UnscheduledSubscriptions + $"/charges/{bulkId}";
         var path = UrlQueryHelpers.AddQuery(root,
-            (nameof(skip), skip?.ToString()),
-            (nameof(take), take?.ToString()),
-            (nameof(pageSize), pageSize?.ToString()),
-            (nameof(pageNumber), pageNumber?.ToString()));
+            (nameof(skip), skip?.ToString(CultureInfo.InvariantCulture)),
+            (nameof(take), take?.ToString(CultureInfo.InvariantCulture)),
+            (nameof(pageSize), pageSize?.ToString(CultureInfo.InvariantCulture)),
+            (nameof(pageNumber), pageNumber?.ToString(CultureInfo.InvariantCulture)));
         var response = await client.GetAsync(path, cancellationToken);
         return response;
     }

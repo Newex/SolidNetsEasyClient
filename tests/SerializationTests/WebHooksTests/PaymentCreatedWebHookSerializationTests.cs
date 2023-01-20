@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Text.Json;
 using SolidNetsEasyClient.Models.DTOs;
 using SolidNetsEasyClient.Models.DTOs.Enums;
@@ -56,7 +57,7 @@ public class PaymentCreatedWebHookSerializationTests
         {
             Id = new Guid("458a4e068f454f768a40b9e576914820"),
             MerchantId = 100017120,
-            Timestamp = DateTimeOffset.Parse("2021-05-04T22:08:16.6623+02:00"),
+            Timestamp = DateTimeOffset.Parse("2021-05-04T22:08:16.6623+02:00", CultureInfo.InvariantCulture),
             Event = EventName.PaymentCreated,
             Data = new()
             {
@@ -98,7 +99,7 @@ public class PaymentCreatedWebHookSerializationTests
         {
             Id = new("484107b70c134d7d8b582354e05cd1f9"),
             MerchantId = 123456,
-            Timestamp = DateTimeOffset.Parse("2022-11-12T06:33:21.2310+00:00"),
+            Timestamp = DateTimeOffset.Parse("2022-11-12T06:33:21.2310+00:00", CultureInfo.InvariantCulture),
             Event = EventName.PaymentCreated,
             Data = new()
             {

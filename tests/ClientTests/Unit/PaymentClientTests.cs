@@ -55,7 +55,7 @@ public class PaymentClientTests
         var client = Setup.PaymentClient(HttpMethod.Get, NetsEndpoints.Relative.Payment + $"/{paymentID}", HttpStatusCode.OK, responseJson);
 
         // Act
-        var status = await client.GetPaymentStatusAsync(paymentID, CancellationToken.None);
+        var status = await client.RetrievePaymentAsync(paymentID, CancellationToken.None);
         var result = status!.Payment.PaymentId != Guid.Empty;
 
         // Assert

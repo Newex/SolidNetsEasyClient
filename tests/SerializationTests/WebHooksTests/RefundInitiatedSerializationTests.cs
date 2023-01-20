@@ -1,5 +1,5 @@
 using System;
-using System.Diagnostics;
+using System.Globalization;
 using System.Text.Json;
 using SolidNetsEasyClient.Models.DTOs.Enums;
 using SolidNetsEasyClient.Models.DTOs.Responses.Webhooks;
@@ -32,7 +32,7 @@ public class RefundInitiatedSerializationTests
         var expected = new RefundInitiated
         {
             Id = new("00fb000060923e006937598058c4e7f3"),
-            Timestamp = DateTimeOffset.Parse("2021-05-05T08:41:04.6081+02:00"),
+            Timestamp = DateTimeOffset.Parse("2021-05-05T08:41:04.6081+02:00", CultureInfo.InvariantCulture),
             MerchantNumber = 100017120,
             Event = EventName.RefundInitiated,
             Data = new()
@@ -63,7 +63,7 @@ public class RefundInitiatedSerializationTests
         var expected = new RefundInitiated
         {
             Id = new("0092000063700099f0284eb68c580030"),
-            Timestamp = DateTimeOffset.Parse("2022-11-12T21:22:50.0230+01:00"),
+            Timestamp = DateTimeOffset.Parse("2022-11-12T21:22:50.0230+01:00", CultureInfo.InvariantCulture),
             MerchantNumber = 123456,
             Event = EventName.RefundInitiated,
             Data = new()

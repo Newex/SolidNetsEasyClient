@@ -24,10 +24,10 @@ public enum ClientMode
     /// <summary>
     /// Test mode
     /// </summary>
-    Test,
+    Test = 0,
 
     /// <summary>
     /// Live mode
     /// </summary>
-    Live,
+    Live = 1,
 }

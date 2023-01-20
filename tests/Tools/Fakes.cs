@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.Globalization;
 using Bogus;
 using Bogus.DataSets;
 using ISO3166;
@@ -39,17 +39,15 @@ public static class Fakes
     {
         var faker = new Faker<PaymentRequest>();
 
-        faker.RuleFor(f => f.Order, RandomOrder(orderItems));
-        faker.RuleFor(f => f.Checkout, f => RandomCheckout(company, termsUrl));
-        faker.RuleFor(f => f.MerchantNumber, f => f.Finance.Iban().OrNull(f, 0.80f));
-        faker.RuleFor(f => f.Notifications, f => RandomNotification(webHooks).OrNull(f));
-        faker.RuleFor(f => f.Subscription, f => RandomSubscription().OrNull(f));
-        faker.RuleFor(f => f.UnscheduledSubscription, f => RandomUnscheduledSubscription().OrNull(f));
-
-        faker.RuleFor(f => f.PaymentMethodsConfiguration, f => f.Make(paymentConfigurations, () => RandomPaymentConfiguration()).OrNull(f));
-        faker.RuleFor(f => f.PaymentMethods, f => f.Make(paymentMethods, () => RandomPaymentMethod()).OrNull(f));
-
-        faker.RuleFor(f => f.MyReference, f => f.Hacker.Phrase());
+        faker.RuleFor(f => f.Order, RandomOrder(orderItems))
+            .RuleFor(f => f.Checkout, f => RandomCheckout(company, termsUrl))
+            .RuleFor(f => f.MerchantNumber, f => f.Finance.Iban().OrNull(f, 0.80f))
+            .RuleFor(f => f.Notifications, f => RandomNotification(webHooks).OrNull(f))
+            .RuleFor(f => f.Subscription, f => RandomSubscription().OrNull(f))
+            .RuleFor(f => f.UnscheduledSubscription, f => RandomUnscheduledSubscription().OrNull(f))
+            .RuleFor(f => f.PaymentMethodsConfiguration, f => f.Make(paymentConfigurations, () => RandomPaymentConfiguration()).OrNull(f))
+            .RuleFor(f => f.PaymentMethods, f => f.Make(paymentMethods, () => RandomPaymentMethod()).OrNull(f))
+            .RuleFor(f => f.MyReference, f => f.Hacker.Phrase());
 
         return faker.Generate();
     }
@@ -58,21 +56,21 @@ public static class Fakes
     {
         var faker = new Faker<Checkout>();
 
-        faker.RuleFor(f => f.Url, f => f.Internet.Url().OrNull(f));
-        faker.RuleFor(f => f.IntegrationType, f => f.PickRandomWithout<Integration>().OrNull(f));
-        faker.RuleFor(f => f.ReturnUrl, f => f.Internet.UrlWithPath("https"));
-        faker.RuleFor(f => f.CancelUrl, f => f.Internet.Url().OrNull(f));
-        faker.RuleFor(f => f.Consumer, f => RandomConsumer(company).OrNull(f));
-        faker.RuleFor(f => f.TermsUrl, f => withTerms ? f.Internet.UrlWithPath("https") : f.Internet.UrlWithPath("https"));
-        faker.RuleFor(f => f.MerchantTermsUrl, f => f.Internet.Url().OrNull(f));
-        faker.RuleFor(f => f.ShippingCountries, f => f.MakeLazy(2, () => RandomShippingCountry()).OrNull(f));
-        faker.RuleFor(f => f.Shipping, f => RandomShipping().OrNull(f));
-        faker.RuleFor(f => f.ConsumerType, f => RandomConsumerType().OrNull(f));
-        faker.RuleFor(f => f.Charge, f => f.Random.Bool().OrNull(f));
-        faker.RuleFor(f => f.PublicDevice, f => f.Random.Bool());
-        faker.RuleFor(f => f.MerchantHandlesConsumerData, f => f.Random.Bool().OrNull(f));
-        faker.RuleFor(f => f.Appearance, f => RandomCheckoutAppearance().OrNull(f));
-        faker.RuleFor(f => f.CountryCode, f => f.Address.CountryCode(Iso3166Format.Alpha3));
+        faker.RuleFor(f => f.Url, f => f.Internet.Url().OrNull(f))
+            .RuleFor(f => f.IntegrationType, f => f.PickRandomWithout<Integration>().OrNull(f))
+            .RuleFor(f => f.ReturnUrl, f => f.Internet.UrlWithPath("https"))
+            .RuleFor(f => f.CancelUrl, f => f.Internet.Url().OrNull(f))
+            .RuleFor(f => f.Consumer, f => RandomConsumer(company).OrNull(f))
+            .RuleFor(f => f.TermsUrl, f => withTerms ? f.Internet.UrlWithPath("https") : f.Internet.UrlWithPath("https"))
+            .RuleFor(f => f.MerchantTermsUrl, f => f.Internet.Url().OrNull(f))
+            .RuleFor(f => f.ShippingCountries, f => f.MakeLazy(2, () => RandomShippingCountry()).OrNull(f))
+            .RuleFor(f => f.Shipping, f => RandomShipping().OrNull(f))
+            .RuleFor(f => f.ConsumerType, f => RandomConsumerType().OrNull(f))
+            .RuleFor(f => f.Charge, f => f.Random.Bool().OrNull(f))
+            .RuleFor(f => f.PublicDevice, f => f.Random.Bool())
+            .RuleFor(f => f.MerchantHandlesConsumerData, f => f.Random.Bool().OrNull(f))
+            .RuleFor(f => f.Appearance, f => RandomCheckoutAppearance().OrNull(f))
+            .RuleFor(f => f.CountryCode, f => f.Address.CountryCode(Iso3166Format.Alpha3));
 
         return faker.Generate();
     }
@@ -81,12 +79,12 @@ public static class Fakes
     {
         var faker = new Faker<Item>();
 
-        faker.RuleFor(f => f.Reference, f => f.Commerce.Ean13());
-        faker.RuleFor(f => f.Name, f => f.Commerce.ProductName());
-        faker.RuleFor(f => f.Quantity, f => f.Random.Double(1, 10));
-        faker.RuleFor(f => f.Unit, f => f.PickRandom(Units));
-        faker.RuleFor(f => f.UnitPrice, f => f.Random.Int(1, 1000));
-        faker.RuleFor(f => f.TaxRate, f => f.Random.Int(0, 10000).OrNull(f));
+        faker.RuleFor(f => f.Reference, f => f.Commerce.Ean13())
+            .RuleFor(f => f.Name, f => f.Commerce.ProductName())
+            .RuleFor(f => f.Quantity, f => f.Random.Double(1, 10))
+            .RuleFor(f => f.Unit, f => f.PickRandom(Units))
+            .RuleFor(f => f.UnitPrice, f => f.Random.Int(1, 1000))
+            .RuleFor(f => f.TaxRate, f => f.Random.Int(0, 10000).OrNull(f));
 
         return faker.Generate();
     }
@@ -95,9 +93,9 @@ public static class Fakes
     {
         var faker = new Faker<Order>();
 
-        faker.RuleFor(f => f.Items, f => f.MakeLazy(itemCount, () => RandomItem()));
-        faker.RuleFor(f => f.Currency, f => f.PickRandom<Models.DTOs.Enums.Currency>());
-        faker.RuleFor(f => f.Reference, f => f.Commerce.Ean8());
+        faker.RuleFor(f => f.Items, f => f.MakeLazy(itemCount, () => RandomItem()))
+            .RuleFor(f => f.Currency, f => f.PickRandom<Models.DTOs.Enums.Currency>())
+            .RuleFor(f => f.Reference, f => f.Commerce.Ean8());
         return faker.Generate();
     }
 
@@ -113,9 +111,9 @@ public static class Fakes
     {
         var faker = new Faker<Shipping>();
 
-        faker.RuleFor(f => f.Countries, f => f.MakeLazy(5, () => RandomShippingCountry()));
-        faker.RuleFor(f => f.MerchantHandlesShippingCost, f => f.Random.Bool());
-        faker.RuleFor(f => f.EnableBillingAddress, f => f.Random.Bool());
+        faker.RuleFor(f => f.Countries, f => f.MakeLazy(5, () => RandomShippingCountry()))
+            .RuleFor(f => f.MerchantHandlesShippingCost, f => f.Random.Bool())
+            .RuleFor(f => f.EnableBillingAddress, f => f.Random.Bool());
 
         return faker.Generate();
     }
@@ -124,8 +122,8 @@ public static class Fakes
     {
         var faker = new Faker<ConsumerType>();
         // var consumerType = faker.PickRandomParam(ConsumerType.B2B, ConsumerType.B2C);
-        faker.RuleFor(f => f.Default, f => f.PickRandom<ConsumerTypeEnum>().OrNull(f));
-        faker.RuleFor(f => f.SupportedTypes, f => new List<ConsumerTypeEnum> { ConsumerTypeEnum.B2B }.OrNull(f));
+        faker.RuleFor(f => f.Default, f => f.PickRandom<ConsumerTypeEnum>().OrNull(f))
+            .RuleFor(f => f.SupportedTypes, f => new List<ConsumerTypeEnum> { ConsumerTypeEnum.B2B }.OrNull(f));
         return faker.Generate();
     }
 
@@ -143,8 +141,8 @@ public static class Fakes
     {
         var faker = new Faker<DisplayOptions>();
 
-        faker.RuleFor(f => f.ShowMerchantName, f => f.Random.Bool());
-        faker.RuleFor(f => f.ShowOrderSummary, f => f.Random.Bool());
+        faker.RuleFor(f => f.ShowMerchantName, f => f.Random.Bool())
+            .RuleFor(f => f.ShowOrderSummary, f => f.Random.Bool());
 
         return faker.Generate();
     }
@@ -163,28 +161,11 @@ public static class Fakes
     {
         var faker = new Faker<Consumer>();
 
-        faker.RuleFor(f => f.Reference, f => f.Finance.RoutingNumber().OrNull(f));
-        faker.RuleFor(f => f.Email, f => f.Internet.Email().OrNull(f));
-        faker.RuleFor(f => f.ShippingAddress, f => RandomShippingAddress().OrNull(f));
-        faker.RuleFor(f => f.PrivatePerson, f =>
-        {
-            if (!company)
-            {
-                return RandomPerson();
-            }
-
-            return null;
-        });
-
-        faker.RuleFor(f => f.Company, f =>
-        {
-            if (company)
-            {
-                return RandomCompany();
-            }
-
-            return null;
-        });
+        faker.RuleFor(f => f.Reference, f => f.Finance.RoutingNumber().OrNull(f))
+            .RuleFor(f => f.Email, f => f.Internet.Email().OrNull(f))
+            .RuleFor(f => f.ShippingAddress, f => RandomShippingAddress().OrNull(f))
+            .RuleFor(f => f.PrivatePerson, f => !company ? RandomPerson() : null)
+            .RuleFor(f => f.Company, f => company ? RandomCompany() : null);
 
         return faker.Generate();
     }
@@ -193,11 +174,11 @@ public static class Fakes
     {
         var faker = new Faker<ShippingAddress>();
 
-        faker.RuleFor(f => f.AddressLine1, f => f.Address.StreetAddress().OrNull(f));
-        faker.RuleFor(f => f.AddressLine2, f => f.Address.SecondaryAddress().OrNull(f));
-        faker.RuleFor(f => f.PostalCode, f => f.Address.ZipCode().OrNull(f));
-        faker.RuleFor(f => f.City, f => f.Address.City().OrNull(f));
-        faker.RuleFor(f => f.Country, f => f.Address.CountryCode(Iso3166Format.Alpha3).OrNull(f));
+        faker.RuleFor(f => f.AddressLine1, f => f.Address.StreetAddress().OrNull(f))
+            .RuleFor(f => f.AddressLine2, f => f.Address.SecondaryAddress().OrNull(f))
+            .RuleFor(f => f.PostalCode, f => f.Address.ZipCode().OrNull(f))
+            .RuleFor(f => f.City, f => f.Address.City().OrNull(f))
+            .RuleFor(f => f.Country, f => f.Address.CountryCode(Iso3166Format.Alpha3).OrNull(f));
 
         return faker.Generate();
     }
@@ -206,8 +187,8 @@ public static class Fakes
     {
         var faker = new Faker<PhoneNumber>();
 
-        faker.RuleFor(f => f.Prefix, f => f.Random.Number(999).ToString().OrNull(f));
-        faker.RuleFor(f => f.Number, f => f.Phone.PhoneNumber().OrNull(f));
+        faker.RuleFor(f => f.Prefix, f => f.Random.Number(999).ToString(CultureInfo.InvariantCulture).OrNull(f))
+            .RuleFor(f => f.Number, f => f.Phone.PhoneNumber().OrNull(f));
 
         return faker.Generate();
     }
@@ -216,8 +197,8 @@ public static class Fakes
     {
         var faker = new Faker<Person>();
 
-        faker.RuleFor(f => f.FirstName, f => f.Person.FirstName.OrNull(f));
-        faker.RuleFor(f => f.LastName, f => f.Person.LastName.OrNull(f));
+        faker.RuleFor(f => f.FirstName, f => f.Person.FirstName.OrNull(f))
+            .RuleFor(f => f.LastName, f => f.Person.LastName.OrNull(f));
 
         return faker.Generate();
     }
@@ -226,8 +207,8 @@ public static class Fakes
     {
         var faker = new Faker<Company>();
 
-        faker.RuleFor(f => f.Name, f => f.Company.CompanyName().OrNull(f));
-        faker.RuleFor(f => f.Contact, f => RandomPerson().OrNull(f));
+        faker.RuleFor(f => f.Name, f => f.Company.CompanyName().OrNull(f))
+            .RuleFor(f => f.Contact, f => RandomPerson().OrNull(f));
 
         return faker.Generate();
     }
@@ -263,10 +244,9 @@ public static class Fakes
             EventName.RefundCompleted,
             EventName.ReservationCancelled,
             EventName.ReservationCancellationFailed
-        ).OrNull(f));
-
-        faker.RuleFor(f => f.Url, f => f.Internet.UrlWithPath("https").OrNull(f));
-        faker.RuleFor(f => f.Authorization, f => f.Random.AlphaNumeric(31).OrNull(f));
+        ).OrNull(f))
+            .RuleFor(f => f.Url, f => f.Internet.UrlWithPath("https").OrNull(f))
+            .RuleFor(f => f.Authorization, f => f.Random.AlphaNumeric(31).OrNull(f));
 
         return faker.Generate();
     }
@@ -275,9 +255,9 @@ public static class Fakes
     {
         var faker = new Faker<Subscription>();
 
-        faker.RuleFor(f => f.SubscriptionId, f => f.Random.Guid().OrNull(f));
-        faker.RuleFor(f => f.EndDate, f => f.Date.FutureOffset().OrNull(f));
-        faker.RuleFor(f => f.Interval, f => f.Random.Int().OrNull(f));
+        faker.RuleFor(f => f.SubscriptionId, f => f.Random.Guid().OrNull(f))
+            .RuleFor(f => f.EndDate, f => f.Date.FutureOffset().OrNull(f))
+            .RuleFor(f => f.Interval, f => f.Random.Int().OrNull(f));
 
         return faker.Generate();
     }
@@ -286,8 +266,8 @@ public static class Fakes
     {
         var faker = new Faker<UnscheduledSubscription>();
 
-        faker.RuleFor(f => f.Create, f => f.Random.Bool().OrNull(f));
-        faker.RuleFor(f => f.UnscheduledSubscriptionId, f => f.Random.Guid().OrNull(f));
+        faker.RuleFor(f => f.Create, f => f.Random.Bool().OrNull(f))
+            .RuleFor(f => f.UnscheduledSubscriptionId, f => f.Random.Guid().OrNull(f));
 
         return faker.Generate();
     }
@@ -305,8 +285,8 @@ public static class Fakes
     {
         var faker = new Faker<PaymentMethodConfiguration>();
 
-        faker.RuleFor(f => f.Name, f => RandomPaymentMethodConfigurationType());
-        faker.RuleFor(f => f.Enabled, f => f.Random.Bool());
+        faker.RuleFor(f => f.Name, f => RandomPaymentMethodConfigurationType())
+            .RuleFor(f => f.Enabled, f => f.Random.Bool());
 
         return faker.Generate();
     }

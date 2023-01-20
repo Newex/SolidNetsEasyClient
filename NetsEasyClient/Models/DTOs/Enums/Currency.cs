@@ -12,40 +12,40 @@ public enum Currency
     /// <summary>
     /// Danish krone
     /// </summary>
-    DKK,
+    DKK = 0,
 
     /// <summary>
     /// Euro
     /// </summary>
-    EUR,
+    EUR = 1,
 
     /// <summary>
     /// Pound sterling
     /// </summary>
-    GBP,
+    GBP = 2,
 
     /// <summary>
     /// Norwegian krone
     /// </summary>
-    NOK,
+    NOK = 3,
 
     /// <summary>
     /// Swedish krona
     /// </summary>
-    SEK,
+    SEK = 4,
 
     /// <summary>
     /// United States dollar
     /// </summary>
-    USD,
+    USD = 5,
 
     /// <summary>
     /// Złoty
     /// </summary>
-    PLN,
+    PLN = 6,
 
     /// <summary>
     /// Swiss franc
     /// </summary>
-    CHF
+    CHF = 7
 }

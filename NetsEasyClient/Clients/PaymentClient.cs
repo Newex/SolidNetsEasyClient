@@ -12,6 +12,7 @@ using SolidNetsEasyClient.Models.DTOs.Requests.Orders;
 using SolidNetsEasyClient.Models.DTOs.Requests.Payments;
 using SolidNetsEasyClient.Models.DTOs.Responses.Payments;
 using SolidNetsEasyClient.Models.Options;
+using SolidNetsEasyClient.Logging.PaymentClientLogging;
 
 namespace SolidNetsEasyClient.Clients;
 
@@ -54,7 +55,6 @@ public partial class PaymentClient : IPaymentClient
         merchantTermsUrl = options.Value.PrivacyPolicyUrl;
         apiKey = options.Value.ApiKey;
         CheckoutKey = options.Value.CheckoutKey;
-        WebhookAuthorizationKey = options.Value.WebhookAuthorizationKey;
         platformId = options.Value.CommercePlatformTag;
         this.httpClientFactory = httpClientFactory;
         this.logger = logger ?? NullLogger<PaymentClient>.Instance;
@@ -64,21 +64,18 @@ public partial class PaymentClient : IPaymentClient
     public string CheckoutKey { get; }
 
     /// <inheritdoc />
-    public string? WebhookAuthorizationKey { get; }
-
-    /// <inheritdoc />
-    public async Task<PaymentStatus?> GetPaymentStatusAsync(Guid paymentID, CancellationToken cancellationToken)
+    public async Task<PaymentStatus?> RetrievePaymentAsync(Guid paymentID, CancellationToken cancellationToken)
     {
         var isValid = paymentID != Guid.Empty;
         if (!isValid)
         {
-            logger.LogError("Invalid {PaymentID}", paymentID);
+            logger.ErrorInvalidPaymentID(paymentID);
             return null;
         }
 
         try
         {
-            logger.LogTrace("Retrieving payment status for {PaymentID}", paymentID);
+            logger.TracePaymentRetrieval(paymentID);
 
             var client = httpClientFactory.CreateClient(mode);
 
@@ -89,17 +86,17 @@ public partial class PaymentClient : IPaymentClient
             var path = NetsEndpoints.Relative.Payment + $"/{paymentID}";
             var response = await client.GetAsync(path, cancellationToken);
             var msg = await response.Content.ReadAsStringAsync(cancellationToken);
-            logger.LogTrace("Raw content: {@ResponseContent}", msg);
-            response.EnsureSuccessStatusCode();
+            logger.TraceRawResponse(msg);
+            _ = response.EnsureSuccessStatusCode();
 
             // Success response
             var result = await response.Content.ReadFromJsonAsync<PaymentStatus>(cancellationToken: cancellationToken);
-            logger.LogInformation("Retrieved {@PaymentStatus}", result);
+            logger.InfoRetrievedPayment(result!);
             return result;
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "An exception occurred trying to retrieve payment status for {PaymentID}", paymentID);
+            logger.ErrorRetrievalException(paymentID, ex);
             throw;
         }
     }
@@ -112,13 +109,13 @@ public partial class PaymentClient : IPaymentClient
         var isValid = payment.PaymentId != Guid.Empty && !string.IsNullOrWhiteSpace(checkoutUrl) && !string.IsNullOrWhiteSpace(reference) && string.Equals(oldHost.Host, newHost.Host, StringComparison.OrdinalIgnoreCase);
         if (!isValid)
         {
-            logger.LogError("Invalid {@Payment} or {CheckoutUrl} or {Reference}", payment, checkoutUrl, reference);
+            logger.ErrorInvalidPaymentReferenceUpdates(payment, checkoutUrl, reference);
             throw new ArgumentException("Invalid payment, checkout url or reference");
         }
 
         try
         {
-            logger.LogTrace("Updating references for {@Payment} to {CheckoutUrl} and {Reference}", payment, checkoutUrl, reference);
+            logger.TraceUpdatingReferences(payment, checkoutUrl, reference);
 
             var client = httpClientFactory.CreateClient(mode);
             AddHeaders(client);
@@ -131,14 +128,14 @@ public partial class PaymentClient : IPaymentClient
             }, cancellationToken);
 
             var msg = await response.Content.ReadAsStringAsync(cancellationToken);
-            logger.LogTrace("Raw content: {@ResponseContent}", msg);
+            logger.TraceRawResponse(msg);
 
-            response.EnsureSuccessStatusCode();
+            _ = response.EnsureSuccessStatusCode();
             return true;
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "An exception occurred trying to update payment references for {@Payment} and {CheckoutUrl} and {Reference}", payment, checkoutUrl, reference);
+            logger.ExceptionUpdatingReferences(payment, checkoutUrl, reference, ex);
             return false;
         }
     }
@@ -162,13 +159,13 @@ public partial class PaymentClient : IPaymentClient
         var isValid = paymentID != Guid.Empty && validPayment;
         if (!isValid)
         {
-            logger.LogError("Invalid {@OrderUpdate} or {PaymentID}", updates, paymentID);
+            logger.ErrorInvalidOrderOrPayment(updates, paymentID);
             return false;
         }
 
         try
         {
-            logger.LogTrace("Updating order for {PaymentID} to {@OrderUpdates}", paymentID, updates);
+            logger.TracePaymentUpdate(paymentID, updates);
 
             var client = httpClientFactory.CreateClient(mode);
             AddHeaders(client);
@@ -177,14 +174,14 @@ public partial class PaymentClient : IPaymentClient
             var response = await client.PutAsJsonAsync(path, updates, cancellationToken);
 
             var msg = await response.Content.ReadAsStringAsync(cancellationToken);
-            logger.LogTrace("Raw content: {@ResponseContent}", msg);
+            logger.TraceRawResponse(msg);
 
-            response.EnsureSuccessStatusCode();
+            _ = response.EnsureSuccessStatusCode();
             return true;
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "An error occurred updating order items for {PaymentID} and {@OrderUpdates}", paymentID, updates);
+            logger.ExceptionUpdatingOrder(paymentID, updates, ex);
             return false;
         }
     }
@@ -195,13 +192,13 @@ public partial class PaymentClient : IPaymentClient
         var isValid = paymentID != Guid.Empty;
         if (!isValid)
         {
-            logger.LogError("Missing id: {PaymentID}", paymentID);
+            logger.ErrorMissingPaymentID(paymentID);
             return false;
         }
 
         try
         {
-            logger.LogTrace("Terminating checkout for {PaymentID}", paymentID);
+            logger.TraceTermination(paymentID);
 
             var client = httpClientFactory.CreateClient(mode);
             AddHeaders(client);
@@ -209,12 +206,12 @@ public partial class PaymentClient : IPaymentClient
             var path = NetsEndpoints.Relative.Payment + $"/{paymentID}/terminate";
             var response = await client.PutAsync(path, null, cancellationToken);
 
-            response.EnsureSuccessStatusCode();
+            _ = response.EnsureSuccessStatusCode();
             return true;
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "An error occurred terminating checkout for {PaymentID}", paymentID);
+            logger.ExceptionTerminatingPayment(paymentID, ex);
             return false;
         }
     }
@@ -225,13 +222,13 @@ public partial class PaymentClient : IPaymentClient
         var isValid = paymentID != Guid.Empty && order.Items.Any();
         if (!isValid)
         {
-            logger.LogError("Missing id: {PaymentID}", paymentID);
+            logger.ErrorMissingPaymentID(paymentID);
             return false;
         }
 
         try
         {
-            logger.LogTrace("Cancelling checkout for {PaymentID}", paymentID);
+            logger.TraceCancellation(paymentID);
 
             var client = httpClientFactory.CreateClient(mode);
             AddHeaders(client);
@@ -244,14 +241,14 @@ public partial class PaymentClient : IPaymentClient
             }, cancellationToken);
 
             var msg = await response.Content.ReadAsStringAsync(cancellationToken);
-            logger.LogTrace("Raw content: {@ResponseContent}", msg);
+            logger.TraceRawResponse(msg);
 
-            response.EnsureSuccessStatusCode();
+            _ = response.EnsureSuccessStatusCode();
             return true;
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "An error occurred cancelling checkout for {PaymentID}", paymentID);
+            logger.ExceptionCancellingPayment(paymentID, ex);
             return false;
         }
     }
@@ -262,13 +259,13 @@ public partial class PaymentClient : IPaymentClient
         var isValid = paymentID != Guid.Empty && (idempotencyKey is null || (idempotencyKey.Length > 0 && idempotencyKey.Length < 64));
         if (!isValid)
         {
-            logger.LogError("Invalid {PaymentID} or {IdempotencyKey}", paymentID, idempotencyKey);
+            logger.ErrorInvalidPaymentOrIdempotencyKey(paymentID, idempotencyKey);
             return null;
         }
 
         try
         {
-            logger.LogTrace("Charging payment for {PaymentID}", paymentID);
+            logger.TraceChargingPayment(paymentID);
 
             var client = httpClientFactory.CreateClient(mode);
             AddHeaders(client);
@@ -279,16 +276,16 @@ public partial class PaymentClient : IPaymentClient
 
             var path = NetsEndpoints.Relative.Payment + $"/{paymentID}/charges";
             var response = await client.PostAsJsonAsync(path, charge, cancellationToken);
-            response.EnsureSuccessStatusCode();
+            _ = response.EnsureSuccessStatusCode();
 
             // Success response
             var result = await response.Content.ReadFromJsonAsync<ChargeResult>(cancellationToken: cancellationToken);
-            logger.LogInformation("Charged {PaymentID} with {@Charge} and got {@Result}", paymentID, charge, result);
+            logger.InfoChargeResult(paymentID, charge, result!);
             return result;
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "An error occurred finalizing charge for {PaymentID}", paymentID);
+            logger.ExceptionChargingPayment(paymentID, ex);
             throw;
         }
     }
@@ -299,13 +296,13 @@ public partial class PaymentClient : IPaymentClient
         var isValid = chargeId != Guid.Empty;
         if (!isValid)
         {
-            logger.LogError("Invalid {ChargeID}", chargeId);
+            logger.ErrorInvalidChargeID(chargeId);
             return null;
         }
 
         try
         {
-            logger.LogTrace("Retrieving charge for {ChargeID}", chargeId);
+            logger.TraceChargeRetrieval(chargeId);
 
             var client = httpClientFactory.CreateClient(mode);
             AddHeaders(client, withCommercePlatform: false);
@@ -313,14 +310,14 @@ public partial class PaymentClient : IPaymentClient
             var path = NetsEndpoints.Relative.Charge + $"/{chargeId}";
             var response = await client.GetAsync(path, cancellationToken);
 
-            response.EnsureSuccessStatusCode();
+            _ = response.EnsureSuccessStatusCode();
             var result = await response.Content.ReadFromJsonAsync<ChargeDetailsInfo>(cancellationToken: cancellationToken);
-            logger.LogInformation("Retrieved charge: {@ChargeDetails}", result);
+            logger.InfoChargeDetails(result!);
             return result;
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "An error occurred retrieving charge for {ChargeID}", chargeId);
+            logger.ExceptionRetrievingCharge(chargeId, ex);
             throw;
         }
     }
@@ -331,13 +328,13 @@ public partial class PaymentClient : IPaymentClient
         var isValid = chargeId != Guid.Empty && (idempotencyKey is null || (idempotencyKey.Length > 0 && idempotencyKey.Length < 64));
         if (!isValid)
         {
-            logger.LogError("Invalid {ChargeID} or {IdempotencyKey}", chargeId, idempotencyKey);
+            logger.ErrorInvalidChargeOrIdempotencyKey(chargeId, idempotencyKey);
             return null;
         }
 
         try
         {
-            logger.LogTrace("Refunding charge {ChargeID}", chargeId);
+            logger.TraceRefund(chargeId);
 
             var client = httpClientFactory.CreateClient(mode);
             AddHeaders(client, withCommercePlatform: false);
@@ -345,14 +342,14 @@ public partial class PaymentClient : IPaymentClient
             var path = NetsEndpoints.Relative.Charge + $"/{chargeId}/refunds";
             var response = await client.PostAsJsonAsync(path, refund, cancellationToken);
 
-            response.EnsureSuccessStatusCode();
+            _ = response.EnsureSuccessStatusCode();
             var result = await response.Content.ReadFromJsonAsync<RefundResult>(cancellationToken: cancellationToken);
-            logger.LogInformation("Refunded: {ChargeID} for {@Refund}", chargeId, refund);
+            logger.InfoRefundCharge(chargeId, refund);
             return result;
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "An error occurred refunding charge for {ChargeID}", chargeId);
+            logger.ExceptionRefundCharge(chargeId, ex);
             throw;
         }
     }
@@ -363,13 +360,13 @@ public partial class PaymentClient : IPaymentClient
         var isValid = refundId != Guid.Empty;
         if (!isValid)
         {
-            logger.LogError("Invalid {RefundId}", refundId);
+            logger.ErrorInvalidRefundID(refundId);
             return null;
         }
 
         try
         {
-            logger.LogTrace("Retrieving refund for {RefundId}", refundId);
+            logger.TraceRetrievingRefund(refundId);
 
             var client = httpClientFactory.CreateClient(mode);
             AddHeaders(client, withCommercePlatform: false);
@@ -377,14 +374,14 @@ public partial class PaymentClient : IPaymentClient
             var path = NetsEndpoints.Relative.Refund + $"/{refundId}";
             var response = await client.GetAsync(path, cancellationToken);
 
-            response.EnsureSuccessStatusCode();
+            _ = response.EnsureSuccessStatusCode();
             var result = await response.Content.ReadFromJsonAsync<RetrieveRefund>(cancellationToken: cancellationToken);
-            logger.LogInformation("Refund result: {@Refund}", result);
+            logger.InfoRetrieveRefund(result!);
             return result;
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "An error occurred retrieving refund {RefundId}", refundId);
+            logger.ExceptionRetrieveRefund(refundId, ex);
             return null;
         }
     }
@@ -395,13 +392,13 @@ public partial class PaymentClient : IPaymentClient
         var isValid = refundId != Guid.Empty;
         if (!isValid)
         {
-            logger.LogError("Invalid {RefundId}", refundId);
+            logger.ErrorInvalidRefundID(refundId);
             return false;
         }
 
         try
         {
-            logger.LogTrace("Cancelling pending refund for {RefundId}", refundId);
+            logger.TraceCancelPendingRefund(refundId);
 
             var client = httpClientFactory.CreateClient(mode);
             AddHeaders(client, withCommercePlatform: false);
@@ -409,13 +406,13 @@ public partial class PaymentClient : IPaymentClient
             var path = NetsEndpoints.Relative.PendingRefunds + $"/{refundId}/cancel";
             var response = await client.PostAsync(path, null, cancellationToken);
 
-            response.EnsureSuccessStatusCode();
-            logger.LogInformation("Cancelled pending refund {RefundId}", refundId);
+            _ = response.EnsureSuccessStatusCode();
+            logger.InfoCancelledPendingRefund(refundId);
             return true;
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "An error occurred cancelling pending refund {RefundId}", refundId);
+            logger.ExceptionCancellingRefund(refundId, ex);
             return false;
         }
     }
@@ -426,13 +423,13 @@ public partial class PaymentClient : IPaymentClient
         var isValid = paymentId != Guid.Empty;
         if (!isValid)
         {
-            logger.LogError("Invalid {PaymentId}", paymentId);
+            logger.ErrorInvalidPaymentID(paymentId);
             throw new ArgumentException("Missing refund id", nameof(paymentId));
         }
 
         try
         {
-            logger.LogTrace("Updating my reference for {PaymentId}", paymentId);
+            logger.TraceUpdatePaymentReference(paymentId);
 
             var client = httpClientFactory.CreateClient(mode);
             AddHeaders(client);
@@ -443,13 +440,13 @@ public partial class PaymentClient : IPaymentClient
                 myReference = myReference
             }, cancellationToken);
 
-            response.EnsureSuccessStatusCode();
-            logger.LogInformation("Updated my reference to {MyReference} for {PaymentId}", myReference, paymentId);
+            _ = response.EnsureSuccessStatusCode();
+            logger.InfoUpdatedReferences(myReference, paymentId);
             return true;
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "An error occurred updating my reference {MyReference} for {PaymentId}", paymentId);
+            logger.ExceptionUpdatingPaymentReferences(myReference, paymentId, ex);
             return false;
         }
     }

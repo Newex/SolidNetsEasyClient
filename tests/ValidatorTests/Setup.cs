@@ -23,7 +23,6 @@ public static class Setup
         };
     }
 
-#nullable enable
     internal static PaymentRequest WithShippingAddress(this PaymentRequest payment, Func<ShippingAddress, ShippingAddress?> setShippingAddress)
     {
         var consumer = payment.Checkout.Consumer ?? Fakes.RandomConsumer(payment.Checkout.Consumer?.Company is not null);
@@ -71,5 +70,4 @@ public static class Setup
             PaymentMethodsConfiguration = result
         };
     }
-#nullable disable
 }

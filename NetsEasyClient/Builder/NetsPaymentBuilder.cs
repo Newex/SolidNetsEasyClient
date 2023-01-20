@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using Microsoft.AspNetCore.WebUtilities;
 using SolidNetsEasyClient.Extensions;
 using SolidNetsEasyClient.Models.DTOs.Contacts;
 using SolidNetsEasyClient.Models.DTOs.Enums;
@@ -8,6 +7,7 @@ using SolidNetsEasyClient.Models.DTOs.Requests.Customers;
 using SolidNetsEasyClient.Models.DTOs.Requests.Orders;
 using SolidNetsEasyClient.Models.DTOs.Requests.Payments;
 using SolidNetsEasyClient.Models.DTOs.Requests.Webhooks;
+using SolidNetsEasyClient.Validators;
 
 namespace SolidNetsEasyClient.Builder;
 
@@ -114,7 +114,6 @@ public sealed class NetsPaymentBuilder
     /// Set the terms url
     /// </summary>
     /// <param name="termsUrl">The terms url</param>
-    /// <returns></returns>
     /// <returns>A payment builder</returns>
     public NetsPaymentBuilder SetTheTermsUrl(string termsUrl)
     {
@@ -220,7 +219,7 @@ public sealed class NetsPaymentBuilder
             MerchantHandlesConsumerData = !retypeCostumerData,
             ConsumerType = !retypeCostumerData ? null : new()
             {
-                Default = ConsumerTypeEnum.B2C
+                Default = ConsumerTypeEnum.B2B
             }
         };
 
@@ -231,13 +230,16 @@ public sealed class NetsPaymentBuilder
     /// Create the payment as part of a regular subscription
     /// </summary>
     /// <param name="interval">The minimum number of days between charges, an interval of zero means no restriction. This interval commences from either the day the subscription was created or the most recent subscription charge, whichever is later</param>
-    /// <param name="endDate">The date and time when the subscription expires. It is not possible to charge this subscription after this date</param>
+    /// <param name="years">The number of years the subscription should last</param>
+    /// <param name="months">The number of months the subscription should last</param>
+    /// <param name="days">The number of days the subscription should last</param>
     /// <param name="onTheEndOfTheMonth">True if the end date should fall on the last day of the month otherwise false</param>
-    /// <param name="onMidnight">True if the end date should fall on midnight otherwise false. Note that midnight is the same zone as the <paramref name="endDate"/></param>
+    /// <param name="onMidnight">True if the end date should fall on midnight otherwise false</param>
     /// <returns>A payment builder</returns>
-    public NetsPaymentBuilder AsRegularSubscription(int interval, DateTimeOffset endDate, bool onTheEndOfTheMonth = false, bool onMidnight = false)
+    public NetsPaymentBuilder AsRegularSubscription(int interval, int years, int months = 0, int days = 0, bool onTheEndOfTheMonth = false, bool onMidnight = false)
     {
         // Must have end date if creating subscription
+        var endDate = DateTimeOffset.UtcNow.AddYears(years).AddMonths(months).AddDays(days);
         var date = onTheEndOfTheMonth ? endDate.AtTheEndOfTheMonth() : endDate;
         var maybeMidnight = onMidnight ? date.AtMidnight() : date;
         unscheduled = null;
@@ -245,6 +247,24 @@ public sealed class NetsPaymentBuilder
         {
             Interval = interval,
             EndDate = maybeMidnight
+        };
+        return this;
+    }
+
+    /// <summary>
+    /// Create the payment as part of a regular subscription
+    /// </summary>
+    /// <param name="interval">The minimum number of days between charges, an interval of zero means no restriction. This interval commences from either the day the subscription was created or the most recent subscription charge, whichever is later</param>
+    /// <param name="endDate">The date and time when the subscription expires. It is not possible to charge this subscription after this date</param>
+    /// <returns>A payment builder</returns>
+    public NetsPaymentBuilder AsRegularSubscription(int interval, DateTimeOffset endDate)
+    {
+        // Must have end date if creating subscription
+        unscheduled = null;
+        subscription = new()
+        {
+            Interval = interval,
+            EndDate = endDate
         };
         return this;
     }
@@ -279,23 +299,23 @@ public sealed class NetsPaymentBuilder
     /// <summary>
     /// Subscribe to an event
     /// </summary>
-    /// <remarks>
-    /// The callback url must be an https endpoint and be acknowledged with a 200 OK status.
-    /// This builder appends a query parameter with the order reference i.e. https://webhook.url/callback?orderId=my-order-id
-    /// </remarks>
     /// <param name="eventName">The event name</param>
     /// <param name="callbackUrl">The callback url</param>
-    /// <param name="authorization">The authorization credentials</param>
-    /// <param name="append">Append the order reference id as query parameter to the url</param>
+    /// <param name="authorization">The credentials that will be sent in the HTTP Authorization request header of the callback. Must be between 8 and 32 characters long and contain alphanumeric characters.</param>
     /// <returns>A payment builder</returns>
-    public NetsPaymentBuilder SubscribeToEvent(EventName eventName, string callbackUrl, string? authorization = null, bool append = true)
+    /// <exception cref="ArgumentException">Thrown when invalid authorization</exception>
+    public NetsPaymentBuilder SubscribeToEvent(EventName eventName, string callbackUrl, string? authorization = null)
     {
-        var url = append ? QueryHelpers.AddQueryString(callbackUrl, "orderId", order.Reference ?? "none") : callbackUrl;
+        var validAuthorization = PaymentValidator.ProperAuthorization(authorization);
+        if (!validAuthorization)
+        {
+            throw new ArgumentException("Authorization must be between 8 and 32 long and contain alphanumeric characters");
+        }
         webHooks.Add(new()
         {
             Authorization = authorization,
             EventName = eventName,
-            Url = url
+            Url = callbackUrl
         });
 
         return this;
@@ -305,6 +325,7 @@ public sealed class NetsPaymentBuilder
     /// Construct a payment request
     /// </summary>
     /// <returns>A payment request</returns>
+    /// <exception cref="InvalidOperationException">Thrown when <see cref="Order.Amount"/> is zero or less than <see cref="minimumPayment"/></exception>
     public PaymentRequest BuildPaymentRequest()
     {
         if (unscheduled is not null && order.Amount < minimumPayment && order.Amount != 0)

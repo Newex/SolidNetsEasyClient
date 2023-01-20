@@ -11,10 +11,10 @@ public enum BulkStatus
     /// <summary>
     /// Bulk processing has completed
     /// </summary>
-    Done,
+    Done = 0,
 
     /// <summary>
     /// Bulk processing is still processing
     /// </summary>
-    Processing
+    Processing = 1
 }

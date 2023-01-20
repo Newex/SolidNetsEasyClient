@@ -1,12 +1,10 @@
-using System;
-
 namespace SolidNetsEasyClient.Tests.SerializationTests;
 
 public static class Setup
 {
     public static string JsonExampleString()
     {
-        return @"
+        return /*lang=json,strict*/ @"
             {
             ""order"": {
                 ""items"": [

@@ -26,40 +26,40 @@ public enum PaymentText
     /// <summary>
     /// Pay
     /// </summary>
-    Pay,
+    Pay = 0,
 
     /// <summary>
     /// Purchase
     /// </summary>
-    Purchase,
+    Purchase = 1,
 
     /// <summary>
     /// Order
     /// </summary>
-    Order,
+    Order = 2,
 
     /// <summary>
     /// Book
     /// </summary>
-    Book,
+    Book = 3,
 
     /// <summary>
     /// Reserve
     /// </summary>
-    Reserve,
+    Reserve = 4,
 
     /// <summary>
     /// Signup
     /// </summary>
-    Signup,
+    Signup = 5,
 
     /// <summary>
     /// Subscribe
     /// </summary>
-    Subscribe,
+    Subscribe = 6,
 
     /// <summary>
     /// Accept
     /// </summary>
-    Accept
+    Accept = 7
 }

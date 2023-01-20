@@ -11,7 +11,7 @@ public class PaymentSerializationTests
     public void Deserialize_example_item()
     {
         // Arrange
-        const string itemJson = @"
+        const string itemJson = /*lang=json,strict*/ @"
         {
             ""reference"": ""MyReference"",
             ""name"": ""Name Of My Product"",
@@ -34,7 +34,7 @@ public class PaymentSerializationTests
     public void Deserialize_example_order()
     {
         // Arrange
-        const string orderJson = @"
+        const string orderJson = /*lang=json,strict*/ @"
         {
             ""items"": [
                 {

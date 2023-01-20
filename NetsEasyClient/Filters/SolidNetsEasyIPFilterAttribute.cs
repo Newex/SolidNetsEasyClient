@@ -10,7 +10,7 @@ using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 using NetTools;
 using SolidNetsEasyClient.Constants;
-using SolidNetsEasyClient.Encryption;
+using SolidNetsEasyClient.Logging.SolidNetsEasyIPFilterAttributeLogging;
 using SolidNetsEasyClient.Models.Options;
 
 namespace SolidNetsEasyClient.Filters;
@@ -21,7 +21,7 @@ namespace SolidNetsEasyClient.Filters;
 /// <remarks>
 /// Remember to add the authorization middleware to the pipeline. If there are calls to app.UseRouting() and app.UseEndpoints(...), the call to app.UseAuthorization() must go between them.
 /// </remarks>
-public sealed class WebhookIPFilterAttribute : ActionFilterAttribute, IAuthorizationFilter
+public sealed class SolidNetsEasyIPFilterAttribute : ActionFilterAttribute, IAuthorizationFilter
 {
     /// <summary>
     /// Override the configured blacklist of single IPs separated by a semi-colon (;)
@@ -44,15 +44,6 @@ public sealed class WebhookIPFilterAttribute : ActionFilterAttribute, IAuthoriza
     public string? WhitelistIPRanges { get; set; }
 
     /// <summary>
-    /// Verify the authorization header using the in-built encryption and key
-    /// </summary>
-    /// <remarks>
-    /// The action method must have a parameter called 'orderId' to decrypt and verify the signature.
-    /// Furthermore the key must be defined in the configuration <see cref="PlatformPaymentOptions.WebhookAuthorizationKey"/>
-    /// </remarks>
-    public bool VerifyAuthorization { get; set; } = true;
-
-    /// <summary>
     /// Check the client IP against the blacklist and known Nets Easy endpoint IPs
     /// </summary>
     /// <param name="context">The context</param>
@@ -61,7 +52,7 @@ public sealed class WebhookIPFilterAttribute : ActionFilterAttribute, IAuthoriza
         var logger = GetLogger(context.HttpContext.RequestServices);
         if (!HttpMethods.IsPost(context.HttpContext.Request.Method))
         {
-            logger.LogWarning("Webhook request is not a POST {@Request}", context.HttpContext.Request);
+            logger.WarningNotPOSTRequest(context.HttpContext.Request);
 
             // 400 user error
             context.Result = new BadRequestResult();
@@ -75,11 +66,11 @@ public sealed class WebhookIPFilterAttribute : ActionFilterAttribute, IAuthoriza
         var ipRangeBlacklist = BlacklistIPRanges?.Split(";") ?? options?.Value.BlacklistIPRangesForWebhook?.Split(";") ?? Array.Empty<string>();
 
         var remoteIp = context.HttpContext.Connection.RemoteIpAddress;
-        logger.LogTrace("Remote IP address: {@IP}", remoteIp);
+        logger.TraceRemoteIP(remoteIp);
 
         if (remoteIp is null)
         {
-            logger.LogWarning("Cannot retrieve the remote IP of the client. Denying request for webhook {@HttpContext}", context);
+            logger.WarningNoRemoteIP(context);
             context.Result = new StatusCodeResult(StatusCodes.Status403Forbidden);
             return;
         }
@@ -89,10 +80,10 @@ public sealed class WebhookIPFilterAttribute : ActionFilterAttribute, IAuthoriza
             remoteIp = remoteIp.MapToIPv4();
         }
 
-        var deny = ipBlacklist.Select(b => IPAddress.Parse(b)).Any(x => x.Equals(remoteIp));
+        var deny = ipBlacklist.Select(IPAddress.Parse).Any(x => x.Equals(remoteIp));
         if (deny)
         {
-            logger.LogWarning("Webhook request blacklisted {@IP} in {@Blacklist}", remoteIp, ipBlacklist);
+            logger.WarningBlacklistedIP(remoteIp, ipBlacklist);
             context.Result = new StatusCodeResult(StatusCodes.Status403Forbidden);
             return;
         }
@@ -102,59 +93,16 @@ public sealed class WebhookIPFilterAttribute : ActionFilterAttribute, IAuthoriza
             .Any(x => x.Contains(remoteIp));
         if (deny)
         {
-            logger.LogWarning("Webhook request blacklisted {@IP} in {@Blacklist}", remoteIp, ipRangeBlacklist);
+            logger.WarningBlacklistedIP(remoteIp, ipRangeBlacklist);
             context.Result = new StatusCodeResult(StatusCodes.Status403Forbidden);
             return;
         }
 
-        var allowedSingle = WhitelistIPs?.Split(";").Select(x => IPAddress.Parse(x)).Any(x => x.Equals(remoteIp)) ?? false;
+        var allowedSingle = WhitelistIPs?.Split(";").Select(IPAddress.Parse).Any(x => x.Equals(remoteIp)) ?? false;
         var allowed = allowedSingle || ipWhitelistRange.Select(w => IPAddressRange.Parse(w)).Any(x => x.Contains(remoteIp));
         if (!allowed)
         {
-            logger.LogWarning("Webhook request IP {@IP} not specified as Nets Easy endpoint", remoteIp);
-            context.Result = new StatusCodeResult(StatusCodes.Status403Forbidden);
-        }
-    }
-
-    /// <summary>
-    /// Validate the request and verify the authorization signature. If it is a Nets Easy webhook callback
-    /// </summary>
-    /// <param name="context">The action executing context</param>
-    public override void OnActionExecuting(ActionExecutingContext context)
-    {
-        if (!VerifyAuthorization)
-        {
-            // Continue
-            return;
-        }
-
-        var logger = GetLogger(context.HttpContext.RequestServices);
-
-        // Must have orderId!
-        var hasOrderId = context.ActionArguments.TryGetValue("orderId", out var orderObject);
-        if (!hasOrderId || orderObject is not string)
-        {
-            logger.LogWarning("Webhook must have an order id to validate the request {@Context}", context);
-            context.Result = new StatusCodeResult(StatusCodes.Status500InternalServerError);
-            return;
-        }
-
-        var orderId = (string)orderObject;
-
-        // Must have key
-        var options = GetOptions(context.HttpContext.RequestServices);
-        var key = options?.Value.WebhookAuthorizationKey;
-        if (key is null)
-        {
-            logger.LogWarning("Webhook must have a signing key defined in the options startup or in configuration settings. Currently found: {@Options}", options);
-            context.Result = new StatusCodeResult(StatusCodes.Status500InternalServerError);
-            return;
-        }
-
-        var isValid = context.HttpContext.Request.ValidateOrderReference(orderId, key);
-        if (!isValid)
-        {
-            logger.LogWarning("Webhook request does not have a valid authorization {@Header} in the {@Context}", context.HttpContext.Request.Headers, context);
+            logger.WarningNotNetsEasyEndpoint(remoteIp);
             context.Result = new StatusCodeResult(StatusCodes.Status403Forbidden);
         }
     }
@@ -175,9 +123,9 @@ public sealed class WebhookIPFilterAttribute : ActionFilterAttribute, IAuthoriza
                 return Task.CompletedTask;
             }
 
-            if (status > 200 && status <= 299)
+            if (status is > 200 and <= 299)
             {
-                logger.LogWarning("Webhook success response must be 200 OK - instead found {StatusCode} for {@Request}", status, ctx.HttpContext.Request);
+                logger.WarningWrongResponseCode(status, ctx.HttpContext.Request);
                 ctx.HttpContext.Response.StatusCode = StatusCodes.Status200OK;
                 return Task.CompletedTask;
             }
@@ -185,10 +133,10 @@ public sealed class WebhookIPFilterAttribute : ActionFilterAttribute, IAuthoriza
         }, context);
     }
 
-    private static ILogger<WebhookIPFilterAttribute> GetLogger(IServiceProvider services)
+    private static ILogger<SolidNetsEasyIPFilterAttribute> GetLogger(IServiceProvider services)
     {
         // Reason for this is to circumvent extension method to make this class testable
-        return (services.GetService(typeof(ILogger<WebhookIPFilterAttribute>)) as ILogger<WebhookIPFilterAttribute>) ?? NullLogger<WebhookIPFilterAttribute>.Instance;
+        return (services.GetService(typeof(ILogger<SolidNetsEasyIPFilterAttribute>)) as ILogger<SolidNetsEasyIPFilterAttribute>) ?? NullLogger<SolidNetsEasyIPFilterAttribute>.Instance;
     }
 
     private static IOptions<PlatformPaymentOptions>? GetOptions(IServiceProvider services)
