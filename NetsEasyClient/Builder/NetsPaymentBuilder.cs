@@ -19,7 +19,7 @@ public sealed class NetsPaymentBuilder
     private readonly Order order;
     private Integration integration;
     private bool charge;
-    private string checkoutUrl = string.Empty;
+    private string? checkoutUrl;
     private string returnUrl = string.Empty;
     private string termsUrl = string.Empty;
     private string? cancellationUrl;
