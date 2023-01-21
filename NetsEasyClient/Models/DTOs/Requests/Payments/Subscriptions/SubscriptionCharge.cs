@@ -14,5 +14,5 @@ public record SubscriptionCharge : BaseSubscription
     /// </summary>
     [Required]
     [JsonPropertyName("order")]
-    public Order Order { get; init; } = new();
+    public required Order Order { get; init; }
 }

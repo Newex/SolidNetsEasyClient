@@ -1,5 +1,9 @@
 using System;
+using System.Collections.Generic;
+using SolidNetsEasyClient.Models.DTOs;
+using SolidNetsEasyClient.Models.DTOs.Requests.Orders;
 using SolidNetsEasyClient.Models.DTOs.Requests.Payments.Subscriptions;
+using SolidNetsEasyClient.Tests.Tools;
 using SolidNetsEasyClient.Validators;
 
 namespace SolidNetsEasyClient.Tests.ValidatorTests;
@@ -7,12 +11,21 @@ namespace SolidNetsEasyClient.Tests.ValidatorTests;
 [UnitTest]
 public class SubscriptionValidatorTests
 {
+    private static readonly Order SingleOrder = new()
+    {
+        Items = new List<Item>
+        {
+            Fakes.RandomItem()
+        }
+    };
+
     [Fact]
     public void Subscription_with_subscriptionId_and_external_reference_is_invalid()
     {
         // Arrange
         var subscription = new SubscriptionCharge
         {
+            Order = SingleOrder,
             SubscriptionId = Guid.NewGuid(),
             ExternalReference = "an_external_ref"
         };
@@ -30,6 +43,7 @@ public class SubscriptionValidatorTests
         // Arrange
         var subscription = new SubscriptionCharge
         {
+            Order = SingleOrder,
             SubscriptionId = Guid.NewGuid(),
             ExternalReference = null
         };
@@ -47,6 +61,7 @@ public class SubscriptionValidatorTests
         // Arrange
         var subscription = new SubscriptionCharge
         {
+            Order = SingleOrder,
             SubscriptionId = null,
             ExternalReference = "an_external_ref"
         };
@@ -64,6 +79,7 @@ public class SubscriptionValidatorTests
         // Arrange
         var subscription = new SubscriptionCharge
         {
+            Order = SingleOrder,
             SubscriptionId = null,
             ExternalReference = null
         };
