@@ -16,14 +16,14 @@ public record PaymentRequest
     /// </summary>
     [Required]
     [JsonPropertyName("order")]
-    public Order Order { get; init; } = new();
+    public required Order Order { get; init; }
 
     /// <summary>
     /// Defines the behavior and style of the checkout page
     /// </summary>
     [Required]
     [JsonPropertyName("checkout")]
-    public Checkout Checkout { get; init; } = new();
+    public required Checkout Checkout { get; init; }
 
     /// <summary>
     /// The merchant number. Use this header only if you are a Nets partner and initiating the checkout with your partner keys. If you are using the integration keys for your webshop, there is no need to specify this header

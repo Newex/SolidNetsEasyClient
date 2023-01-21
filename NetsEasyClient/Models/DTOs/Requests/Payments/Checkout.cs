@@ -58,7 +58,7 @@ public record Checkout
     /// </summary>
     [Required]
     [JsonPropertyName("termsUrl")]
-    public string TermsUrl { get; init; } = string.Empty;
+    public required string TermsUrl { get; init; } = string.Empty;
 
     /// <summary>
     /// The URL to the privacy and cookie settings of your webshop

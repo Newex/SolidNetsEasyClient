@@ -17,10 +17,16 @@ namespace SolidNetsEasyClient.Builder;
 public sealed class NetsPaymentBuilder
 {
     private readonly Order order;
-    private Checkout checkout = new()
-    {
-        IntegrationType = Integration.EmbeddedCheckout
-    };
+    private Integration integration;
+    private bool charge;
+    private string checkoutUrl = string.Empty;
+    private string returnUrl = string.Empty;
+    private string termsUrl = string.Empty;
+    private string? cancellationUrl;
+    private string? merchantTermsUrl;
+    private Consumer? consumer;
+    private bool? merchantHandlesConsumerData;
+    private ConsumerType? consumerType;
     private Subscription? subscription;
     private UnscheduledSubscription? unscheduled;
     private readonly List<WebHook> webHooks = new(32);
@@ -38,10 +44,7 @@ public sealed class NetsPaymentBuilder
     /// <returns>A payment builder</returns>
     public NetsPaymentBuilder EmbedCheckoutOnMyPage()
     {
-        checkout = checkout with
-        {
-            IntegrationType = Integration.EmbeddedCheckout
-        };
+        integration = Integration.EmbeddedCheckout;
 
         return this;
     }
@@ -52,10 +55,7 @@ public sealed class NetsPaymentBuilder
     /// <returns>A payment builder</returns>
     public NetsPaymentBuilder HostCheckoutOnNetsServer()
     {
-        checkout = checkout with
-        {
-            IntegrationType = Integration.HostedPaymentPage
-        };
+        integration = Integration.HostedPaymentPage;
 
         return this;
     }
@@ -70,10 +70,7 @@ public sealed class NetsPaymentBuilder
     /// <returns>A payment builder</returns>
     public NetsPaymentBuilder ChargePaymentOnCreation(bool charge = true)
     {
-        checkout = checkout with
-        {
-            Charge = charge
-        };
+        this.charge = charge;
         return this;
     }
 
@@ -84,10 +81,7 @@ public sealed class NetsPaymentBuilder
     /// <returns>A payment builder</returns>
     public NetsPaymentBuilder SetCheckoutUrl(string url)
     {
-        checkout = checkout with
-        {
-            Url = url
-        };
+        checkoutUrl = url;
 
         return this;
     }
@@ -102,11 +96,7 @@ public sealed class NetsPaymentBuilder
     /// <returns>A payment builder</returns>
     public NetsPaymentBuilder SetReturnUrl(string returnUrl)
     {
-        checkout = checkout with
-        {
-            ReturnUrl = returnUrl
-        };
-
+        this.returnUrl = returnUrl;
         return this;
     }
 
@@ -117,11 +107,7 @@ public sealed class NetsPaymentBuilder
     /// <returns>A payment builder</returns>
     public NetsPaymentBuilder SetTheTermsUrl(string termsUrl)
     {
-        checkout = checkout with
-        {
-            TermsUrl = termsUrl
-        };
-
+        this.termsUrl = termsUrl;
         return this;
     }
 
@@ -135,11 +121,7 @@ public sealed class NetsPaymentBuilder
     /// <returns>A payment builder</returns>
     public NetsPaymentBuilder SetCancellationUrl(string cancellationUrl)
     {
-        checkout = checkout with
-        {
-            CancelUrl = cancellationUrl
-        };
-
+        this.cancellationUrl = cancellationUrl;
         return this;
     }
 
@@ -150,10 +132,7 @@ public sealed class NetsPaymentBuilder
     /// <returns>A payment builder</returns>
     public NetsPaymentBuilder SetThePrivacyAndCookiePolicyUrl(string merchantTermsUrl)
     {
-        checkout = checkout with
-        {
-            MerchantTermsUrl = merchantTermsUrl
-        };
+        this.merchantTermsUrl = merchantTermsUrl;
         return this;
     }
 
@@ -170,25 +149,22 @@ public sealed class NetsPaymentBuilder
     /// <returns>A payment builder</returns>
     public NetsPaymentBuilder WithPrivateCustomer(string? customerId, string? firstName, string? lastName, string? email, PhoneNumber? phone = null, ShippingAddress? shippingAddress = null, bool retypeCostumerData = false)
     {
-        checkout = checkout with
+        consumer = new()
         {
-            Consumer = new()
+            Reference = customerId,
+            Email = email,
+            ShippingAddress = shippingAddress,
+            PrivatePerson = new()
             {
-                Reference = customerId,
-                Email = email,
-                ShippingAddress = shippingAddress,
-                PrivatePerson = new()
-                {
-                    FirstName = firstName,
-                    LastName = lastName
-                },
-                PhoneNumber = phone
+                FirstName = firstName,
+                LastName = lastName
             },
-            MerchantHandlesConsumerData = !retypeCostumerData,
-            ConsumerType = !retypeCostumerData ? null : new()
-            {
-                Default = ConsumerTypeEnum.B2C
-            }
+            PhoneNumber = phone
+        };
+        merchantHandlesConsumerData = !retypeCostumerData;
+        consumerType = !retypeCostumerData ? null : new()
+        {
+            Default = ConsumerTypeEnum.B2C
         };
 
         return this;
@@ -206,23 +182,19 @@ public sealed class NetsPaymentBuilder
     /// <returns>A payment builder</returns>
     public NetsPaymentBuilder WithBusinessCustomer(string? customerId, Company company, string? email, PhoneNumber? phone = null, ShippingAddress? shippingAddress = null, bool retypeCostumerData = false)
     {
-        checkout = checkout with
+        consumer = new()
         {
-            Consumer = new()
-            {
-                Reference = customerId,
-                Email = email,
-                ShippingAddress = shippingAddress,
-                PhoneNumber = phone,
-                Company = company
-            },
-            MerchantHandlesConsumerData = !retypeCostumerData,
-            ConsumerType = !retypeCostumerData ? null : new()
-            {
-                Default = ConsumerTypeEnum.B2B
-            }
+            Reference = customerId,
+            Email = email,
+            ShippingAddress = shippingAddress,
+            PhoneNumber = phone,
+            Company = company
         };
-
+        merchantHandlesConsumerData = !retypeCostumerData;
+        consumerType = !retypeCostumerData ? null : new()
+        {
+            Default = ConsumerTypeEnum.B2B
+        };
         return this;
     }
 
@@ -336,7 +308,19 @@ public sealed class NetsPaymentBuilder
         return new()
         {
             Order = order,
-            Checkout = checkout,
+            Checkout = new Checkout()
+            {
+                Url = checkoutUrl,
+                IntegrationType = integration,
+                ReturnUrl = returnUrl,
+                CancelUrl = cancellationUrl,
+                Consumer = consumer,
+                TermsUrl = termsUrl,
+                MerchantTermsUrl = merchantTermsUrl,
+                ConsumerType = consumerType,
+                MerchantHandlesConsumerData = merchantHandlesConsumerData,
+                Charge = charge
+            },
             Notifications = new()
             {
                 WebHooks = webHooks
