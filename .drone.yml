@@ -5,7 +5,7 @@ name: default
 
 steps:
 - name: pre
-  image: mcr.microsoft.com/dotnet/sdk:6.0-focal
+  image: registry.digify:5000/dotnet/sdk:7.0
   environment:
     NUGET_PACKAGES: /drone/src/.nuget/global/packages
     NUGET_HTTP_CACHE_PATH: /drone/src/.nuget/http-cache/v3-cache
@@ -18,7 +18,7 @@ steps:
   - dotnet restore tests/tests.csproj -v q
 
 - name: test
-  image: mcr.microsoft.com/dotnet/sdk:6.0-focal
+  image: registry.digify:5000/dotnet/sdk:7.0
   environment:
     NUGET_PACKAGES: /drone/src/.nuget/global/packages
     NUGET_HTTP_CACHE_PATH: /drone/src/.nuget/http-cache/v3-cache
@@ -29,7 +29,7 @@ steps:
     - pre
 
 - name: build
-  image: mcr.microsoft.com/dotnet/sdk:6.0-focal
+  image: registry.digify:5000/dotnet/sdk:7.0
   environment:
     NUGET_PACKAGES: /drone/src/.nuget/global/packages
     NUGET_HTTP_CACHE_PATH: /drone/src/.nuget/http-cache/v3-cache
@@ -41,7 +41,7 @@ steps:
     - pre
 
 - name: deploy
-  image: mcr.microsoft.com/dotnet/sdk:6.0-focal
+  image: registry.digify:5000/dotnet/sdk:7.0
   environment:
     BAGET_KEY:
       from_secret: baget-api-key
