@@ -132,7 +132,7 @@ public class SubscriptionClient : ISubscriptionClient
     {
         // Subscription must either have a subscriptionId or an externalReference but not both!
         var isValid = subscriptions.All(SubscriptionValidator.ValidateSubscriptionCharge)
-                      && (externalBulkChargeId is null || (externalBulkChargeId.Length > 1 && externalBulkChargeId.Length < 64));
+                      && (externalBulkChargeId is null || SubscriptionValidator.ValidateExternalBulkChargeId(externalBulkChargeId));
         if (!isValid)
         {
             logger.ErrorInvalidBulkCharge(subscriptions);
@@ -260,8 +260,8 @@ public class SubscriptionClient : ISubscriptionClient
     /// <inheritdoc />
     public async Task<BulkId> VerifyBulkSubscriptionsAsync(BulkSubscriptionVerification verifications, CancellationToken cancellationToken)
     {
-        var isValid = (verifications.ExternalBulkVerificationId is null || (verifications.ExternalBulkVerificationId?.Length > 1 && verifications.ExternalBulkVerificationId.Length < 64))
-            && (verifications.Subscriptions?.All(SubscriptionValidator.ValidateSubscriptionCharge) ?? verifications.Subscriptions?.Any() ?? false);
+        var isValid = SubscriptionValidator.ValidateExternalBulkChargeId(verifications.ExternalBulkVerificationId)
+                      && (verifications.Subscriptions?.All(SubscriptionValidator.ValidateSubscriptionCharge) ?? verifications.Subscriptions?.Any() ?? false);
         if (!isValid)
         {
             logger.ErrorInvalidSubscriptionVerifications(verifications);

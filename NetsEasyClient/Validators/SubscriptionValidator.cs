@@ -32,6 +32,16 @@ public static class SubscriptionValidator
     }
 
     /// <summary>
+    /// External bulk charge must be between 1 and 64 characters long
+    /// </summary>
+    /// <param name="externalBulkChargeId">The bulk charge id</param>
+    /// <returns>True if valid otherwise false</returns>
+    public static bool ValidateExternalBulkChargeId(string? externalBulkChargeId)
+    {
+        return !string.IsNullOrWhiteSpace(externalBulkChargeId) && externalBulkChargeId.Length is > 0 and < 64;
+    }
+
+    /// <summary>
     /// Validate subscription charge. Must have at least 1 <see cref="ChargeUnscheduledSubscription.Order"/> item and only a <see cref="UnscheduledSubscriptionInfo.UnscheduledSubscriptionId"/> or <see cref="UnscheduledSubscriptionInfo.ExternalReference"/> not both.
     /// </summary>
     /// <param name="subscriptionCharge">The unscheduled subscription charge</param>
