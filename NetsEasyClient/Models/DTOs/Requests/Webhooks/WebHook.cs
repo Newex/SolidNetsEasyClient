@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 using SolidNetsEasyClient.Converters;
 using SolidNetsEasyClient.Models.DTOs.Enums;
@@ -32,5 +33,6 @@ public record WebHook
     /// Must be between 8 and 32 characters long and contain alphanumeric characters
     /// </remarks>
     [JsonPropertyName("authorization")]
-    public string? Authorization { get; init; }
+    [Required]
+    public required string Authorization { get; init; }
 }

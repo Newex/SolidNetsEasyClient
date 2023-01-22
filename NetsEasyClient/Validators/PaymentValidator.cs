@@ -217,7 +217,7 @@ internal static class PaymentValidator
     {
         if (header is null)
         {
-            return true;
+            return false;
         }
 
         // Must only contain alphanumeric characters

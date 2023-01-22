@@ -276,7 +276,7 @@ public sealed class NetsPaymentBuilder
     /// <param name="authorization">The credentials that will be sent in the HTTP Authorization request header of the callback. Must be between 8 and 32 characters long and contain alphanumeric characters.</param>
     /// <returns>A payment builder</returns>
     /// <exception cref="ArgumentException">Thrown when invalid authorization</exception>
-    public NetsPaymentBuilder SubscribeToEvent(EventName eventName, string callbackUrl, string? authorization = null)
+    public NetsPaymentBuilder SubscribeToEvent(EventName eventName, string callbackUrl, string authorization)
     {
         var validAuthorization = PaymentValidator.ProperAuthorization(authorization);
         if (!validAuthorization)

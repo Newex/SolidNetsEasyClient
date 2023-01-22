@@ -24,7 +24,8 @@ public class CheckoutController : Controller
     public async Task<ActionResult> Index(BasketViewModel basket, CancellationToken cts)
     {
         var order = PaymentRequestHelper.MinimalOrderExample(basket.Item, basket.Quantity);
-        var paymentBuilder = NetsPaymentBuilder
+        const string authorizationHeader = "Abc123DE";
+        var paymentRequest = NetsPaymentBuilder
             .CreatePayment(order)
             .EmbedCheckoutOnMyPage()
             .WithPrivateCustomer(
@@ -40,22 +41,22 @@ public class CheckoutController : Controller
                 retypeCostumerData: false
             )
             .ChargePaymentOnCreation(false)
-            .AsUnscheduledSubscription(true)
             .AsRegularSubscription(interval: 0, years: 5, onTheEndOfTheMonth: true, onMidnight: true)
-            .SubscribeToEvent(EventName.ChargeCreated, webhookUrl)
-            .SubscribeToEvent(EventName.ChargeFailed, webhookUrl)
-            .SubscribeToEvent(EventName.CheckoutCompleted, webhookUrl)
-            .SubscribeToEvent(EventName.PaymentCreated, webhookUrl)
-            .SubscribeToEvent(EventName.RefundCompleted, webhookUrl)
-            .SubscribeToEvent(EventName.RefundFailed, webhookUrl)
-            .SubscribeToEvent(EventName.RefundInitiated, webhookUrl)
-            .SubscribeToEvent(EventName.ReservationCancellationFailed, webhookUrl)
-            .SubscribeToEvent(EventName.ReservationCancelled, webhookUrl)
-            .SubscribeToEvent(EventName.ReservationCreatedV1, webhookUrl)
-            .SubscribeToEvent(EventName.ReservationCreatedV2, webhookUrl)
-            .SubscribeToEvent(EventName.ReservationFailed, webhookUrl);
+            .SubscribeToEvent(EventName.ChargeCreated, webhookUrl, authorizationHeader)
+            .SubscribeToEvent(EventName.ChargeFailed, webhookUrl, authorizationHeader)
+            .SubscribeToEvent(EventName.CheckoutCompleted, webhookUrl, authorizationHeader)
+            .SubscribeToEvent(EventName.PaymentCreated, webhookUrl, authorizationHeader)
+            .SubscribeToEvent(EventName.RefundCompleted, webhookUrl, authorizationHeader)
+            .SubscribeToEvent(EventName.RefundFailed, webhookUrl, authorizationHeader)
+            .SubscribeToEvent(EventName.RefundInitiated, webhookUrl, authorizationHeader)
+            .SubscribeToEvent(EventName.ReservationCancellationFailed, webhookUrl, authorizationHeader)
+            .SubscribeToEvent(EventName.ReservationCancelled, webhookUrl, authorizationHeader)
+            .SubscribeToEvent(EventName.ReservationCreatedV1, webhookUrl, authorizationHeader)
+            .SubscribeToEvent(EventName.ReservationCreatedV2, webhookUrl, authorizationHeader)
+            .SubscribeToEvent(EventName.ReservationFailed, webhookUrl, authorizationHeader)
+            .BuildPaymentRequest();
 
-        var payment = await client.CreatePaymentAsync(paymentBuilder.BuildPaymentRequest(), cts);
+        var payment = await client.CreatePaymentAsync(paymentRequest, cts);
         var vm = new CheckoutViewModel
         {
             CheckoutKey = client.CheckoutKey,
