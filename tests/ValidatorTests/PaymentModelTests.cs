@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using SolidNetsEasyClient.Models.DTOs;
 using SolidNetsEasyClient.Models.DTOs.Enums;
 using SolidNetsEasyClient.Models.DTOs.Requests.Payments;
 using SolidNetsEasyClient.Models.DTOs.Requests.Webhooks;
@@ -454,6 +455,38 @@ public class PaymentModelTests
 
         // Act
         var result = PaymentValidator.HasHostedReturnUrl(payment);
+
+        // Assert
+        Assert.False(result);
+    }
+
+    [Fact]
+    public void Non_subscription_with_zero_order_amount_is_invalid()
+    {
+        // Arrange
+        var payment = Setup.DefaultPayment()
+            .WithOrder(o =>
+            {
+                return o with
+                {
+                    Items = new List<Item>
+                    {
+                        Fakes.RandomItem() with
+                        {
+                            Quantity = 0d,
+                            UnitPrice = 10
+                        }
+                    }
+                };
+            }) with
+        {
+            Subscription = null,
+            UnscheduledSubscription = null
+        };
+
+        // Act
+        // Note that amount = unit price * quantity --- 10 * 0
+        var result = PaymentValidator.NonSubscriptionMustHaveNonNegativeAmount(payment);
 
         // Assert
         Assert.False(result);

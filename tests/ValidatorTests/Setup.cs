@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using SolidNetsEasyClient.Models.DTOs.Contacts;
 using SolidNetsEasyClient.Models.DTOs.Requests.Customers;
+using SolidNetsEasyClient.Models.DTOs.Requests.Orders;
 using SolidNetsEasyClient.Models.DTOs.Requests.Payments;
 using SolidNetsEasyClient.Models.DTOs.Requests.Webhooks;
 using SolidNetsEasyClient.Tests.Tools;
@@ -52,7 +53,7 @@ public static class Setup
 
     internal static PaymentRequest WithNotifications(this PaymentRequest payment, int webHooks, Func<Notification, Notification?>? setNotification = null)
     {
-        var defaultSetter = setNotification ?? ((c) => c);
+        var defaultSetter = setNotification ?? (c => c);
         var notification = Fakes.RandomNotification(webHooks);
         return payment with
         {
@@ -68,6 +69,15 @@ public static class Setup
         return payment with
         {
             PaymentMethodsConfiguration = result
+        };
+    }
+
+    internal static PaymentRequest WithOrder(this PaymentRequest payment, Func<Order, Order>? setOrder = null)
+    {
+        var defaultOrder = setOrder ?? (o => o);
+        return payment with
+        {
+            Order = defaultOrder(payment.Order)
         };
     }
 }
