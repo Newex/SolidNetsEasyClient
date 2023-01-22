@@ -131,11 +131,12 @@ public class SubscriptionClient : ISubscriptionClient
     public async Task<BulkId> BulkChargeSubscriptionsAsync(IList<SubscriptionCharge> subscriptions, CancellationToken cancellationToken, string? externalBulkChargeId = null, Notification? notifications = null)
     {
         // Subscription must either have a subscriptionId or an externalReference but not both!
-        var isValid = subscriptions.All(SubscriptionValidator.OnlyEitherSubscriptionIdOrExternalRef) && subscriptions.Count > 0 && (externalBulkChargeId is null || (externalBulkChargeId.Length > 1 && externalBulkChargeId.Length < 64));
+        var isValid = subscriptions.All(SubscriptionValidator.ValidateSubscriptionCharge)
+                      && (externalBulkChargeId is null || (externalBulkChargeId.Length > 1 && externalBulkChargeId.Length < 64));
         if (!isValid)
         {
             logger.ErrorInvalidBulkCharge(subscriptions);
-            throw new ArgumentException("Must have at least 1 subscription where each subscription can only have either an id or an external reference not both. Also external bulk charge id must be between 1 - 64 characters");
+            throw new ArgumentException("Must have at least 1 subscription with at least 1 order where each subscription can only have either an id or an external reference not both. Also external bulk charge id must be between 1 - 64 characters");
         }
 
         try
@@ -260,7 +261,7 @@ public class SubscriptionClient : ISubscriptionClient
     public async Task<BulkId> VerifyBulkSubscriptionsAsync(BulkSubscriptionVerification verifications, CancellationToken cancellationToken)
     {
         var isValid = (verifications.ExternalBulkVerificationId is null || (verifications.ExternalBulkVerificationId?.Length > 1 && verifications.ExternalBulkVerificationId.Length < 64))
-            && (verifications.Subscriptions?.All(SubscriptionValidator.OnlyEitherSubscriptionIdOrExternalRef) ?? verifications.Subscriptions?.Any() ?? false);
+            && (verifications.Subscriptions?.All(SubscriptionValidator.ValidateSubscriptionCharge) ?? verifications.Subscriptions?.Any() ?? false);
         if (!isValid)
         {
             logger.ErrorInvalidSubscriptionVerifications(verifications);

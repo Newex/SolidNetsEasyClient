@@ -149,7 +149,7 @@ public class UnscheduledSubscriptionClient : IUnscheduledSubscriptionClient
     /// <inheritdoc />
     public async Task<BulkId> BulkChargeUnscheduledSubscriptionsAsync(BulkUnscheduledSubscriptionCharge bulk, CancellationToken cancellationToken)
     {
-        var isValid = bulk.UnscheduledSubscriptions.All(SubscriptionValidator.OnlyEitherSubscriptionIdOrExternalRef) && !string.IsNullOrWhiteSpace(bulk.ExternalBulkChargeId) && PaymentValidator.CheckWebHooks(bulk.Notifications);
+        var isValid = bulk.UnscheduledSubscriptions.All(SubscriptionValidator.ValidateSubscriptionCharge) && !string.IsNullOrWhiteSpace(bulk.ExternalBulkChargeId) && PaymentValidator.CheckWebHooks(bulk.Notifications);
         if (!isValid)
         {
             logger.ErrorInvalidBulk(bulk);
@@ -188,7 +188,7 @@ public class UnscheduledSubscriptionClient : IUnscheduledSubscriptionClient
     /// <inheritdoc />
     public async Task<BulkId> BulkChargeUnscheduledSubscriptionsAsync(IList<ChargeUnscheduledSubscription> bulk, string externalBulkChargeId, Notification? notifications, CancellationToken cancellationToken)
     {
-        var isValid = bulk.All(SubscriptionValidator.OnlyEitherSubscriptionIdOrExternalRef) && !string.IsNullOrWhiteSpace(externalBulkChargeId) && PaymentValidator.CheckWebHooks(notifications);
+        var isValid = bulk.All(SubscriptionValidator.ValidateSubscriptionCharge) && !string.IsNullOrWhiteSpace(externalBulkChargeId) && PaymentValidator.CheckWebHooks(notifications);
         if (!isValid)
         {
             logger.ErrorInvalidBulkCharge(bulk, externalBulkChargeId, notifications);

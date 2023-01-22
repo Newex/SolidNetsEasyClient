@@ -9,6 +9,7 @@ using SolidNetsEasyClient.Models.DTOs;
 using SolidNetsEasyClient.Models.DTOs.Enums;
 using SolidNetsEasyClient.Models.DTOs.Requests.Payments.Subscriptions;
 using SolidNetsEasyClient.Models.DTOs.Responses.Payments;
+using SolidNetsEasyClient.Tests.Tools;
 
 namespace SolidNetsEasyClient.Tests.ClientTests.Unit;
 
@@ -100,7 +101,7 @@ public class SubscriptionClientTests
                     Currency = Currency.DKK,
                     Items = new List<Item>
                     {
-                        Tools.Fakes.RandomItem()
+                        Fakes.RandomItem()
                     }
                 }
             }
@@ -173,10 +174,11 @@ public class SubscriptionClientTests
         var bulk = new BulkSubscriptionVerification
         {
             ExternalBulkVerificationId = "123",
-            Subscriptions = new List<BaseSubscription>
+            Subscriptions = new List<SubscriptionCharge>
             {
                 new()
                 {
+                    Order = Fakes.RandomOrder(1),
                     SubscriptionId = Guid.NewGuid()
                 }
             }

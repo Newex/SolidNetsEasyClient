@@ -20,5 +20,5 @@ public record BulkSubscriptionVerification
     /// </summary>
     [JsonPropertyName("subscriptions")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public IList<BaseSubscription>? Subscriptions { get; init; }
+    public IList<SubscriptionCharge>? Subscriptions { get; init; }
 }

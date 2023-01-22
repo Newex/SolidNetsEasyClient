@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using SolidNetsEasyClient.Models.DTOs;
 using SolidNetsEasyClient.Models.DTOs.Requests.Orders;
 using SolidNetsEasyClient.Models.DTOs.Requests.Payments.Subscriptions;
+using SolidNetsEasyClient.Models.DTOs.Responses.Payments;
 using SolidNetsEasyClient.Tests.Tools;
 using SolidNetsEasyClient.Validators;
 
@@ -20,13 +21,28 @@ public class SubscriptionValidatorTests
     };
 
     [Fact]
-    public void Subscription_with_subscriptionId_and_external_reference_is_invalid()
+    public void Subscription_must_at_least_have_an_order()
     {
         // Arrange
         var subscription = new SubscriptionCharge
         {
             Order = SingleOrder,
-            SubscriptionId = Guid.NewGuid(),
+        };
+
+        // Act
+        var result = SubscriptionValidator.ValidateSubscriptionCharge(subscription);
+
+        // Assert
+        result.Should().BeFalse();
+    }
+
+    [Fact]
+    public void Subscription_with_subscriptionId_and_external_reference_is_invalid()
+    {
+        // Arrange
+        var subscription = new UnscheduledSubscriptionInfo
+        {
+            UnscheduledSubscriptionId = Guid.NewGuid(),
             ExternalReference = "an_external_ref"
         };
 
@@ -41,11 +57,9 @@ public class SubscriptionValidatorTests
     public void Subscription_with_only_subscriptionId_is_valid()
     {
         // Arrange
-        var subscription = new SubscriptionCharge
+        var subscription = new UnscheduledSubscriptionInfo
         {
-            Order = SingleOrder,
-            SubscriptionId = Guid.NewGuid(),
-            ExternalReference = null
+            UnscheduledSubscriptionId = Guid.NewGuid(),
         };
 
         // Act
@@ -59,10 +73,8 @@ public class SubscriptionValidatorTests
     public void Subscription_with_only_external_ref_is_valid()
     {
         // Arrange
-        var subscription = new SubscriptionCharge
+        var subscription = new UnscheduledSubscriptionInfo
         {
-            Order = SingleOrder,
-            SubscriptionId = null,
             ExternalReference = "an_external_ref"
         };
 
@@ -77,12 +89,7 @@ public class SubscriptionValidatorTests
     public void Subscription_without_subscriptionId_or_external_ref_is_invalid()
     {
         // Arrange
-        var subscription = new SubscriptionCharge
-        {
-            Order = SingleOrder,
-            SubscriptionId = null,
-            ExternalReference = null
-        };
+        var subscription = new UnscheduledSubscriptionInfo();
 
         // Act
         var result = SubscriptionValidator.OnlyEitherSubscriptionIdOrExternalRef(subscription);
