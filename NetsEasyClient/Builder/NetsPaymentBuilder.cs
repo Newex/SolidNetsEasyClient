@@ -199,6 +199,17 @@ public sealed class NetsPaymentBuilder
     }
 
     /// <summary>
+    /// Create the payment as a one time payment
+    /// </summary>
+    /// <returns>A payment builder</returns>
+    public NetsPaymentBuilder AsSinglePayment()
+    {
+        unscheduled = null;
+        subscription = null;
+        return this;
+    }
+
+    /// <summary>
     /// Create the payment as part of a regular subscription
     /// </summary>
     /// <param name="interval">The minimum number of days between charges, an interval of zero means no restriction. This interval commences from either the day the subscription was created or the most recent subscription charge, whichever is later</param>
