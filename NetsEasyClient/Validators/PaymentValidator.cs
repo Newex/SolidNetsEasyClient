@@ -68,6 +68,11 @@ internal static class PaymentValidator
             return false;
         }
 
+        if (!NonSubscriptionMustHaveNonNegativeAmount(payment))
+        {
+            return false;
+        }
+
         return true;
     }
 
@@ -223,6 +228,16 @@ internal static class PaymentValidator
         // Must only contain alphanumeric characters
         var size = header.All(char.IsLetterOrDigit) && header.Length >= 8 && header.Length <= 32;
         return size;
+    }
+
+    internal static bool NonSubscriptionMustHaveNonNegativeAmount(PaymentRequest payment)
+    {
+        if (payment.Subscription is not null || payment.UnscheduledSubscription is not null)
+        {
+            return true;
+        }
+
+        return payment.Order.Amount > 0;
     }
 
     private static bool ProperWebHookUrl(string? url)
