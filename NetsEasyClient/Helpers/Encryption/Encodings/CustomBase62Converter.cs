@@ -25,48 +25,33 @@ namespace SolidNetsEasyClient.Helpers.Encryption.Encodings;
 /// <remarks>
 /// Modified from: https://github.com/ghost1face/base62
 /// </remarks>
-public class CustomBase62Converter
+public static class CustomBase62Converter
 {
     private const string DEFAULT_CHARACTER_SET = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
     private const string INVERTED_CHARACTER_SET = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
-    private readonly string characterSet;
-
-    /// <summary>
-    /// Initializes a new instance of <see cref="CustomBase62Converter"/>.
-    /// </summary>
-    public CustomBase62Converter()
-    {
-        characterSet = DEFAULT_CHARACTER_SET;
-    }
-
-    /// <summary>
-    /// Initializes a new instance of <see cref="CustomBase62Converter"/> with the provided <see cref="CharacterSet"/>.
-    /// </summary>
-    /// <param name="charset"></param>
-    public CustomBase62Converter(CharacterSet charset)
-    {
-        characterSet = charset == CharacterSet.DEFAULT ? DEFAULT_CHARACTER_SET : INVERTED_CHARACTER_SET;
-    }
 
     /// <summary>
     /// Encodes the input text to Base62 format.
     /// </summary>
     /// <param name="value">The input value.</param>
+    /// <param name="inverted">Default false if true then an inverted character set is used</param>
     /// <returns>Encoded base62 value.</returns>
-    public string Encode(string value)
+    public static string Encode(string value, bool inverted = false)
     {
         var arr = Encoding.UTF8.GetBytes(value);
         var converted = BaseConvert(arr, 256, 62);
-        return AsString(converted);
+        return AsString(converted, inverted);
     }
 
     /// <summary>
     /// Decodes the input text from Base62 format.
     /// </summary>
     /// <param name="value">The input value.</param>
+    /// <param name="inverted">Default false if true then an inverted character set is used</param>
     /// <returns>The decoded value.</returns>
-    public byte[] Decode(string value)
+    public static byte[] Decode(string value, bool inverted = false)
     {
+        var characterSet = inverted ? DEFAULT_CHARACTER_SET : INVERTED_CHARACTER_SET;
         var arr = new byte[value.Length];
         for (var i = 0; i < arr.Length; i++)
         {
@@ -82,20 +67,23 @@ public class CustomBase62Converter
     /// Encodes the input bytes to Base62 format.
     /// </summary>
     /// <param name="value">The input value.</param>
+    /// <param name="inverted">Default false if true then an inverted character set is used</param>
     /// <returns>Encoded base62 value.</returns>
-    public string Encode(byte[] value)
+    public static string Encode(byte[] value, bool inverted = false)
     {
         var encoded = BaseConvert(value, 256, 62);
-        return AsString(encoded);
+        return AsString(encoded, inverted);
     }
 
     /// <summary>
     /// Convert a base62 byte array to a string representation
     /// </summary>
     /// <param name="base62">The byte array</param>
+    /// <param name="inverted">Default false if true then an inverted character set is used</param>
     /// <returns>A base62 string</returns>
-    public string AsString(byte[] base62)
+    public static string AsString(byte[] base62, bool inverted = false)
     {
+        var characterSet = inverted ? DEFAULT_CHARACTER_SET : INVERTED_CHARACTER_SET;
         var builder = new StringBuilder();
         foreach (var c in base62)
         {
