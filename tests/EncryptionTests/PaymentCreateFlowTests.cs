@@ -76,6 +76,34 @@ public class PaymentCreateFlowTests
         auth1.Should().NotBeSameAs(auth2);
     }
 
+    [Fact]
+    public void Webhook_authorization_should_have_maximum_length_of_32()
+    {
+        var hasher = new MyHasher();
+        var rnd = new Random();
+        var key = new byte[10];
+        rnd.NextBytes(key);
+
+        var payment = new PaymentCreatedInvariant
+        {
+            Amount = 10,
+            OrderItems = new List<Item>
+            {
+                Fakes.RandomItem() with
+                {
+                    Quantity = 1,
+                    UnitPrice = 10,
+                    TaxRate = null
+                }
+            },
+            OrderReference = "ref:#1",
+            Nonce = CustomBase62Converter.Encode(RandomNumberGenerator.GetBytes(10))
+        };
+        var (authorization, _) = PaymentCreatedFlow.CreateAuthorization(hasher, key, payment);
+
+        authorization.Length.Should().BeLessThanOrEqualTo(32);
+    }
+
     public class MyHasher : IHasher
     {
         public KeyedHashAlgorithm GetHashAlgorithm()
