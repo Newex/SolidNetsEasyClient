@@ -41,4 +41,19 @@ public static class PaymentCreatedFlow
 
         return (Authorization: authorization.ToString(), Complement: complement?.ToString());
     }
+
+    /// <summary>
+    /// Validate actual response if they hash to same output
+    /// </summary>
+    /// <param name="hasher">The hasher</param>
+    /// <param name="key">The private key</param>
+    /// <param name="payment">The payment invariants</param>
+    /// <param name="actual">The actual webhook authorization values</param>
+    /// <returns>True if same hash otherwise false</returns>
+    public static bool ValidatePaymentCreatedEventCallback(IHasher hasher, byte[] key, PaymentCreatedInvariant payment, (string Authorization, string? Complement) actual)
+    {
+        var (authorization, complement) = CreateAuthorization(hasher, key, payment);
+        var isValid = authorization == actual.Authorization && complement == actual.Complement;
+        return isValid;
+    }
 }
