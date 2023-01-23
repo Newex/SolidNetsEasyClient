@@ -14,7 +14,7 @@ public static class PaymentCreatedFlow
     /// Construct a tuple of string authorization with a maximum size of 32, where any overflow will be inserted into the complement.
     /// </summary>
     /// <param name="hasher">The hashing function retriever</param>
-    /// <param name="key">The key</param>
+    /// <param name="key">The private key</param>
     /// <param name="payment">The payment invariant</param>
     /// <returns>A tuple of authorization and the complement string</returns>
     public static (string Authorization, string? Complement) CreateAuthorization(IHasher hasher, byte[] key, PaymentCreatedInvariant payment)
