@@ -17,7 +17,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace SolidNetsEasyClient.Encryption;
+namespace SolidNetsEasyClient.Helpers.Encryption.Encodings;
 
 /// <summary>
 /// Encodes and decodes text to and from base62 encoding.
