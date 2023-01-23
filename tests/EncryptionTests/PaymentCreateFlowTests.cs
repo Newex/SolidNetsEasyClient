@@ -44,6 +44,38 @@ public class PaymentCreateFlowTests
         auth1.Should().BeEquivalentTo(auth2);
     }
 
+    [Fact]
+    public void Creating_webhook_auth_for_same_payment_but_different_keys_returns_different_authorization_values()
+    {
+        var hasher = new MyHasher();
+        var rnd = new Random();
+        var key1 = new byte[10];
+        var key2 = new byte[10];
+        rnd.NextBytes(key1);
+        rnd.NextBytes(key2);
+
+        var payment = new PaymentCreatedInvariant
+        {
+            Amount = 10,
+            OrderItems = new List<Item>
+            {
+                Fakes.RandomItem() with
+                {
+                    Quantity = 1,
+                    UnitPrice = 10,
+                    TaxRate = null
+                }
+            },
+            OrderReference = "ref:#1",
+            Nonce = CustomBase62Converter.Encode(RandomNumberGenerator.GetBytes(10))
+        };
+
+        var auth1 = PaymentCreatedFlow.CreateAuthorization(hasher, key1, payment);
+        var auth2 = PaymentCreatedFlow.CreateAuthorization(hasher, key2, payment);
+
+        auth1.Should().NotBeSameAs(auth2);
+    }
+
     public class MyHasher : IHasher
     {
         public KeyedHashAlgorithm GetHashAlgorithm()
