@@ -68,20 +68,12 @@ public record PlatformPaymentOptions
     public string? NetsIPWebhookEndpoints { get; init; }
 
     /// <summary>
-    /// Blacklist single IPs requests sent to the webhook endpoint
+    /// Blacklist IPs requests sent to the webhook endpoint
     /// </summary>
     /// <remarks>
     /// Each IP should be separated by a semi-colon (;)
     /// </remarks>
     public string? BlacklistIPsForWebhook { get; init; }
-
-    /// <summary>
-    /// Blacklist a range of IPs separated by a semi-colon (;)
-    /// </summary>
-    /// <remarks>
-    /// Each range should be in CIDR format.
-    /// </remarks>
-    public string? BlacklistIPRangesForWebhook { get; init; }
 
     /// <summary>
     /// The nets easy configuration section

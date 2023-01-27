@@ -1,8 +1,9 @@
-using System.Text.Json;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using SolidNetsEasyClient.Filters;
+using SolidNetsEasyClient.Helpers.WebhookAttributes;
+using SolidNetsEasyClient.Models.DTOs.Responses.Webhooks;
 
 namespace ExampleSite.Controllers;
 
@@ -18,11 +19,12 @@ public class WebhookController : Controller
     }
 
     [SolidNetsEasyIPFilter(WhitelistIPs = "::1")]
-    [HttpPost("/webhook")]
-    public ActionResult Post([FromBody] dynamic jsonData)
+    [SolidNetsEasyPaymentCreated("/webhook")]
+    public ActionResult Post([FromBody] PaymentCreated payment)
     {
-        string data = JsonSerializer.Deserialize<dynamic>(jsonData.ToString()).ToString();
-        logger.LogInformation("The data: {@Json}", data);
+        logger.LogInformation("The header: {@Headers}", Request.Headers);
+        logger.LogInformation("The authorization header: {Authorization}", Request.Headers.Authorization!);
+        logger.LogInformation("The data: {@Payment}", payment);
         return NoContent();
     }
 }

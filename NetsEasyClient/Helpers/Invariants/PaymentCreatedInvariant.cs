@@ -6,7 +6,7 @@ namespace SolidNetsEasyClient.Helpers.Invariants;
 /// <summary>
 /// Payment creation and webhook response invariant
 /// </summary>
-public record struct PaymentCreatedInvariant
+public readonly record struct PaymentCreatedInvariant
 {
     /// <summary>
     /// The order reference

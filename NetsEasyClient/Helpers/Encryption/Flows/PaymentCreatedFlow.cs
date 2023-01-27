@@ -48,12 +48,13 @@ public static class PaymentCreatedFlow
     /// <param name="hasher">The hasher</param>
     /// <param name="key">The private key</param>
     /// <param name="payment">The payment invariants</param>
-    /// <param name="actual">The actual webhook authorization values</param>
+    /// <param name="authorization">The authorization header value</param>
+    /// <param name="complement">The authorization complement value</param>
     /// <returns>True if same hash otherwise false</returns>
-    public static bool ValidatePaymentCreatedEventCallback(IHasher hasher, byte[] key, PaymentCreatedInvariant payment, (string Authorization, string? Complement) actual)
+    public static bool ValidatePaymentCreatedEventCallback(IHasher hasher, byte[] key, PaymentCreatedInvariant payment, string authorization, string? complement)
     {
-        var (authorization, complement) = CreateAuthorization(hasher, key, payment);
-        var isValid = authorization == actual.Authorization && complement == actual.Complement;
+        var (computedAuthorization, computedComplement) = CreateAuthorization(hasher, key, payment);
+        var isValid = authorization == computedAuthorization && complement == computedComplement;
         return isValid;
     }
 }
