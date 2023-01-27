@@ -9,7 +9,6 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 using NetTools;
-using SolidNetsEasyClient.Constants;
 using SolidNetsEasyClient.Logging.SolidNetsEasyIPFilterAttributeLogging;
 using SolidNetsEasyClient.Models.Options;
 
@@ -24,14 +23,9 @@ namespace SolidNetsEasyClient.Filters;
 public sealed class SolidNetsEasyIPFilterAttribute : ActionFilterAttribute, IAuthorizationFilter
 {
     /// <summary>
-    /// Override the configured blacklist of single IPs separated by a semi-colon (;)
+    /// Override the configured blacklist of IPs separated by a semi-colon (;)
     /// </summary>
     public string? BlacklistIPs { get; set; }
-
-    /// <summary>
-    /// Override the configured blacklist of IP ranges separated by a semi-colon (;). The ranges must be specified in the CIDR format e.g. 192.168.0.1/24
-    /// </summary>
-    public string? BlacklistIPRanges { get; set; }
 
     /// <summary>
     /// Override the configured Nets Easy endpoint IPs. Each IP must be separated by a semi-colon (;).
@@ -39,12 +33,14 @@ public sealed class SolidNetsEasyIPFilterAttribute : ActionFilterAttribute, IAut
     public string? WhitelistIPs { get; set; }
 
     /// <summary>
-    /// Override the configured Nets Easy endpoints of IP ranges separated by a semi-colon (;). The ranges must be specified in the CIDR format e.g. 192.168.0.1/24
+    /// True if an IP MUST be in the whitelist to allow request.
+    /// If false then the requestor IP is allowed even when it is not in the whitelist.
     /// </summary>
-    public string? WhitelistIPRanges { get; set; }
+    public bool AllowOnlyWhitelistedIPs { get; set; } = true;
 
     /// <summary>
-    /// Check the client IP against the blacklist and known Nets Easy endpoint IPs
+    /// Check the client IP against the blacklist and known Nets Easy endpoint IPs.
+    /// Blacklist IPs take precedence over the whitelist.
     /// </summary>
     /// <param name="context">The context</param>
     public void OnAuthorization(AuthorizationFilterContext context)
@@ -61,18 +57,24 @@ public sealed class SolidNetsEasyIPFilterAttribute : ActionFilterAttribute, IAut
 
         // Load settings
         var options = GetOptions(context.HttpContext.RequestServices);
-        var ipWhitelistRange = WhitelistIPRanges?.Split(";") ?? options?.Value.NetsIPWebhookEndpoints?.Split(";") ?? new string[] { NetsEndpoints.WebhookIPs.LiveIPRange, NetsEndpoints.WebhookIPs.TestIPRange };
-        var ipBlacklist = BlacklistIPs?.Split(";") ?? options?.Value.BlacklistIPsForWebhook?.Split(";") ?? Array.Empty<string>();
-        var ipRangeBlacklist = BlacklistIPRanges?.Split(";") ?? options?.Value.BlacklistIPRangesForWebhook?.Split(";") ?? Array.Empty<string>();
 
+        // Retrieve client IP
         var remoteIp = context.HttpContext.Connection.RemoteIpAddress;
+        var clientIP = context.HttpContext.Request.Headers["X-Forwarded-For"].ToString().Split(',').FirstOrDefault();
         logger.TraceRemoteIP(remoteIp);
 
-        if (remoteIp is null)
+        if (remoteIp is null || clientIP is null)
         {
             logger.WarningNoRemoteIP(context);
             context.Result = new StatusCodeResult(StatusCodes.Status403Forbidden);
             return;
+        }
+
+        if (!string.IsNullOrWhiteSpace(clientIP))
+        {
+            // Note-Security: This can be spoofed by an adversary
+            // Use the first element in the forwarded header
+            remoteIp = IPAddress.Parse(clientIP);
         }
 
         if (remoteIp.IsIPv4MappedToIPv6)
@@ -80,29 +82,21 @@ public sealed class SolidNetsEasyIPFilterAttribute : ActionFilterAttribute, IAut
             remoteIp = remoteIp.MapToIPv4();
         }
 
-        var deny = ipBlacklist.Select(IPAddress.Parse).Any(x => x.Equals(remoteIp));
-        if (deny)
+        var white = string.Concat(WhitelistIPs, ";", options?.Value.NetsIPWebhookEndpoints);
+        var black = string.Concat(BlacklistIPs, ";", options?.Value.BlacklistIPsForWebhook);
+
+        var denied = ContainsIP(black, remoteIp);
+        if (denied)
         {
-            logger.WarningBlacklistedIP(remoteIp, ipBlacklist);
+            logger.WarningBlacklistedIP(remoteIp, black);
             context.Result = new StatusCodeResult(StatusCodes.Status403Forbidden);
             return;
         }
 
-        deny = ipRangeBlacklist
-            .Select(x => IPAddressRange.Parse(x))
-            .Any(x => x.Contains(remoteIp));
-        if (deny)
+        var allowed = ContainsIP(white, remoteIp);
+        if (!allowed || !AllowOnlyWhitelistedIPs)
         {
-            logger.WarningBlacklistedIP(remoteIp, ipRangeBlacklist);
-            context.Result = new StatusCodeResult(StatusCodes.Status403Forbidden);
-            return;
-        }
-
-        var allowedSingle = WhitelistIPs?.Split(";").Select(IPAddress.Parse).Any(x => x.Equals(remoteIp)) ?? false;
-        var allowed = allowedSingle || ipWhitelistRange.Select(w => IPAddressRange.Parse(w)).Any(x => x.Contains(remoteIp));
-        if (!allowed)
-        {
-            logger.WarningNotNetsEasyEndpoint(remoteIp);
+            logger.WarningNotNetsEasyEndpoint(remoteIp, white);
             context.Result = new StatusCodeResult(StatusCodes.Status403Forbidden);
         }
     }
@@ -131,6 +125,25 @@ public sealed class SolidNetsEasyIPFilterAttribute : ActionFilterAttribute, IAut
             }
             return Task.CompletedTask;
         }, context);
+    }
+
+    private static bool ContainsIP(string listing, IPAddress ip)
+    {
+        var ips = listing.Split(';', StringSplitOptions.RemoveEmptyEntries);
+        return ips.Any(ipOrRange =>
+        {
+            if (IPAddressRange.TryParse(ipOrRange, out var range))
+            {
+                return range.Contains(ip);
+            }
+
+            if (IPAddress.TryParse(ipOrRange, out var listedIp))
+            {
+                return listedIp.Equals(ip);
+            }
+
+            return false;
+        });
     }
 
     private static ILogger<SolidNetsEasyIPFilterAttribute> GetLogger(IServiceProvider services)

@@ -60,20 +60,21 @@ public static partial class LogExtensions
         Message = "Webhook request blacklisted {IP} in {Blacklist}",
         SkipEnabledCheck = true
     )]
-    public static partial void WarningBlacklistedIP(this ILogger logger, IPAddress ip, string[] blacklist);
+    public static partial void WarningBlacklistedIP(this ILogger logger, IPAddress ip, string blacklist);
 
     /// <summary>
     /// Warning request is not from a Nets Easy endpoint range
     /// </summary>
     /// <param name="logger">The logger</param>
     /// <param name="ip">The IP address</param>
+    /// <param name="whiteListedEndpoints">The white listed Nets Easy endpoints</param>
     [LoggerMessage(
         EventId = LogEventIDs.Errors.Forbidden,
         Level = LogLevel.Warning,
-        Message = "Webhook request IP {IP} not specified as Nets Easy endpoint",
+        Message = "Webhook request IP {IP} not specified as Nets Easy endpoint {WhiteListedEndpoints}",
         SkipEnabledCheck = true
     )]
-    public static partial void WarningNotNetsEasyEndpoint(this ILogger logger, IPAddress ip);
+    public static partial void WarningNotNetsEasyEndpoint(this ILogger logger, IPAddress ip, string whiteListedEndpoints);
 
     /// <summary>
     /// Warning success response must be 200 OK but was something else
