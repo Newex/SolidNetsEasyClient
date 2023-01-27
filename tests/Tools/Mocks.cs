@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Primitives;
 // using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using RichardSzalay.MockHttp;
@@ -77,7 +78,7 @@ public static class Mocks
         return mock.Object;
     }
 
-    public static Mock<HttpContext> HttpContext(IPAddress fromIp, string method)
+    public static Mock<HttpContext> HttpContext(IPAddress fromIp, string method, Dictionary<string, StringValues>? headers = null)
     {
         var mock = new Mock<HttpContext>();
 
@@ -89,9 +90,15 @@ public static class Mocks
         .Returns(method);
 
         mock.Setup(c => c.Request.Headers)
-        .Returns(new HeaderDictionary());
+        .Returns(new HeaderDictionary(headers ?? new()));
 
         return mock;
+    }
+
+    public static void AddService(this Mock<HttpContext> context, object service, Type serviceType)
+    {
+        context.Setup(c => c.RequestServices.GetService(serviceType))
+        .Returns(service);
     }
 
     public static void AddService<T>(this Mock<HttpContext> context, T service)

@@ -1,4 +1,7 @@
+using System;
 using System.Collections.Generic;
+using System.ComponentModel.Design;
+using System.Diagnostics.CodeAnalysis;
 using System.Net;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
@@ -6,6 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Primitives;
+using Microsoft.Net.Http.Headers;
 using Moq;
 using SolidNetsEasyClient.Models.Options;
 using SolidNetsEasyClient.Tests.Tools;
@@ -20,6 +24,8 @@ public sealed class AuthorizationFilterContextBuilder
 {
     private readonly IPAddress ip;
     private string httpMethod;
+    private readonly Dictionary<string, StringValues> headers = new(StringComparer.OrdinalIgnoreCase);
+    private readonly List<(object, Type)> services = new();
     private Mock<HttpContext>? httpContext;
 
     private AuthorizationFilterContextBuilder(string ip, string method)
@@ -39,35 +45,29 @@ public sealed class AuthorizationFilterContextBuilder
         return this;
     }
 
-    public AuthorizationFilterContextBuilder AddMockedService<T>(T service)
+    public AuthorizationFilterContextBuilder AddMockedService<T>([DisallowNull] T service)
     {
-        (httpContext ??= Tools.Mocks.HttpContext(ip, httpMethod)).AddService(service);
+        services.Add((service, typeof(T)));
+        return this;
+    }
+
+    public AuthorizationFilterContextBuilder AddRequestHeader((string HeaderName, string Value) header)
+    {
+        headers.Add(header.HeaderName, header.Value);
         return this;
     }
 
     public AuthorizationFilterContext Build()
     {
-        DefaultHttpContext defaultContext;
-        if (httpContext is not null)
+        httpContext = Tools.Mocks.HttpContext(ip, httpMethod, headers);
+        foreach (var (service, type) in services)
         {
-            var headers = new Dictionary<string, StringValues>();
-            var headerDictionary = new HeaderDictionary(headers);
-            var requestFeature = new HttpRequestFeature()
-            {
-                Headers = headerDictionary,
-            };
-            var features = new FeatureCollection();
-            features.Set<IHttpRequestFeature>(requestFeature);
-            defaultContext = new(features);
-        }
-        else
-        {
-            defaultContext = new();
+            httpContext.AddService(service, type);
         }
 
         var filters = new List<IFilterMetadata>();
         var actionContext = new ActionContext(
-            httpContext?.Object ?? defaultContext,
+            httpContext.Object,
             new Microsoft.AspNetCore.Routing.RouteData(),
             new Microsoft.AspNetCore.Mvc.Abstractions.ActionDescriptor()
         );

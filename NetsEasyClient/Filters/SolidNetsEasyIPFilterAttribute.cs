@@ -82,21 +82,20 @@ public sealed class SolidNetsEasyIPFilterAttribute : ActionFilterAttribute, IAut
             remoteIp = remoteIp.MapToIPv4();
         }
 
-        var white = string.Concat(WhitelistIPs, ";", options?.Value.NetsIPWebhookEndpoints);
-        var black = string.Concat(BlacklistIPs, ";", options?.Value.BlacklistIPsForWebhook);
-
-        var denied = ContainsIP(black, remoteIp);
+        var blacklist = string.Concat(BlacklistIPs, ";", options?.Value.BlacklistIPsForWebhook);
+        var denied = ContainsIP(blacklist, remoteIp);
         if (denied)
         {
-            logger.WarningBlacklistedIP(remoteIp, black);
+            logger.WarningBlacklistedIP(remoteIp, blacklist);
             context.Result = new StatusCodeResult(StatusCodes.Status403Forbidden);
             return;
         }
 
-        var allowed = ContainsIP(white, remoteIp);
+        var whitelist = string.Concat(WhitelistIPs, ";", options?.Value.NetsIPWebhookEndpoints);
+        var allowed = ContainsIP(whitelist, remoteIp);
         if (!allowed || !AllowOnlyWhitelistedIPs)
         {
-            logger.WarningNotNetsEasyEndpoint(remoteIp, white);
+            logger.WarningNotNetsEasyEndpoint(remoteIp, whitelist);
             context.Result = new StatusCodeResult(StatusCodes.Status403Forbidden);
         }
     }

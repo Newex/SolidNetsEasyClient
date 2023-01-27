@@ -94,4 +94,28 @@ public class WebhookIPFilterTests
         // Assert
         actual.Should().Match<StatusCodeResult>(x => x.StatusCode == Status403Forbidden);
     }
+
+    [Fact]
+    public void Denied_IP_from_proxy_returns_403_result()
+    {
+        // Arrange
+        const string ipString = "192.168.1.1";
+        const string actualIP = "77.87.246.118";
+        var builder = Auth
+            .Create(fromIP: ipString)
+            .AddOptions(new()
+            {
+                BlacklistIPsForWebhook = actualIP
+            })
+            .AddRequestHeader((HeaderName: "x-forwarded-for", Value: $"{actualIP}, {ipString}"));
+        var context = builder.Build();
+        var attribute = new SolidNetsEasyIPFilterAttribute();
+
+        // Act
+        attribute.OnAuthorization(context);
+        var actual = context.Result;
+
+        // Assert
+        actual.Should().Match<StatusCodeResult>(x => x.StatusCode == Status403Forbidden);
+    }
 }
