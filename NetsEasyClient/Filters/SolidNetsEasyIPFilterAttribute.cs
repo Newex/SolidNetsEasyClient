@@ -16,6 +16,7 @@ namespace SolidNetsEasyClient.Filters;
 
 /// <summary>
 /// An IP filter which first checks the blacklist and then lastly checks if the request comes from the configured Nets IP range. If the request is on a blacklist or not found in any list the http request will be denied with a status 403 forbidden response.
+/// To change the default behavior when no IP has been found, set <see cref="AllowOnlyWhitelistedIPs"/> property to false.
 /// </summary>
 /// <remarks>
 /// Remember to add the authorization middleware to the pipeline. If there are calls to app.UseRouting() and app.UseEndpoints(...), the call to app.UseAuthorization() must go between them.
