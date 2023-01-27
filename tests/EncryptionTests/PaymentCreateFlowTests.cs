@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Security.Cryptography;
 using SolidNetsEasyClient.Helpers.Encryption;
 using SolidNetsEasyClient.Helpers.Encryption.Encodings;
@@ -17,25 +16,26 @@ public class PaymentCreateFlowTests
     [Fact]
     public void Creating_webhook_auth_for_exactly_same_input_and_key_returns_same_authorization_values()
     {
-        var hasher = new MyHasher();
-        var rnd = new Random();
-        var key = new byte[10];
-        rnd.NextBytes(key);
+        var hasher = new HmacSHA256Hasher();
+        var key = RandomNumberGenerator.GetBytes(10);
 
         var payment = new PaymentCreatedInvariant
         {
-            Amount = 10,
+            Amount = 5500,
             OrderItems = new List<Item>
             {
-                Fakes.RandomItem() with
+                new Item() with
                 {
-                    Quantity = 1,
-                    UnitPrice = 10,
-                    TaxRate = null
+                    Reference = "Sneaky NE2816-82",
+                    Name = "Sneaky",
+                    Quantity = 2,
+                    Unit = "pcs",
+                    UnitPrice = 2500,
+                    TaxRate = 1000,
                 }
             },
-            OrderReference = "ref:#1",
-            Nonce = CustomBase62Converter.Encode(RandomNumberGenerator.GetBytes(10))
+            OrderReference = "42369",
+            Nonce = "5kDAnuQfJnhyIq"
         };
 
         var auth1 = PaymentCreatedFlow.CreateAuthorization(hasher, key, payment);
@@ -48,11 +48,8 @@ public class PaymentCreateFlowTests
     public void Creating_webhook_auth_for_same_payment_but_different_keys_returns_different_authorization_values()
     {
         var hasher = new MyHasher();
-        var rnd = new Random();
-        var key1 = new byte[10];
-        var key2 = new byte[10];
-        rnd.NextBytes(key1);
-        rnd.NextBytes(key2);
+        var key1 = RandomNumberGenerator.GetBytes(10);
+        var key2 = RandomNumberGenerator.GetBytes(10);
 
         var payment = new PaymentCreatedInvariant
         {
@@ -80,9 +77,7 @@ public class PaymentCreateFlowTests
     public void Webhook_authorization_should_have_maximum_length_of_32()
     {
         var hasher = new MyHasher();
-        var rnd = new Random();
-        var key = new byte[10];
-        rnd.NextBytes(key);
+        var key = RandomNumberGenerator.GetBytes(10);
 
         var payment = new PaymentCreatedInvariant
         {
