@@ -94,7 +94,7 @@ public sealed class SolidNetsEasyIPFilterAttribute : ActionFilterAttribute, IAut
 
         var whitelist = string.Concat(WhitelistIPs, ";", options?.Value.NetsIPWebhookEndpoints);
         var allowed = ContainsIP(whitelist, remoteIp);
-        if (!allowed || !AllowOnlyWhitelistedIPs)
+        if (AllowOnlyWhitelistedIPs && !allowed)
         {
             logger.WarningNotNetsEasyEndpoint(remoteIp, whitelist);
             context.Result = new StatusCodeResult(StatusCodes.Status403Forbidden);

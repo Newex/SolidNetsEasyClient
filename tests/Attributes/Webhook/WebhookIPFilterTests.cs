@@ -135,4 +135,24 @@ public class WebhookIPFilterTests
         // Assert
         actual.Should().Match<StatusCodeResult>(x => x.StatusCode == Status403Forbidden);
     }
+
+    [Fact]
+    public void IP_not_in_list_can_be_allowed_by_setting_property()
+    {
+        // Arrange
+        const string clientIP = "77.87.246.118";
+        var builder = Auth.Create(fromIP: clientIP).AddOptions(new());
+        var context = builder.Build();
+        var attribute = new SolidNetsEasyIPFilterAttribute()
+        {
+            AllowOnlyWhitelistedIPs = false
+        };
+
+        // Act
+        attribute.OnAuthorization(context);
+        var actual = context.Result;
+
+        // Assert
+        actual.Should().BeNull();
+    }
 }
