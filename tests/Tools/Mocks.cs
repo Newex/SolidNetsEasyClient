@@ -100,10 +100,4 @@ public static class Mocks
         context.Setup(c => c.RequestServices.GetService(serviceType))
         .Returns(service);
     }
-
-    public static void AddService<T>(this Mock<HttpContext> context, T service)
-    {
-        context.Setup(c => c.RequestServices.GetService(typeof(T)))
-        .Returns(service);
-    }
 }
