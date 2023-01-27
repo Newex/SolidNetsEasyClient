@@ -70,7 +70,7 @@ public class WebhookIPFilterTests
     }
 
     [Fact]
-    public void Blaclist_takes_precedence_over_the_whitelist()
+    public void Blacklist_takes_precedence_over_the_whitelist()
     {
         // Arrange
         const string ipString = "192.168.1.1";

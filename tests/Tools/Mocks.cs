@@ -81,11 +81,15 @@ public static class Mocks
     {
         var mock = new Mock<HttpContext>();
 
+        mock.SetupAllProperties();
         mock.Setup(c => c.Connection.RemoteIpAddress)
         .Returns(fromIp);
 
         mock.Setup(c => c.Request.Method)
         .Returns(method);
+
+        mock.Setup(c => c.Request.Headers)
+        .Returns(new HeaderDictionary());
 
         return mock;
     }

@@ -1,9 +1,11 @@
 using System.Collections.Generic;
 using System.Net;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.Options;
+using Microsoft.Extensions.Primitives;
 using Moq;
 using SolidNetsEasyClient.Models.Options;
 using SolidNetsEasyClient.Tests.Tools;
@@ -45,9 +47,27 @@ public sealed class AuthorizationFilterContextBuilder
 
     public AuthorizationFilterContext Build()
     {
+        DefaultHttpContext defaultContext;
+        if (httpContext is not null)
+        {
+            var headers = new Dictionary<string, StringValues>();
+            var headerDictionary = new HeaderDictionary(headers);
+            var requestFeature = new HttpRequestFeature()
+            {
+                Headers = headerDictionary,
+            };
+            var features = new FeatureCollection();
+            features.Set<IHttpRequestFeature>(requestFeature);
+            defaultContext = new(features);
+        }
+        else
+        {
+            defaultContext = new();
+        }
+
         var filters = new List<IFilterMetadata>();
         var actionContext = new ActionContext(
-            httpContext?.Object ?? new DefaultHttpContext(),
+            httpContext?.Object ?? defaultContext,
             new Microsoft.AspNetCore.Routing.RouteData(),
             new Microsoft.AspNetCore.Mvc.Abstractions.ActionDescriptor()
         );
