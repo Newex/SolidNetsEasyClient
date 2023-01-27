@@ -118,4 +118,21 @@ public class WebhookIPFilterTests
         // Assert
         actual.Should().Match<StatusCodeResult>(x => x.StatusCode == Status403Forbidden);
     }
+
+    [Fact]
+    public void IP_not_in_list_is_by_default_denied_returns_403_result()
+    {
+        // Arrange
+        const string clientIP = "77.87.246.118";
+        var builder = Auth.Create(fromIP: clientIP).AddOptions(new());
+        var context = builder.Build();
+        var attribute = new SolidNetsEasyIPFilterAttribute();
+
+        // Act
+        attribute.OnAuthorization(context);
+        var actual = context.Result;
+
+        // Assert
+        actual.Should().Match<StatusCodeResult>(x => x.StatusCode == Status403Forbidden);
+    }
 }
