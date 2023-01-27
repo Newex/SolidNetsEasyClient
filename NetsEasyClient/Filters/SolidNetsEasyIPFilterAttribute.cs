@@ -37,6 +37,9 @@ public sealed class SolidNetsEasyIPFilterAttribute : ActionFilterAttribute, IAut
     /// True if an IP MUST be in the whitelist to allow request.
     /// If false then the requestor IP is allowed even when it is not in the whitelist.
     /// </summary>
+    /// <remarks>
+    /// Setting this to false will have the same effect as skipping the whitelist and only use the blacklist
+    /// </remarks>
     public bool AllowOnlyWhitelistedIPs { get; set; } = true;
 
     /// <summary>
@@ -92,9 +95,14 @@ public sealed class SolidNetsEasyIPFilterAttribute : ActionFilterAttribute, IAut
             return;
         }
 
+        if (!AllowOnlyWhitelistedIPs)
+        {
+            return;
+        }
+
         var whitelist = string.Concat(WhitelistIPs, ";", options?.Value.NetsIPWebhookEndpoints);
         var allowed = ContainsIP(whitelist, remoteIp);
-        if (AllowOnlyWhitelistedIPs && !allowed)
+        if (!allowed)
         {
             logger.WarningNotNetsEasyEndpoint(remoteIp, whitelist);
             context.Result = new StatusCodeResult(StatusCodes.Status403Forbidden);
