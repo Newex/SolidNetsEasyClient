@@ -63,22 +63,24 @@ public sealed class SolidNetsEasyIPFilterAttribute : ActionFilterAttribute, IAut
         var options = GetOptions(context.HttpContext.RequestServices);
 
         // Retrieve client IP
+        // Note-Security: This can be spoofed by an adversary
+        // Use the first element in the forwarded header
         var remoteIp = context.HttpContext.Connection.RemoteIpAddress;
         var clientIP = context.HttpContext.Request.Headers["X-Forwarded-For"].ToString().Split(',').FirstOrDefault();
         logger.TraceRemoteIP(remoteIp);
 
         if (remoteIp is null || clientIP is null)
         {
-            logger.WarningNoRemoteIP(context);
+            logger.ErrorNoRemoteIP(context);
             context.Result = new StatusCodeResult(StatusCodes.Status403Forbidden);
             return;
         }
 
-        if (!string.IsNullOrWhiteSpace(clientIP))
+        if (!string.IsNullOrWhiteSpace(clientIP) && !IPAddress.TryParse(clientIP, out remoteIp))
         {
-            // Note-Security: This can be spoofed by an adversary
-            // Use the first element in the forwarded header
-            remoteIp = IPAddress.Parse(clientIP);
+            logger.ErrorCannotParseProxyToIPAddress(clientIP);
+            context.Result = new StatusCodeResult(StatusCodes.Status403Forbidden);
+            return;
         }
 
         if (remoteIp.IsIPv4MappedToIPv6)
@@ -90,13 +92,14 @@ public sealed class SolidNetsEasyIPFilterAttribute : ActionFilterAttribute, IAut
         var denied = ContainsIP(blacklist, remoteIp);
         if (denied)
         {
-            logger.WarningBlacklistedIP(remoteIp, blacklist);
+            logger.ErrorBlacklistedIP(remoteIp, blacklist);
             context.Result = new StatusCodeResult(StatusCodes.Status403Forbidden);
             return;
         }
 
         if (!AllowOnlyWhitelistedIPs)
         {
+            // Proceed successfully
             return;
         }
 
@@ -104,7 +107,7 @@ public sealed class SolidNetsEasyIPFilterAttribute : ActionFilterAttribute, IAut
         var allowed = ContainsIP(whitelist, remoteIp);
         if (!allowed)
         {
-            logger.WarningNotNetsEasyEndpoint(remoteIp, whitelist);
+            logger.ErrorNotNetsEasyEndpoint(remoteIp, whitelist);
             context.Result = new StatusCodeResult(StatusCodes.Status403Forbidden);
         }
     }
