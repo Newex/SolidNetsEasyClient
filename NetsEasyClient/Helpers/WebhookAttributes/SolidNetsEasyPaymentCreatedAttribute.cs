@@ -25,11 +25,14 @@ namespace SolidNetsEasyClient.Helpers.WebhookAttributes;
 /// </remarks>
 public sealed class SolidNetsEasyPaymentCreatedAttribute : ActionFilterAttribute, IActionHttpMethodProvider, IRouteTemplateProvider
 {
+    internal const string PaymentCreatedRoute = "RoutePaymentCreatedNetsEasy";
+
     /// <summary>
     /// Default constructor
     /// </summary>
     public SolidNetsEasyPaymentCreatedAttribute()
     {
+        Name = PaymentCreatedRoute;
     }
 
     /// <summary>
@@ -40,6 +43,7 @@ public sealed class SolidNetsEasyPaymentCreatedAttribute : ActionFilterAttribute
     {
         ArgumentNullException.ThrowIfNull(template);
         Template = template;
+        Name = PaymentCreatedRoute;
     }
 
     /// <summary>
@@ -49,16 +53,6 @@ public sealed class SolidNetsEasyPaymentCreatedAttribute : ActionFilterAttribute
     {
         "POST"
     };
-
-    /// <summary>
-    /// The parameter name for the nonce value.
-    /// </summary>
-    public string NonceParameterName { get; set; } = "nonce";
-
-    /// <summary>
-    /// The parameter name for the complement
-    /// </summary>
-    public string? ComplementParameterName { get; set; } = "complement";
 
     /// <inheritdoc />
     [StringSyntax("Route")]
@@ -107,15 +101,6 @@ public sealed class SolidNetsEasyPaymentCreatedAttribute : ActionFilterAttribute
             return;
         }
 
-        var data = GetNonceAndComplement(request);
-        if (data is null)
-        {
-            logger.ErrorMissingNonce();
-            context.Result = new StatusCodeResult(StatusCodes.Status400BadRequest);
-            return;
-        }
-
-        (var nonce, var complement) = data.Value;
         var http = context.HttpContext;
         var encryptionOptions = ServiceProviderExtensions.GetOptions<WebhookEncryptionOptions>(http.RequestServices);
         if (encryptionOptions is null)
@@ -125,6 +110,15 @@ public sealed class SolidNetsEasyPaymentCreatedAttribute : ActionFilterAttribute
             return;
         }
 
+        var data = GetNonceAndComplement(request, encryptionOptions.Value.NonceName, encryptionOptions.Value.ComplementName);
+        if (data is null)
+        {
+            logger.ErrorMissingNonce();
+            context.Result = new StatusCodeResult(StatusCodes.Status400BadRequest);
+            return;
+        }
+
+        (var nonce, var complement) = data.Value;
         var invariant = new PaymentCreatedInvariant
         {
             Amount = payment.Data.Order.Amount.Amount,
@@ -141,11 +135,11 @@ public sealed class SolidNetsEasyPaymentCreatedAttribute : ActionFilterAttribute
         }
     }
 
-    private (string Nonce, string? Complement)? GetNonceAndComplement(HttpRequest request)
+    private static (string Nonce, string? Complement)? GetNonceAndComplement(HttpRequest request, string nonceName, string complementName)
     {
-        if (!request.Query.TryGetValue(NonceParameterName, out var nonce))
+        if (!request.Query.TryGetValue(nonceName, out var nonce))
         {
-            var tmp = request.RouteValues[NonceParameterName]?.ToString();
+            var tmp = request.RouteValues[nonceName]?.ToString();
             if (tmp is null)
             {
                 return null;
@@ -155,13 +149,13 @@ public sealed class SolidNetsEasyPaymentCreatedAttribute : ActionFilterAttribute
         }
 
         string? complement;
-        if (ComplementParameterName is null)
+        if (complementName is null)
         {
             return (nonce!, null);
         }
 
-        complement = !request.Query.TryGetValue(ComplementParameterName, out var complementValue)
-            ? (request.RouteValues[ComplementParameterName]?.ToString())
+        complement = !request.Query.TryGetValue(complementName, out var complementValue)
+            ? (request.RouteValues[complementName]?.ToString())
             : complementValue.ToString();
 
         return (Nonce: nonce.ToString(), Complement: complement);

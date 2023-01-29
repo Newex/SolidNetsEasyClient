@@ -4,6 +4,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Polly;
+using SolidNetsEasyClient.Builder;
 using SolidNetsEasyClient.Clients;
 using SolidNetsEasyClient.Constants;
 using SolidNetsEasyClient.Helpers.Encryption;
@@ -108,6 +109,9 @@ public sealed class NetsConfigurationBuilder
     internal static NetsConfigurationBuilder Create(IServiceCollection services)
     {
         var instance = new NetsConfigurationBuilder(services);
+
+        // Factories
+        services.TryAddScoped<NetsPaymentFactory>();
 
         // Add http clients
         _ = services.AddHttpClient(ClientConstants.Live, client => client.BaseAddress = NetsEndpoints.LiveBaseUri);

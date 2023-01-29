@@ -76,6 +76,20 @@ public record PlatformPaymentOptions
     public string? BlacklistIPsForWebhook { get; init; }
 
     /// <summary>
+    /// The full url to the base for the website which is in your control
+    /// </summary>
+    /// <remarks>
+    /// Example, you submit whole url if you only control the path 'mysite'
+    /// https://webhosting.provider.com/with/sub/page/to/mysite
+    /// </remarks>
+    public string BaseUrl { get; init; } = string.Empty;
+
+    /// <summary>
+    /// The minimum allowed payment to check for in the payment builder
+    /// </summary>
+    public int MinimumAllowedPayment { get; init; } = 5_00;
+
+    /// <summary>
     /// The nets easy configuration section
     /// </summary>
     internal const string NetsEasyConfigurationSection = "SolidNetsEasy";

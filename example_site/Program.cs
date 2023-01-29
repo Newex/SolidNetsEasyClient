@@ -1,4 +1,3 @@
-using ExampleSite.Models;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -43,8 +42,6 @@ builder
         };
     })
     .ConfigureFromConfiguration(builder.Configuration);
-
-builder.Services.Configure<MyOptions>(builder.Configuration.GetSection(MyOptions.Section));
 
 var app = builder.Build();
 

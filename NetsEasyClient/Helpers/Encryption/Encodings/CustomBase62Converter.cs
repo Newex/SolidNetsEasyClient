@@ -173,10 +173,7 @@ public static class CustomBase62Converter
         return output;
     }
 
-    /// <summary>
-    /// Character set to use for encoding/decoding.
-    /// </summary>
-    public enum CharacterSet
+    private enum CharacterSet
     {
         /// <summary>
         /// Alpha numeric character set, using capital letters first before lowercase.

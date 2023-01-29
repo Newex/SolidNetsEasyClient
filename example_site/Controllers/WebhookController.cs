@@ -19,7 +19,7 @@ public class WebhookController : Controller
     }
 
     [SolidNetsEasyIPFilter(WhitelistIPs = "::1")]
-    [SolidNetsEasyPaymentCreated("/webhook")]
+    [SolidNetsEasyPaymentCreated("/nets/created")]
     public ActionResult Post([FromBody] PaymentCreated payment)
     {
         logger.LogInformation("The header: {@Headers}", Request.Headers);

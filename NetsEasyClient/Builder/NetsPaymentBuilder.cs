@@ -1,6 +1,13 @@
 using System;
 using System.Collections.Generic;
+using System.Security.Cryptography;
+using Microsoft.AspNetCore.Mvc;
 using SolidNetsEasyClient.Extensions;
+using SolidNetsEasyClient.Helpers;
+using SolidNetsEasyClient.Helpers.Encryption;
+using SolidNetsEasyClient.Helpers.Encryption.Encodings;
+using SolidNetsEasyClient.Helpers.Encryption.Flows;
+using SolidNetsEasyClient.Helpers.Invariants;
 using SolidNetsEasyClient.Models.DTOs.Contacts;
 using SolidNetsEasyClient.Models.DTOs.Enums;
 using SolidNetsEasyClient.Models.DTOs.Requests.Customers;
@@ -11,6 +18,7 @@ using SolidNetsEasyClient.Validators;
 
 namespace SolidNetsEasyClient.Builder;
 
+// TODO: Make this injectable from DI and register it
 /// <summary>
 /// A builder for creating a Nets payment request
 /// </summary>
@@ -31,11 +39,28 @@ public sealed class NetsPaymentBuilder
     private UnscheduledSubscription? unscheduled;
     private readonly List<WebHook> webHooks = new(32);
     private readonly int minimumPayment;
+    private readonly string baseUrl;
+    private readonly string complementName;
+    private readonly string nonceName;
+    private readonly IHasher hasher;
+    private readonly byte[] key;
+    private readonly int nonceLength;
 
-    private NetsPaymentBuilder(Order order, int minimumPayment)
+    internal NetsPaymentBuilder(string baseUrl, string complementName, string nonceName, IHasher hasher, byte[] key, int nonceLength, Order order, int minimumPayment)
     {
         this.order = order;
         this.minimumPayment = minimumPayment;
+        this.baseUrl = baseUrl.TrimEnd('/');
+        this.complementName = complementName;
+        this.nonceName = nonceName;
+        this.hasher = hasher;
+        this.key = key;
+        if (nonceLength > 256)
+        {
+            throw new ArgumentOutOfRangeException(nameof(nonceLength));
+        }
+
+        this.nonceLength = nonceLength;
     }
 
     /// <summary>
@@ -304,6 +329,47 @@ public sealed class NetsPaymentBuilder
         return this;
     }
 
+    public NetsPaymentBuilder SubscribeToEvent(EventName eventName, IUrlHelper urlHelper, object? routeValues = null, bool withNonce = true)
+    {
+        if (string.IsNullOrWhiteSpace(order.Reference))
+        {
+            throw new InvalidOperationException("Order reference must be set to use the in-built webhook creator");
+        }
+
+        string? nonce = null;
+        if (withNonce)
+        {
+            var nonceSource = CustomBase62Converter.Encode(RandomNumberGenerator.GetBytes(256));
+            nonce = nonceSource[..nonceLength];
+        }
+
+        var routeName = RouteNamesForAttributes.GetRouteNameByEvent(eventName);
+        (var authorization, var complement) = PaymentCreatedFlow.CreateAuthorization(hasher, key, new PaymentCreatedInvariant
+        {
+            OrderReference = order.Reference,
+            OrderItems = order.Items,
+            Amount = order.Amount,
+            Nonce = nonce
+        });
+
+        var webhookUrl = urlHelper.RouteUrl(routeName, routeValues)?.TrimStart('/');
+        if (webhookUrl is null)
+        {
+            throw new InvalidOperationException("Could not create webhook url endpoint. Ensure you have marked an action with the attribute of NetsEasy_{EventName}_Attribute");
+        }
+
+        var url = UrlQueryHelpers.AddQuery($"{baseUrl}/{webhookUrl}", (complementName, complement), (nonceName, nonce));
+
+        webHooks.Add(new()
+        {
+            Authorization = authorization,
+            EventName = eventName,
+            Url = url
+        });
+
+        return this;
+    }
+
     /// <summary>
     /// Construct a payment request
     /// </summary>
@@ -339,19 +405,5 @@ public sealed class NetsPaymentBuilder
             Subscription = subscription,
             UnscheduledSubscription = unscheduled
         };
-    }
-
-    /// <summary>
-    /// Create a payment builder
-    /// </summary>
-    /// <remarks>
-    /// The minimum order amount for an unscheduled subscription charge is determined by each individual provider Visa, MasterCard etc. and will be rejected if below a certain amount.
-    /// </remarks>
-    /// <param name="order">The order</param>
-    /// <param name="minimumPayment">The minimum payment that an unscheduled subscription should contain</param>
-    /// <returns>A payment builder</returns>
-    public static NetsPaymentBuilder CreatePayment(Order order, int minimumPayment = 5_00)
-    {
-        return new NetsPaymentBuilder(order, minimumPayment);
     }
 }
