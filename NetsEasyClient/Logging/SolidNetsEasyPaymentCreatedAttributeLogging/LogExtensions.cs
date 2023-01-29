@@ -67,6 +67,10 @@ public static partial class LogExtensions
     )]
     public static partial void ErrorInvalidAuthorizationHeader(this ILogger logger);
 
+    /// <summary>
+    /// Error missing webhook encryption option configuration
+    /// </summary>
+    /// <param name="logger">The logger</param>
     [LoggerMessage(
         EventId = LogEventIDs.Errors.Missing,
         Level = LogLevel.Error,
