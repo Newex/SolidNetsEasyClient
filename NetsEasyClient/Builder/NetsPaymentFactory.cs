@@ -4,11 +4,19 @@ using SolidNetsEasyClient.Models.Options;
 
 namespace SolidNetsEasyClient.Builder;
 
+/// <summary>
+/// The payment builder factory
+/// </summary>
 public sealed class NetsPaymentFactory
 {
     private readonly PlatformPaymentOptions netsOptions;
     private readonly WebhookEncryptionOptions webhookOptions;
 
+    /// <summary>
+    /// Instantiate a new <see cref="NetsPaymentFactory"/>
+    /// </summary>
+    /// <param name="netsOptions">The Nets Easy options</param>
+    /// <param name="webhookOptions">The webhook options</param>
     public NetsPaymentFactory(
         IOptions<PlatformPaymentOptions> netsOptions,
         IOptions<WebhookEncryptionOptions> webhookOptions
@@ -18,6 +26,11 @@ public sealed class NetsPaymentFactory
         this.webhookOptions = webhookOptions.Value;
     }
 
+    /// <summary>
+    /// Create a new payment builder
+    /// </summary>
+    /// <param name="order">The order</param>
+    /// <returns>A payment builder</returns>
     public NetsPaymentBuilder CreatePaymentBuilder(Order order)
     {
         return new NetsPaymentBuilder(netsOptions.BaseUrl, webhookOptions.ComplementName, webhookOptions.NonceName, webhookOptions.Hasher, webhookOptions.Key, webhookOptions.NonceLength, order, netsOptions.MinimumAllowedPayment);
