@@ -5,10 +5,8 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
-using Microsoft.Extensions.Options;
 using NetTools;
+using SolidNetsEasyClient.Extensions;
 using SolidNetsEasyClient.Logging.SolidNetsEasyIPFilterAttributeLogging;
 using SolidNetsEasyClient.Models.Options;
 
@@ -49,7 +47,7 @@ public sealed class SolidNetsEasyIPFilterAttribute : ActionFilterAttribute, IAut
     /// <param name="context">The context</param>
     public void OnAuthorization(AuthorizationFilterContext context)
     {
-        var logger = GetLogger(context.HttpContext.RequestServices);
+        var logger = ServiceProviderExtensions.GetLogger<SolidNetsEasyIPFilterAttribute>(context.HttpContext.RequestServices);
         if (!HttpMethods.IsPost(context.HttpContext.Request.Method))
         {
             logger.WarningNotPOSTRequest(context.HttpContext.Request);
@@ -60,7 +58,7 @@ public sealed class SolidNetsEasyIPFilterAttribute : ActionFilterAttribute, IAut
         }
 
         // Load settings
-        var options = GetOptions(context.HttpContext.RequestServices);
+        var options = ServiceProviderExtensions.GetOptions<PlatformPaymentOptions>(context.HttpContext.RequestServices);
 
         // Retrieve client IP
         // Note-Security: This can be spoofed by an adversary
@@ -121,7 +119,7 @@ public sealed class SolidNetsEasyIPFilterAttribute : ActionFilterAttribute, IAut
         context.HttpContext.Response.OnStarting(obj =>
         {
             var ctx = (ResultExecutingContext)obj;
-            var logger = GetLogger(ctx.HttpContext.RequestServices);
+            var logger = ServiceProviderExtensions.GetLogger<SolidNetsEasyIPFilterAttribute>(context.HttpContext.RequestServices);
             var status = ctx.HttpContext.Response.StatusCode;
             if (status == StatusCodes.Status200OK)
             {
@@ -155,17 +153,5 @@ public sealed class SolidNetsEasyIPFilterAttribute : ActionFilterAttribute, IAut
 
             return false;
         });
-    }
-
-    private static ILogger<SolidNetsEasyIPFilterAttribute> GetLogger(IServiceProvider services)
-    {
-        // Reason for this is to circumvent extension method to make this class testable
-        return (services.GetService(typeof(ILogger<SolidNetsEasyIPFilterAttribute>)) as ILogger<SolidNetsEasyIPFilterAttribute>) ?? NullLogger<SolidNetsEasyIPFilterAttribute>.Instance;
-    }
-
-    private static IOptions<PlatformPaymentOptions>? GetOptions(IServiceProvider services)
-    {
-        // Reason for this is to circumvent extension method to make this class testable
-        return services.GetService(typeof(IOptions<PlatformPaymentOptions>)) as IOptions<PlatformPaymentOptions>;
     }
 }
