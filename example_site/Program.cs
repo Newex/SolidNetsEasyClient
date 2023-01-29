@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using SolidNetsEasyClient.Extensions;
-using SolidNetsEasyClient.Helpers.Encryption;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Logging.ClearProviders();
@@ -42,7 +41,6 @@ builder
             0x5B,
             0xCC
         };
-        opt.Hasher = new HmacSHA256Hasher();
     })
     .ConfigureFromConfiguration(builder.Configuration);
 
