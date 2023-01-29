@@ -66,4 +66,12 @@ public static partial class LogExtensions
         SkipEnabledCheck = true
     )]
     public static partial void ErrorInvalidAuthorizationHeader(this ILogger logger);
+
+    [LoggerMessage(
+        EventId = LogEventIDs.Errors.Missing,
+        Level = LogLevel.Error,
+        Message = "Missing webhook encryption option configuration",
+        SkipEnabledCheck = true
+    )]
+    public static partial void ErrorMissingEncryptionConfiguration(this ILogger logger);
 }

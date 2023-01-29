@@ -120,7 +120,9 @@ public sealed class SolidNetsEasyPaymentCreatedAttribute : ActionFilterAttribute
         var encryptionOptions = ServiceProviderExtensions.GetOptions<WebhookEncryptionOptions>(http.RequestServices);
         if (encryptionOptions is null)
         {
-            ArgumentNullException.ThrowIfNull(encryptionOptions);
+            logger.ErrorMissingEncryptionConfiguration();
+            context.Result = new StatusCodeResult(StatusCodes.Status500InternalServerError);
+            return;
         }
 
         var invariant = new PaymentCreatedInvariant
