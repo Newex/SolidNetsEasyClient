@@ -3,12 +3,13 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Mvc.Routing;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
+using SolidNetsEasyClient.Extensions;
 using SolidNetsEasyClient.Helpers.Encryption.Flows;
 using SolidNetsEasyClient.Helpers.Invariants;
+using SolidNetsEasyClient.Logging.SolidNetsEasyPaymentCreatedAttributeLogging;
 using SolidNetsEasyClient.Models.DTOs.Enums;
 using SolidNetsEasyClient.Models.DTOs.Responses.Webhooks;
 using SolidNetsEasyClient.Models.Options;
@@ -79,9 +80,11 @@ public sealed class SolidNetsEasyPaymentCreatedAttribute : ActionFilterAttribute
     public override void OnActionExecuting(ActionExecutingContext context)
     {
         var request = context.HttpContext.Request;
+        var logger = ServiceProviderExtensions.GetLogger<SolidNetsEasyPaymentCreatedAttribute>(request.HttpContext.RequestServices);
         if (!IsPost(request.Method) || !ValidateAuthorizationHeader)
         {
             // Short-circuit pipeline must only handle POST request OR user does not want to validate
+            logger.InfoNotPOSTRequest();
             return;
         }
 
@@ -90,21 +93,31 @@ public sealed class SolidNetsEasyPaymentCreatedAttribute : ActionFilterAttribute
         if (string.IsNullOrWhiteSpace(authorization))
         {
             // 401 Unauthorized
-            throw new BadHttpRequestException("Missing authorization header", 401);
+            logger.ErrorMissingAuthorizationHeader();
+            context.Result = new StatusCodeResult(StatusCodes.Status401Unauthorized);
+            return;
         }
 
         // Only 1 PaymentCreated parameter
-        var payment = (PaymentCreated)context.ActionArguments.Values.Single(o => o?.GetType() == typeof(PaymentCreated))!;
+        var payment = (PaymentCreated?)context.ActionArguments.Values.SingleOrDefault(o => o?.GetType() == typeof(PaymentCreated))!;
+        if (payment is null)
+        {
+            logger.ErrorMissingPaymentArgument();
+            context.Result = new StatusCodeResult(StatusCodes.Status500InternalServerError);
+            return;
+        }
 
         var data = GetNonceAndComplement(request);
         if (data is null)
         {
+            logger.ErrorMissingNonce();
+            context.Result = new StatusCodeResult(StatusCodes.Status400BadRequest);
             return;
         }
 
         (var nonce, var complement) = data.Value;
         var http = context.HttpContext;
-        var encryptionOptions = http.RequestServices.GetService<IOptions<WebhookEncryptionOptions>>();
+        var encryptionOptions = ServiceProviderExtensions.GetOptions<WebhookEncryptionOptions>(http.RequestServices);
         if (encryptionOptions is null)
         {
             ArgumentNullException.ThrowIfNull(encryptionOptions);
@@ -121,7 +134,8 @@ public sealed class SolidNetsEasyPaymentCreatedAttribute : ActionFilterAttribute
         if (!isValid)
         {
             // 403 Forbidden
-            throw new BadHttpRequestException("Invalid authorization header", 403);
+            logger.ErrorInvalidAuthorizationHeader();
+            context.Result = new StatusCodeResult(StatusCodes.Status403Forbidden);
         }
     }
 
