@@ -6,6 +6,7 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using Polly;
 using SolidNetsEasyClient.Clients;
 using SolidNetsEasyClient.Constants;
+using SolidNetsEasyClient.Helpers.Encryption;
 using SolidNetsEasyClient.Models.Options;
 
 namespace SolidNetsEasyClient.Extensions;
@@ -30,7 +31,7 @@ public sealed class NetsConfigurationBuilder
     /// </summary>
     /// <param name="configuration">The configuration object</param>
     /// <returns>A builder object</returns>
-    public NetsConfigurationBuilder Configure(IConfiguration configuration)
+    public NetsConfigurationBuilder ConfigureFromConfiguration(IConfiguration configuration)
     {
         var section = configuration.GetSection(PlatformPaymentOptions.NetsEasyConfigurationSection);
         _ = services.Configure<PlatformPaymentOptions>(section);
@@ -42,7 +43,7 @@ public sealed class NetsConfigurationBuilder
     /// </summary>
     /// <param name="options">The options to set</param>
     /// <returns>A builder object</returns>
-    public NetsConfigurationBuilder Configure(Action<PlatformPaymentOptions> options)
+    public NetsConfigurationBuilder ConfigureNetsEasyOptions(Action<PlatformPaymentOptions> options)
     {
         _ = services.Configure(options);
         return this;
@@ -93,6 +94,17 @@ public sealed class NetsConfigurationBuilder
         return this;
     }
 
+    /// <summary>
+    /// Configure the webhook encryption options
+    /// </summary>
+    /// <param name="configure">The options to configure</param>
+    /// <returns>A builder object</returns>
+    public NetsConfigurationBuilder ConfigureEncryptionOptions(Action<WebhookEncryptionOptions> configure)
+    {
+        _ = services.Configure(configure);
+        return this;
+    }
+
     internal static NetsConfigurationBuilder Create(IServiceCollection services)
     {
         var instance = new NetsConfigurationBuilder(services);
@@ -115,6 +127,9 @@ public sealed class NetsConfigurationBuilder
 
         // Add payment options
         _ = services.Configure<PlatformPaymentOptions>(_ => { });
+
+        // Add default encryption option
+        _ = services.Configure<WebhookEncryptionOptions>(c => c.Hasher = new HmacSHA256Hasher());
 
         return instance;
     }

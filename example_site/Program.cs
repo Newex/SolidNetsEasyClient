@@ -4,7 +4,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using SolidNetsEasyClient.Extensions;
 using SolidNetsEasyClient.Helpers.Encryption;
-using SolidNetsEasyClient.Models.Options;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Logging.ClearProviders();
@@ -23,29 +22,29 @@ builder.Services.AddHealthChecks();
 
 builder.Services.AddControllersWithViews();
 
-// nets easy
+// Nets Easy
 builder
-.Services
-.AddNetsEasyClient()
-.Configure(builder.Configuration);
-
-builder.Services.Configure<WebhookEncryptionOptions>(o =>
-{
-    o.Key = new byte[10]
+    .Services
+    .AddNetsEasyClient()
+    .ConfigureEncryptionOptions(opt =>
     {
-        0x53,
-        0x31,
-        0xC8,
-        0xAF,
-        0x6A,
-        0xF3,
-        0x6D,
-        0xFA,
-        0x5B,
-        0xCC
-    };
-    o.Hasher = new HmacSHA256Hasher();
-});
+        // Key rotation is not implemented - so do not leak key
+        opt.Key = new byte[10]
+        {
+            0x53,
+            0x31,
+            0xC8,
+            0xAF,
+            0x6A,
+            0xF3,
+            0x6D,
+            0xFA,
+            0x5B,
+            0xCC
+        };
+        opt.Hasher = new HmacSHA256Hasher();
+    })
+    .ConfigureFromConfiguration(builder.Configuration);
 
 builder.Services.Configure<MyOptions>(builder.Configuration.GetSection(MyOptions.Section));
 
