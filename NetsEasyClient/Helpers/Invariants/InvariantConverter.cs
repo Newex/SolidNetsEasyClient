@@ -24,6 +24,7 @@ public static class InvariantConverter
             EventName.PaymentCreated => PaymentCreated(order, nonce),
             EventName.ReservationCreatedV1 => ReservationCreated(order, nonce),
             EventName.ReservationCreatedV2 => ReservationCreated(order, nonce),
+            EventName.ReservationFailed => ReservationFailed(order, nonce),
             _ => throw new NotSupportedException()
         };
 
@@ -45,6 +46,16 @@ public static class InvariantConverter
     {
         return new ReservationCreatedInvariant
         {
+            Amount = order.Amount,
+            Nonce = nonce
+        };
+    }
+
+    private static IInvariantSerializable ReservationFailed(Order order, string? nonce)
+    {
+        return new ReservationFailedInvariant
+        {
+            OrderItems = order.Items,
             Amount = order.Amount,
             Nonce = nonce
         };

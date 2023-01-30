@@ -21,6 +21,7 @@ namespace SolidNetsEasyClient.Helpers.WebhookAttributes;
 /// </summary>
 /// <typeparam name="T">The webhook event type</typeparam>
 /// <typeparam name="TData">The webhook event payload type</typeparam>
+[AttributeUsage(AttributeTargets.Method, AllowMultiple = true, Inherited = true)]
 public abstract class SolidNetsEasyEventAttribute<T, TData> : ActionFilterAttribute, IActionHttpMethodProvider, IRouteTemplateProvider
     where T : Webhook<TData>
     where TData : IWebhookData, new()
@@ -67,7 +68,7 @@ public abstract class SolidNetsEasyEventAttribute<T, TData> : ActionFilterAttrib
     /// The routing name
     /// </summary>
     [DisallowNull]
-    public string? Name { get; init; }
+    public string? Name { get; set; }
 
     /// <inheritdoc />
     int? IRouteTemplateProvider.Order => Order;

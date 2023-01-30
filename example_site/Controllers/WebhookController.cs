@@ -26,7 +26,7 @@ public class WebhookController : Controller
         logger.LogInformation("The header: {@Headers}", Request.Headers);
         logger.LogInformation("The authorization header: {Authorization}", Request.Headers.Authorization!);
         logger.LogInformation("The data: {@Payment}", payment);
-        return NoContent();
+        return Ok();
     }
 
     [SolidNetsEasyReservationCreatedV1("nets/reservationv1/created")]
@@ -35,7 +35,7 @@ public class WebhookController : Controller
         logger.LogInformation("The header: {@Headers}", Request.Headers);
         logger.LogInformation("The authorization header: {Authorization}", Request.Headers.Authorization!);
         logger.LogInformation("The data: {@ReservationV1}", reservation);
-        return NoContent();
+        return Ok();
     }
 
     [SolidNetsEasyReservationCreatedV2("nets/reservationv2/created")]
@@ -44,6 +44,15 @@ public class WebhookController : Controller
         logger.LogInformation("The header: {@Headers}", Request.Headers);
         logger.LogInformation("The authorization header: {Authorization}", Request.Headers.Authorization!);
         logger.LogInformation("The data: {@ReservationV2}", reservation);
-        return NoContent();
+        return Ok();
+    }
+
+    [SolidNetsEasyReservationFailed("nets/reservation/failed")]
+    public ActionResult ReservationFailed([FromBody] ReservationFailed reservation)
+    {
+        logger.LogInformation("The header: {@Headers}", Request.Headers);
+        logger.LogInformation("The authorization header: {Authorization}", Request.Headers.Authorization!);
+        logger.LogInformation("The data: {@ReservationFailed}", reservation);
+        return Ok();
     }
 }

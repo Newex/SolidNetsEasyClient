@@ -1,5 +1,7 @@
+using System.Collections.Generic;
 using System.IO;
 using SolidNetsEasyClient.Helpers.Invariants;
+using SolidNetsEasyClient.Models.DTOs;
 
 namespace SolidNetsEasyClient.Helpers.Encryption.Encodings;
 
@@ -19,18 +21,7 @@ internal static class ByteObjectConverter
         using var writer = new BinaryWriter(memoryStream);
 
         writer.Write(input.OrderReference);
-        foreach (var item in input.OrderItems)
-        {
-            writer.Write(item.Reference);
-            writer.Write(item.Name);
-            writer.Write(item.Quantity);
-            writer.Write(item.Unit);
-            writer.Write(item.UnitPrice);
-            if (item.TaxRate is not null)
-            {
-                writer.Write(item.TaxRate.GetValueOrDefault());
-            }
-        }
+        WriteItems(input.OrderItems, in writer);
 
         writer.Write(input.Amount);
         if (input.Nonce is not null)
@@ -55,5 +46,38 @@ internal static class ByteObjectConverter
 
         var binary = memoryStream.ToArray();
         return binary;
+    }
+
+    internal static byte[] Serialize(ReservationFailedInvariant input)
+    {
+        using var memoryStream = new MemoryStream();
+        using var writer = new BinaryWriter(memoryStream);
+
+        WriteItems(input.OrderItems, in writer);
+
+        writer.Write(input.Amount);
+        if (input.Nonce is not null)
+        {
+            writer.Write(input.Nonce);
+        }
+
+        var binary = memoryStream.ToArray();
+        return binary;
+    }
+
+    private static void WriteItems(IEnumerable<Item> items, in BinaryWriter writer)
+    {
+        foreach (var item in items)
+        {
+            writer.Write(item.Reference);
+            writer.Write(item.Name);
+            writer.Write(item.Quantity);
+            writer.Write(item.Unit);
+            writer.Write(item.UnitPrice);
+            if (item.TaxRate is not null)
+            {
+                writer.Write(item.TaxRate.GetValueOrDefault());
+            }
+        }
     }
 }

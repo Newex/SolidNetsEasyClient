@@ -337,17 +337,18 @@ public sealed class NetsPaymentBuilder
     /// <param name="eventName">The event name</param>
     /// <param name="urlHelper">The url helper</param>
     /// <param name="routeValues">The additional route values for the webhook endpoint</param>
+    /// <param name="routeName">The route name. If null will search for the corresponding attribute using the default route name</param>
     /// <param name="withNonce">True if nonce should be added otherwise false</param>
     /// <returns>A payment builder</returns>
     /// <exception cref="InvalidOperationException">Thrown when invalid <see cref="Order.Reference"/> or webhook endpoint url</exception>
-    public NetsPaymentBuilder SubscribeToEvent(EventName eventName, IUrlHelper urlHelper, object? routeValues = null, bool withNonce = true)
+    public NetsPaymentBuilder SubscribeToEvent(EventName eventName, IUrlHelper urlHelper, object? routeValues = null, string? routeName = null, bool withNonce = true)
     {
         if (string.IsNullOrWhiteSpace(order.Reference))
         {
             throw new InvalidOperationException("Order reference must be set to use the in-built webhook creator");
         }
 
-        var routeName = RouteNamesForAttributes.GetRouteNameByEvent(eventName);
+        routeName ??= RouteNamesForAttributes.GetRouteNameByEvent(eventName);
         var webhookUrl = urlHelper.RouteUrl(routeName, routeValues)?.TrimStart('/');
         if (webhookUrl is null)
         {
