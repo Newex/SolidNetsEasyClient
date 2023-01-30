@@ -27,6 +27,7 @@ public static class RouteNamesForAttributes
             EventName.ChargeCreated => RouteNameConstants.ChargeCreated,
             EventName.PaymentCancelled => RouteNameConstants.PaymentCancelled,
             EventName.PaymentCancellationFailed => RouteNameConstants.PaymentCancellationFailed,
+            EventName.ChargeFailed => RouteNameConstants.ChargeFailed,
             _ => throw new ArgumentOutOfRangeException(nameof(eventName))
         };
     }
