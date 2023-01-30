@@ -19,7 +19,7 @@ public class EventNameSerializationTests
     [InlineData(EventName.RefundFailed, EventNameConstants.RefundFailed)]
     [InlineData(EventName.RefundCompleted, EventNameConstants.RefundCompleted)]
     [InlineData(EventName.PaymentCancelled, EventNameConstants.ReservationCancelled)]
-    [InlineData(EventName.ReservationCancellationFailed, EventNameConstants.ReservationCancellationFailed)]
+    [InlineData(EventName.PaymentCancellationFailed, EventNameConstants.ReservationCancellationFailed)]
     public void Serialize_event_to_json_string(EventName eventEnum, string expected)
     {
         // Arrange

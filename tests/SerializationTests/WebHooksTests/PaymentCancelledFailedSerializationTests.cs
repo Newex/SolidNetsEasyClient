@@ -48,12 +48,12 @@ public class PaymentCancelledFailedSerializationTests
             "}\n" +
         "}\n";
 
-        var expected = new PaymentCancelledFailed()
+        var expected = new PaymentCancellationFailed()
         {
             Id = new("df7f9346097842bdb90c869b5c9ccfa9"),
             MerchantId = 100017120,
             Timestamp = DateTimeOffset.Parse("2021-05-06T11:37:30.1114+02:00", CultureInfo.InvariantCulture),
-            Event = EventName.ReservationCancellationFailed,
+            Event = EventName.PaymentCancellationFailed,
             Data = new()
             {
                 Error = new()
@@ -85,7 +85,7 @@ public class PaymentCancelledFailedSerializationTests
         };
 
         // Act
-        var actual = JsonSerializer.Deserialize<PaymentCancelledFailed>(json);
+        var actual = JsonSerializer.Deserialize<PaymentCancellationFailed>(json);
 
         // Assert
         actual.Should().BeEquivalentTo(expected);

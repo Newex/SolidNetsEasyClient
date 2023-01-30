@@ -82,4 +82,13 @@ public class WebhookController : Controller
         logger.LogInformation("The data: {@PaymentCancelled}", payment);
         return Ok();
     }
+
+    [SolidNetsEasyPaymentCancellationFailed("nets/payment/cancelled/failed")]
+    public ActionResult PaymentCancelled([FromBody] PaymentCancellationFailed payment)
+    {
+        logger.LogInformation("The header: {@Headers}", Request.Headers);
+        logger.LogInformation("The authorization header: {Authorization}", Request.Headers.Authorization!);
+        logger.LogInformation("The data: {@PaymentCancellationFailed}", payment);
+        return Ok();
+    }
 }

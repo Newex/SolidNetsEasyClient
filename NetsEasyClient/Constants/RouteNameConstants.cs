@@ -39,4 +39,9 @@ public static class RouteNameConstants
     /// The payment cancel created route
     /// </summary>
     public const string PaymentCancelled = "SNE.PaymentCancelled";
+
+    /// <summary>
+    /// The payment cancellation failed route
+    /// </summary>
+    public const string PaymentCancellationFailed = "SNE.PaymentCancellationFailed";
 }
