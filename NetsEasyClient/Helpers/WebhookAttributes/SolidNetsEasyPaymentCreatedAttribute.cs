@@ -12,9 +12,6 @@ namespace SolidNetsEasyClient.Helpers.WebhookAttributes;
 /// <summary>
 /// SolidNets Easy webhook attribute callback for the <see cref="EventName.PaymentCreated"/> event. Note that Nets expects the response for a success to be exactly 200 OK.
 /// </summary>
-/// <remarks>
-/// In order for the built-in validation to occur the endpoint for the Action method must accept a (*) complement parameter of string and (*) a nonce parameter of string.
-/// </remarks>
 public sealed class SolidNetsEasyPaymentCreatedAttribute : SolidNetsEasyEventAttribute<PaymentCreated, PaymentCreatedData>
 {
     /// <inheritdoc />
