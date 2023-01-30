@@ -42,6 +42,16 @@ public class CheckoutController : Controller
             .ChargePaymentOnCreation(false)
             .AsSinglePayment()
             .SubscribeToEvent(EventName.PaymentCreated, Url)
+            .SubscribeToEvent(EventName.ReservationCreatedV1, Url)
+            .SubscribeToEvent(EventName.ReservationCreatedV2, Url)
+            .SubscribeToEvent(EventName.CheckoutCompleted, Url)
+            .SubscribeToEvent(EventName.PaymentCancelled, Url)
+            .SubscribeToEvent(EventName.PaymentCancellationFailed, Url)
+            .SubscribeToEvent(EventName.ChargeCreated, Url)
+            .SubscribeToEvent(EventName.ChargeFailed, Url)
+            .SubscribeToEvent(EventName.RefundInitiated, Url)
+            .SubscribeToEvent(EventName.RefundCompleted, Url)
+            .SubscribeToEvent(EventName.RefundFailed, Url)
             .BuildPaymentRequest();
 
         var payment = await client.CreatePaymentAsync(paymentRequest, cts);
