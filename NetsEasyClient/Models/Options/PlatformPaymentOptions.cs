@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using SolidNetsEasyClient.Constants;
 
 namespace SolidNetsEasyClient.Models.Options;
@@ -10,7 +11,8 @@ public record PlatformPaymentOptions
     /// <summary>
     /// The http client mode, which can be either in test mode or in live mode
     /// </summary>
-    public ClientMode ClientMode { get; set; }
+    [Required]
+    public required ClientMode ClientMode { get; set; }
 
     /// <summary>
     /// The secret API key
@@ -18,7 +20,8 @@ public record PlatformPaymentOptions
     /// <remarks>
     /// Do not expose this key to your end users. Only use back channels to directly communicate with nets easy api using this key.
     /// </remarks>
-    public string ApiKey { get; set; } = string.Empty;
+    [Required]
+    public required string ApiKey { get; set; } = string.Empty;
 
     /// <summary>
     /// The checkout key
