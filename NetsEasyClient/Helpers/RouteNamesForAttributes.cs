@@ -30,6 +30,7 @@ public static class RouteNamesForAttributes
             EventName.ChargeFailed => RouteNameConstants.ChargeFailed,
             EventName.RefundInitiated => RouteNameConstants.RefundInitiated,
             EventName.RefundCompleted => RouteNameConstants.RefundCompleted,
+            EventName.RefundFailed => RouteNameConstants.RefundFailed,
             _ => throw new ArgumentOutOfRangeException(nameof(eventName))
         };
     }

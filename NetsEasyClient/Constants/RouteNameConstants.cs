@@ -59,4 +59,9 @@ public static class RouteNameConstants
     /// The refund completed route
     /// </summary>
     public const string RefundCompleted = "SNE.RefundCompleted";
+
+    /// <summary>
+    /// The refund failed route
+    /// </summary>
+    public const string RefundFailed = "SNE.RefundFailed";
 }

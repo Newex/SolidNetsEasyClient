@@ -118,4 +118,13 @@ public class WebhookController : Controller
         logger.LogInformation("The data: {@RefundCompleted}", refund);
         return Ok();
     }
+
+    [SolidNetsEasyRefundFailed("nets/refund/failed")]
+    public ActionResult RefundFailed([FromBody] RefundFailed refund)
+    {
+        logger.LogInformation("The header: {@Headers}", Request.Headers);
+        logger.LogInformation("The authorization header: {Authorization}", Request.Headers.Authorization!);
+        logger.LogInformation("The data: {@RefundFailed}", refund);
+        return Ok();
+    }
 }
