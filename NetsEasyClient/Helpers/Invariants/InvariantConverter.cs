@@ -26,7 +26,13 @@ public static class InvariantConverter
             EventName.ReservationCreatedV2 => AmountInvariant(order, nonce),
             EventName.ReservationFailed => OrderItemsAmountInvariant(order, nonce),
             EventName.CheckoutCompleted => OrderReferenceItemsAmountInvariant(order, nonce),
+            EventName.PaymentCancelled => OrderItemsAmountInvariant(order, nonce),
+            EventName.PaymentCancellationFailed => OrderItemsAmountInvariant(order, nonce),
             EventName.ChargeCreated => OrderItemsAmountInvariant(order, nonce),
+            EventName.ChargeFailed => OrderItemsAmountInvariant(order, nonce),
+            EventName.RefundInitiated => AmountInvariant(order, nonce),
+            EventName.RefundCompleted => AmountInvariant(order, nonce),
+            EventName.RefundFailed => AmountInvariant(order, nonce),
             _ => throw new NotSupportedException()
         };
 
