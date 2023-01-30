@@ -8,6 +8,7 @@ using SolidNetsEasyClient.Models.DTOs.Responses.Webhooks;
 namespace ExampleSite.Controllers;
 
 [SolidNetsEasyIPFilter(WhitelistIPs = "::1")]
+[Route("/webhook")]
 public class WebhookController : Controller
 {
     private readonly ILogger<WebhookController> logger;
@@ -19,7 +20,7 @@ public class WebhookController : Controller
         this.logger = logger ?? NullLogger<WebhookController>.Instance;
     }
 
-    [SolidNetsEasyPaymentCreated("/nets/payment/created")]
+    [SolidNetsEasyPaymentCreated("nets/payment/created")]
     public ActionResult PaymentCreated([FromBody] PaymentCreated payment)
     {
         logger.LogInformation("The header: {@Headers}", Request.Headers);
@@ -28,7 +29,7 @@ public class WebhookController : Controller
         return NoContent();
     }
 
-    [SolidNetsEasyReservationCreatedV1("/nets/reservationv1/created")]
+    [SolidNetsEasyReservationCreatedV1("nets/reservationv1/created")]
     public ActionResult ReservationCreatedV1([FromBody] ReservationCreatedV1 reservation)
     {
         logger.LogInformation("The header: {@Headers}", Request.Headers);
@@ -37,7 +38,7 @@ public class WebhookController : Controller
         return NoContent();
     }
 
-    [SolidNetsEasyReservationCreatedV2("/nets/reservationv2/created")]
+    [SolidNetsEasyReservationCreatedV2("nets/reservationv2/created")]
     public ActionResult ReservationCreatedV2([FromBody] ReservationCreatedV2 reservation)
     {
         logger.LogInformation("The header: {@Headers}", Request.Headers);
