@@ -10,27 +10,28 @@ using SolidNetsEasyClient.Models.DTOs.Responses.Webhooks.Payloads;
 namespace SolidNetsEasyClient.Helpers.WebhookAttributes;
 
 /// <summary>
-/// SolidNetsEasy webhook attribute callback for the <see cref="EventName.ReservationCreatedV1"/> event. Note that Nets expects the response for a success to be exactly 200 OK.
+/// SolidNetsEasy webhook attribute callback for the <see cref="EventName.ReservationCreatedV2"/> event. Note that Nets expects the response for a success to be exactly 200 OK.
 /// </summary>
-public class SolidNetsEasyReservationCreatedV1Attribute : SolidNetsEasyEventAttribute<ReservationCreatedV1, ReservationCreatedDataV1>
+public class SolidNetsEasyReservationCreatedV2Attribute : SolidNetsEasyEventAttribute<ReservationCreatedV2, ReservationCreatedDataV2>
 {
     /// <inheritdoc />
-    public SolidNetsEasyReservationCreatedV1Attribute() { }
+    public SolidNetsEasyReservationCreatedV2Attribute() { }
 
     /// <inheritdoc />
-    public SolidNetsEasyReservationCreatedV1Attribute([StringSyntax("Route")] string template) : base(template) { }
+    public SolidNetsEasyReservationCreatedV2Attribute([StringSyntax("Route")] string template) : base(template) { }
 
     /// <inheritdoc />
-    protected override string RouteName { get; init; } = RouteNameConstants.ReservationCreatedV1;
+    protected override string RouteName { get; init; } = RouteNameConstants.ReservationCreatedV2;
 
     /// <inheritdoc />
-    protected override bool Validate(ReservationCreatedV1 data, IHasher hasher, byte[] key, string authorization, string? complement, string? nonce)
+    protected override bool Validate(ReservationCreatedV2 data, IHasher hasher, byte[] key, string authorization, string? complement, string? nonce)
     {
         var invariant = new ReservationCreatedInvariant
         {
             Amount = data.Data.Amount.Amount,
             Nonce = nonce
         };
+
         return AuthorizationHeaderFlow.ValidateAuthorization(hasher, key, invariant, authorization, complement);
     }
 }

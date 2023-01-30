@@ -14,4 +14,9 @@ public static class RouteNameConstants
     /// The reservation created V1 route name
     /// </summary>
     public const string ReservationCreatedV1 = "SNE.ReservationCreatedV1";
+
+    /// <summary>
+    /// The reservation created V2 route name
+    /// </summary>
+    public const string ReservationCreatedV2 = "SNE.ReservationCreatedV2";
 }

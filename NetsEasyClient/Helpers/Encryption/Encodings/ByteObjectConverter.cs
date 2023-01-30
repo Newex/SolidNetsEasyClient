@@ -42,7 +42,7 @@ internal static class ByteObjectConverter
         return binary;
     }
 
-    internal static byte[] Serialize(ReservationCreatedV1Invariant input)
+    internal static byte[] Serialize(ReservationCreatedInvariant input)
     {
         using var memoryStream = new MemoryStream();
         using var writer = new BinaryWriter(memoryStream);

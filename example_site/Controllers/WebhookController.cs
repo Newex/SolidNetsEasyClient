@@ -36,4 +36,13 @@ public class WebhookController : Controller
         logger.LogInformation("The data: {@ReservationV1}", reservation);
         return NoContent();
     }
+
+    [SolidNetsEasyReservationCreatedV2("/nets/reservationv2/created")]
+    public ActionResult ReservationCreatedV2([FromBody] ReservationCreatedV2 reservation)
+    {
+        logger.LogInformation("The header: {@Headers}", Request.Headers);
+        logger.LogInformation("The authorization header: {Authorization}", Request.Headers.Authorization!);
+        logger.LogInformation("The data: {@ReservationV2}", reservation);
+        return NoContent();
+    }
 }

@@ -22,7 +22,8 @@ public static class InvariantConverter
         var invariant = eventName switch
         {
             EventName.PaymentCreated => PaymentCreated(order, nonce),
-            EventName.ReservationCreatedV1 => ReservationCreatedV1(order, nonce),
+            EventName.ReservationCreatedV1 => ReservationCreated(order, nonce),
+            EventName.ReservationCreatedV2 => ReservationCreated(order, nonce),
             _ => throw new NotSupportedException()
         };
 
@@ -40,9 +41,9 @@ public static class InvariantConverter
         };
     }
 
-    private static IInvariantSerializable ReservationCreatedV1(Order order, string? nonce)
+    private static IInvariantSerializable ReservationCreated(Order order, string? nonce)
     {
-        return new ReservationCreatedV1Invariant
+        return new ReservationCreatedInvariant
         {
             Amount = order.Amount,
             Nonce = nonce
