@@ -25,6 +25,7 @@ public static class InvariantConverter
             EventName.ReservationCreatedV1 => ReservationCreated(order, nonce),
             EventName.ReservationCreatedV2 => ReservationCreated(order, nonce),
             EventName.ReservationFailed => ReservationFailed(order, nonce),
+            EventName.CheckoutCompleted => PaymentCreated(order, nonce),
             _ => throw new NotSupportedException()
         };
 

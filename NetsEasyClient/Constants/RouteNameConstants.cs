@@ -24,4 +24,9 @@ public static class RouteNameConstants
     /// The reservation failed route name
     /// </summary>
     public const string ReservationFailed = "SNE.ReservationFailed";
+
+    /// <summary>
+    /// The checkout completed route name
+    /// </summary>
+    public const string CheckoutCompleted = "SNE.CheckoutCompleted";
 }

@@ -55,4 +55,13 @@ public class WebhookController : Controller
         logger.LogInformation("The data: {@ReservationFailed}", reservation);
         return Ok();
     }
+
+    [SolidNetsEasyCheckoutCompleted("nets/checkout/completed")]
+    public ActionResult CheckoutCompleted([FromBody] CheckoutCompleted checkout)
+    {
+        logger.LogInformation("The header: {@Headers}", Request.Headers);
+        logger.LogInformation("The authorization header: {Authorization}", Request.Headers.Authorization!);
+        logger.LogInformation("The data: {@CheckoutCompleted}", checkout);
+        return Ok();
+    }
 }
