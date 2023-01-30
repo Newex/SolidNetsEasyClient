@@ -54,4 +54,9 @@ public static class RouteNameConstants
     /// The refund initiated route
     /// </summary>
     public const string RefundInitiated = "SNE.RefundInitiated";
+
+    /// <summary>
+    /// The refund completed route
+    /// </summary>
+    public const string RefundCompleted = "SNE.RefundCompleted";
 }

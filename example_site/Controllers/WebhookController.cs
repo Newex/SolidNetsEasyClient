@@ -109,4 +109,13 @@ public class WebhookController : Controller
         logger.LogInformation("The data: {@RefundInitiated}", refund);
         return Ok();
     }
+
+    [SolidNetsEasyRefundCompleted("nets/refund/completed")]
+    public ActionResult RefundCompleted([FromBody] RefundCompleted refund)
+    {
+        logger.LogInformation("The header: {@Headers}", Request.Headers);
+        logger.LogInformation("The authorization header: {Authorization}", Request.Headers.Authorization!);
+        logger.LogInformation("The data: {@RefundCompleted}", refund);
+        return Ok();
+    }
 }
