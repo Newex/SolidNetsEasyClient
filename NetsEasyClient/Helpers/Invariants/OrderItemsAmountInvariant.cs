@@ -5,9 +5,9 @@ using SolidNetsEasyClient.Models.DTOs;
 namespace SolidNetsEasyClient.Helpers.Invariants;
 
 /// <summary>
-/// Represents a reservation failed event invariant for: before and after sending to Nets Easy.
+/// Represents an invariant with order items, amount and an optional nonce.
 /// </summary>
-public readonly record struct ReservationFailedInvariant : IInvariantSerializable
+public readonly record struct OrderItemsAmountInvariant : IInvariantSerializable
 {
     /// <summary>
     /// The order items

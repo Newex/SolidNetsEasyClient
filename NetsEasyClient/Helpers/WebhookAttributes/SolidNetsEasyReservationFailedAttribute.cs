@@ -26,7 +26,7 @@ public class SolidNetsEasyReservationFailedAttribute : SolidNetsEasyEventAttribu
     /// <inheritdoc />
     protected override bool Validate(ReservationFailed data, IHasher hasher, byte[] key, string authorization, string? complement, string? nonce)
     {
-        var invariant = new ReservationFailedInvariant
+        var invariant = new OrderItemsAmountInvariant
         {
             Amount = data.Data.Amount.Amount,
             OrderItems = data.Data.OrderItems,

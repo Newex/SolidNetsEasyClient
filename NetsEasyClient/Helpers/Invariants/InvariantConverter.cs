@@ -21,20 +21,21 @@ public static class InvariantConverter
     {
         var invariant = eventName switch
         {
-            EventName.PaymentCreated => PaymentCreated(order, nonce),
-            EventName.ReservationCreatedV1 => ReservationCreated(order, nonce),
-            EventName.ReservationCreatedV2 => ReservationCreated(order, nonce),
-            EventName.ReservationFailed => ReservationFailed(order, nonce),
-            EventName.CheckoutCompleted => PaymentCreated(order, nonce),
+            EventName.PaymentCreated => OrderReferenceItemsAmountInvariant(order, nonce),
+            EventName.ReservationCreatedV1 => AmountInvariant(order, nonce),
+            EventName.ReservationCreatedV2 => AmountInvariant(order, nonce),
+            EventName.ReservationFailed => OrderItemsAmountInvariant(order, nonce),
+            EventName.CheckoutCompleted => OrderReferenceItemsAmountInvariant(order, nonce),
+            EventName.ChargeCreated => OrderItemsAmountInvariant(order, nonce),
             _ => throw new NotSupportedException()
         };
 
         return invariant;
     }
 
-    private static IInvariantSerializable PaymentCreated(Order order, string? nonce)
+    private static IInvariantSerializable OrderReferenceItemsAmountInvariant(Order order, string? nonce)
     {
-        return new PaymentCreatedInvariant
+        return new OrderReferenceItemsAmountInvariant
         {
             OrderReference = order.Reference!,
             OrderItems = order.Items,
@@ -43,18 +44,18 @@ public static class InvariantConverter
         };
     }
 
-    private static IInvariantSerializable ReservationCreated(Order order, string? nonce)
+    private static IInvariantSerializable AmountInvariant(Order order, string? nonce)
     {
-        return new ReservationCreatedInvariant
+        return new AmountInvariant
         {
             Amount = order.Amount,
             Nonce = nonce
         };
     }
 
-    private static IInvariantSerializable ReservationFailed(Order order, string? nonce)
+    private static IInvariantSerializable OrderItemsAmountInvariant(Order order, string? nonce)
     {
-        return new ReservationFailedInvariant
+        return new OrderItemsAmountInvariant
         {
             OrderItems = order.Items,
             Amount = order.Amount,

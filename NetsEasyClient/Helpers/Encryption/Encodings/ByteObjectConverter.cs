@@ -10,12 +10,7 @@ namespace SolidNetsEasyClient.Helpers.Encryption.Encodings;
 /// </summary>
 internal static class ByteObjectConverter
 {
-    /// <summary>
-    /// Serialize <see cref="PaymentCreatedInvariant"/> to a byte array
-    /// </summary>
-    /// <param name="input">The payment input</param>
-    /// <returns>A byte array</returns>
-    internal static byte[] Serialize(PaymentCreatedInvariant input)
+    internal static byte[] Serialize(OrderReferenceItemsAmountInvariant input)
     {
         using var memoryStream = new MemoryStream();
         using var writer = new BinaryWriter(memoryStream);
@@ -33,7 +28,7 @@ internal static class ByteObjectConverter
         return binary;
     }
 
-    internal static byte[] Serialize(ReservationCreatedInvariant input)
+    internal static byte[] Serialize(AmountInvariant input)
     {
         using var memoryStream = new MemoryStream();
         using var writer = new BinaryWriter(memoryStream);
@@ -48,7 +43,7 @@ internal static class ByteObjectConverter
         return binary;
     }
 
-    internal static byte[] Serialize(ReservationFailedInvariant input)
+    internal static byte[] Serialize(OrderItemsAmountInvariant input)
     {
         using var memoryStream = new MemoryStream();
         using var writer = new BinaryWriter(memoryStream);

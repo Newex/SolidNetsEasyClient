@@ -64,4 +64,13 @@ public class WebhookController : Controller
         logger.LogInformation("The data: {@CheckoutCompleted}", checkout);
         return Ok();
     }
+
+    [SolidNetsEasyChargeCreated("nets/charge/created")]
+    public ActionResult ChargeCreated([FromBody] ChargeCreated charge)
+    {
+        logger.LogInformation("The header: {@Headers}", Request.Headers);
+        logger.LogInformation("The authorization header: {Authorization}", Request.Headers.Authorization!);
+        logger.LogInformation("The data: {@ChargeCreated}", charge);
+        return Ok();
+    }
 }

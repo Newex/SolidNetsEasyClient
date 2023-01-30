@@ -26,7 +26,7 @@ public class SolidNetsEasyReservationCreatedV2Attribute : SolidNetsEasyEventAttr
     /// <inheritdoc />
     protected override bool Validate(ReservationCreatedV2 data, IHasher hasher, byte[] key, string authorization, string? complement, string? nonce)
     {
-        var invariant = new ReservationCreatedInvariant
+        var invariant = new AmountInvariant
         {
             Amount = data.Data.Amount.Amount,
             Nonce = nonce

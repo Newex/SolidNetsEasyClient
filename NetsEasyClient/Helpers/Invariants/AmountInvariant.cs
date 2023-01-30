@@ -5,7 +5,7 @@ namespace SolidNetsEasyClient.Helpers.Invariants;
 /// <summary>
 /// Represents a reservation created v1 event invariant for: before and after sending to Nets Easy.
 /// </summary>
-public readonly record struct ReservationCreatedInvariant : IInvariantSerializable
+public readonly record struct AmountInvariant : IInvariantSerializable
 {
     /// <summary>
     /// The order amount

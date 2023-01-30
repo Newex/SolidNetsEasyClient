@@ -10,25 +10,26 @@ using SolidNetsEasyClient.Models.DTOs.Responses.Webhooks.Payloads;
 namespace SolidNetsEasyClient.Helpers.WebhookAttributes;
 
 /// <summary>
-/// SolidNetsEasy webhook attribute callback for the <see cref="EventName.ReservationCreatedV1"/> event. Note that Nets expects the response for a success to be exactly 200 OK.
+/// SolidNetsEasy webhook attribute callback for the <see cref="EventName.ChargeCreated"/> event. Note that Nets expects the response for a success to be exactly 200 OK.
 /// </summary>
-public class SolidNetsEasyReservationCreatedV1Attribute : SolidNetsEasyEventAttribute<ReservationCreatedV1, ReservationCreatedDataV1>
+public class SolidNetsEasyChargeCreatedAttribute : SolidNetsEasyEventAttribute<ChargeCreated, ChargeData>
 {
     /// <inheritdoc />
-    public SolidNetsEasyReservationCreatedV1Attribute() { }
+    protected override string RouteName { get; init; } = RouteNameConstants.ChargeCreated;
 
     /// <inheritdoc />
-    public SolidNetsEasyReservationCreatedV1Attribute([StringSyntax("Route")] string template) : base(template) { }
+    public SolidNetsEasyChargeCreatedAttribute() { }
 
     /// <inheritdoc />
-    protected override string RouteName { get; init; } = RouteNameConstants.ReservationCreatedV1;
+    public SolidNetsEasyChargeCreatedAttribute([StringSyntax("Route")] string template) : base(template) { }
 
     /// <inheritdoc />
-    protected override bool Validate(ReservationCreatedV1 data, IHasher hasher, byte[] key, string authorization, string? complement, string? nonce)
+    protected override bool Validate(ChargeCreated data, IHasher hasher, byte[] key, string authorization, string? complement, string? nonce)
     {
-        var invariant = new AmountInvariant
+        var invariant = new OrderItemsAmountInvariant
         {
             Amount = data.Data.Amount.Amount,
+            OrderItems = data.Data.OrderItems,
             Nonce = nonce
         };
         return AuthorizationHeaderFlow.ValidateAuthorization(hasher, key, invariant, authorization, complement);

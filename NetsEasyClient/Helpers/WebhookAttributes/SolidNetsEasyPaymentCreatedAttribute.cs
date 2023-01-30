@@ -26,7 +26,7 @@ public sealed class SolidNetsEasyPaymentCreatedAttribute : SolidNetsEasyEventAtt
     /// <inheritdoc />
     protected override bool Validate(PaymentCreated data, IHasher hasher, byte[] key, string authorization, string? complement, string? nonce)
     {
-        var invariant = new PaymentCreatedInvariant
+        var invariant = new OrderReferenceItemsAmountInvariant
         {
             Amount = data.Data.Order.Amount.Amount,
             OrderItems = data.Data.Order.OrderItems,

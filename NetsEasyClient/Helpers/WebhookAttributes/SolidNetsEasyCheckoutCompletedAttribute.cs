@@ -26,11 +26,11 @@ public class SolidNetsEasyCheckoutCompletedAttribute : SolidNetsEasyEventAttribu
     /// <inheritdoc />
     protected override bool Validate(CheckoutCompleted data, IHasher hasher, byte[] key, string authorization, string? complement, string? nonce)
     {
-        var invariant = new PaymentCreatedInvariant
+        var invariant = new OrderReferenceItemsAmountInvariant
         {
-            Amount = data.Data.Order.Amount.Amount,
-            OrderItems = data.Data.Order.OrderItems,
             OrderReference = data.Data.Order.Reference,
+            OrderItems = data.Data.Order.OrderItems,
+            Amount = data.Data.Order.Amount.Amount,
             Nonce = nonce
         };
         return AuthorizationHeaderFlow.ValidateAuthorization(hasher, key, invariant, authorization, complement);

@@ -18,7 +18,7 @@ public class AuthorizationHeaderFlowTests
         var hasher = new HmacSHA256Hasher();
         var key = RandomNumberGenerator.GetBytes(10);
 
-        var payment = new PaymentCreatedInvariant
+        var payment = new OrderReferenceItemsAmountInvariant
         {
             Amount = 5500,
             OrderItems = new List<Item>
@@ -50,7 +50,7 @@ public class AuthorizationHeaderFlowTests
         var key1 = RandomNumberGenerator.GetBytes(10);
         var key2 = RandomNumberGenerator.GetBytes(10);
 
-        var payment = new PaymentCreatedInvariant
+        var payment = new OrderReferenceItemsAmountInvariant
         {
             Amount = 10,
             OrderItems = new List<Item>
@@ -78,7 +78,7 @@ public class AuthorizationHeaderFlowTests
         var hasher = new MyHasher();
         var key = RandomNumberGenerator.GetBytes(10);
 
-        var payment = new PaymentCreatedInvariant
+        var payment = new OrderReferenceItemsAmountInvariant
         {
             Amount = 10,
             OrderItems = new List<Item>

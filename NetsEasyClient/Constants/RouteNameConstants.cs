@@ -29,4 +29,9 @@ public static class RouteNameConstants
     /// The checkout completed route name
     /// </summary>
     public const string CheckoutCompleted = "SNE.CheckoutCompleted";
+
+    /// <summary>
+    /// The charge created route name
+    /// </summary>
+    public const string ChargeCreated = "SNE.ChargeCreated";
 }

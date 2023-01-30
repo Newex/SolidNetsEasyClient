@@ -5,9 +5,9 @@ using SolidNetsEasyClient.Models.DTOs;
 namespace SolidNetsEasyClient.Helpers.Invariants;
 
 /// <summary>
-/// Payment creation and webhook response invariant
+/// Invariant with order reference, order items and amount
 /// </summary>
-public readonly record struct PaymentCreatedInvariant : IInvariantSerializable
+public readonly record struct OrderReferenceItemsAmountInvariant : IInvariantSerializable
 {
     /// <summary>
     /// The order reference
