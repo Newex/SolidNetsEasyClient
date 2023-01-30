@@ -34,4 +34,9 @@ public static class RouteNameConstants
     /// The charge created route name
     /// </summary>
     public const string ChargeCreated = "SNE.ChargeCreated";
+
+    /// <summary>
+    /// The payment cancel created route
+    /// </summary>
+    public const string PaymentCancelled = "SNE.PaymentCancelled";
 }
