@@ -1,5 +1,5 @@
 using System;
-using SolidNetsEasyClient.Helpers.WebhookAttributes;
+using SolidNetsEasyClient.Constants;
 using SolidNetsEasyClient.Models.DTOs.Enums;
 
 namespace SolidNetsEasyClient.Helpers;
@@ -19,7 +19,7 @@ public static class RouteNamesForAttributes
     {
         return eventName switch
         {
-            EventName.PaymentCreated => SolidNetsEasyPaymentCreatedAttribute.PaymentCreatedRoute,
+            EventName.PaymentCreated => RouteNameConstants.PaymentCreatedRoute,
             _ => throw new ArgumentOutOfRangeException(nameof(eventName))
         };
     }

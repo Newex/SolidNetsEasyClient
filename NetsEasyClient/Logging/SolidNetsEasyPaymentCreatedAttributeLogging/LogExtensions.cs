@@ -1,3 +1,4 @@
+using System;
 using Microsoft.Extensions.Logging;
 
 namespace SolidNetsEasyClient.Logging.SolidNetsEasyPaymentCreatedAttributeLogging;
@@ -38,10 +39,23 @@ public static partial class LogExtensions
     [LoggerMessage(
         EventId = LogEventIDs.Errors.Missing,
         Level = LogLevel.Error,
-        Message = "Missing payment argument in the action method",
+        Message = "Missing event payload argument in the action method",
         SkipEnabledCheck = true
     )]
-    public static partial void ErrorMissingPaymentArgument(this ILogger logger);
+    public static partial void ErrorMissingEventPayloadArgument(this ILogger logger);
+
+    /// <summary>
+    /// Error must only have 1 event payload argument
+    /// </summary>
+    /// <param name="logger">The logger</param>
+    /// <param name="ex">The exception</param>
+    [LoggerMessage(
+        EventId = LogEventIDs.Errors.Invalid,
+        Level = LogLevel.Error,
+        Message = "Must only have 1 payload argument",
+        SkipEnabledCheck = true
+    )]
+    public static partial void ErrorMoreThanOneEventPayloadArgument(this ILogger logger, InvalidOperationException ex);
 
     /// <summary>
     /// Error missing nonce to authorize
