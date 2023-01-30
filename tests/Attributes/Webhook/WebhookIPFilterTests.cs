@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
+using SolidNetsEasyClient.Constants;
 using SolidNetsEasyClient.Filters;
-
+using SolidNetsEasyClient.Models.Options;
 using static Microsoft.AspNetCore.Http.StatusCodes;
 using Auth = SolidNetsEasyClient.Tests.Attributes.Webhook.AuthorizationFilterContextBuilder;
 
@@ -9,6 +10,12 @@ namespace SolidNetsEasyClient.Tests.Attributes.Webhook;
 [UnitTest]
 public class WebhookIPFilterTests
 {
+    private static readonly NetsEasyOptions options = new()
+    {
+        ClientMode = ClientMode.Test,
+        ApiKey = "abc"
+    };
+
     [Fact]
     public void Denied_IP_returns_403_result()
     {
@@ -16,7 +23,7 @@ public class WebhookIPFilterTests
         const string ipString = "192.168.1.1";
         var builder = Auth
             .Create(fromIP: ipString)
-            .AddOptions(new() { BlacklistIPsForWebhook = $"127.0.0.1;{ipString}" });
+            .AddOptions(options with { BlacklistIPsForWebhook = $"127.0.0.1;{ipString}" });
         var context = builder.Build();
         var attribute = new SolidNetsEasyIPFilterAttribute();
 
@@ -35,7 +42,7 @@ public class WebhookIPFilterTests
         const string ipString = "192.168.1.1";
         var builder = Auth
             .Create(fromIP: ipString)
-            .AddOptions(new() { BlacklistIPsForWebhook = "127.0.0.1" });
+            .AddOptions(options with { BlacklistIPsForWebhook = "127.0.0.1" });
         var context = builder.Build();
         var attribute = new SolidNetsEasyIPFilterAttribute()
         {
@@ -57,7 +64,7 @@ public class WebhookIPFilterTests
         const string ipString = "192.168.1.1";
         var builder = Auth
             .Create(fromIP: ipString)
-            .AddOptions(new() { NetsIPWebhookEndpoints = $"{ipString}/24", });
+            .AddOptions(options with { NetsIPWebhookEndpoints = $"{ipString}/24", });
         var context = builder.Build();
         var attribute = new SolidNetsEasyIPFilterAttribute();
 
@@ -76,7 +83,7 @@ public class WebhookIPFilterTests
         const string ipString = "192.168.1.1";
         var builder = Auth
             .Create(fromIP: ipString)
-            .AddOptions(new()
+            .AddOptions(options with
             {
                 BlacklistIPsForWebhook = ipString,
                 NetsIPWebhookEndpoints = $"{ipString}/24",
@@ -103,7 +110,7 @@ public class WebhookIPFilterTests
         const string actualIP = "77.87.246.118";
         var builder = Auth
             .Create(fromIP: ipString)
-            .AddOptions(new()
+            .AddOptions(options with
             {
                 BlacklistIPsForWebhook = actualIP
             })
@@ -124,7 +131,7 @@ public class WebhookIPFilterTests
     {
         // Arrange
         const string clientIP = "77.87.246.118";
-        var builder = Auth.Create(fromIP: clientIP).AddOptions(new());
+        var builder = Auth.Create(fromIP: clientIP).AddOptions(options);
         var context = builder.Build();
         var attribute = new SolidNetsEasyIPFilterAttribute();
 
@@ -141,7 +148,7 @@ public class WebhookIPFilterTests
     {
         // Arrange
         const string clientIP = "77.87.246.118";
-        var builder = Auth.Create(fromIP: clientIP).AddOptions(new());
+        var builder = Auth.Create(fromIP: clientIP).AddOptions(options);
         var context = builder.Build();
         var attribute = new SolidNetsEasyIPFilterAttribute()
         {

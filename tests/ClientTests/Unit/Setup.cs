@@ -3,6 +3,7 @@ using System.Net;
 using System.Net.Http;
 using Microsoft.Extensions.Options;
 using SolidNetsEasyClient.Clients;
+using SolidNetsEasyClient.Constants;
 using SolidNetsEasyClient.Models.Options;
 using SolidNetsEasyClient.Tests.Tools;
 
@@ -12,6 +13,7 @@ public static class Setup
     private const string NetsBaseURI = "https://api.dibspayment.eu";
     private static readonly NetsEasyOptions options = new()
     {
+        ClientMode = ClientMode.Test,
         ApiKey = "MycustomAPI_KEY",
         CheckoutKey = "MyCheckout_Key",
         CheckoutUrl = "http://my.checkout.url",
