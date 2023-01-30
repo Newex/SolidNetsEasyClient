@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using SolidNetsEasyClient.Constants;
 
 namespace SolidNetsEasyClient.Models.Options;
@@ -5,12 +6,13 @@ namespace SolidNetsEasyClient.Models.Options;
 /// <summary>
 /// The platform payment options
 /// </summary>
-public record PlatformPaymentOptions
+public record NetsEasyOptions
 {
     /// <summary>
     /// The http client mode, which can be either in test mode or in live mode
     /// </summary>
-    public ClientMode ClientMode { get; set; }
+    [Required]
+    public required ClientMode ClientMode { get; set; }
 
     /// <summary>
     /// The secret API key
@@ -18,7 +20,8 @@ public record PlatformPaymentOptions
     /// <remarks>
     /// Do not expose this key to your end users. Only use back channels to directly communicate with nets easy api using this key.
     /// </remarks>
-    public string ApiKey { get; set; } = string.Empty;
+    [Required]
+    public required string ApiKey { get; set; } = string.Empty;
 
     /// <summary>
     /// The checkout key
@@ -31,26 +34,31 @@ public record PlatformPaymentOptions
     /// <summary>
     /// The checkout url
     /// </summary>
+    [Url]
     public string CheckoutUrl { get; init; } = string.Empty;
 
     /// <summary>
     /// The terms and conditions url for your site
     /// </summary>
+    [Url]
     public string TermsUrl { get; init; } = string.Empty;
 
     /// <summary>
     /// Where to return customer after completed payment when using a hosted checkout page
     /// </summary>
+    [Url]
     public string? ReturnUrl { get; init; }
 
     /// <summary>
     /// Where to return customer after cancelled payment when using a hosted checkout page
     /// </summary>
+    [Url]
     public string? CancelUrl { get; init; } = string.Empty;
 
     /// <summary>
     /// The privacy policy url for your site
     /// </summary>
+    [Url]
     public string PrivacyPolicyUrl { get; init; } = string.Empty;
 
     /// <summary>
@@ -68,7 +76,7 @@ public record PlatformPaymentOptions
     public string? NetsIPWebhookEndpoints { get; init; }
 
     /// <summary>
-    /// Blacklist single IPs requests sent to the webhook endpoint
+    /// Blacklist IPs requests sent to the webhook endpoint
     /// </summary>
     /// <remarks>
     /// Each IP should be separated by a semi-colon (;)
@@ -76,12 +84,19 @@ public record PlatformPaymentOptions
     public string? BlacklistIPsForWebhook { get; init; }
 
     /// <summary>
-    /// Blacklist a range of IPs separated by a semi-colon (;)
+    /// The full url to the base for the website which is in your control
     /// </summary>
     /// <remarks>
-    /// Each range should be in CIDR format.
+    /// Example, you submit whole url if you only control the path 'mysite'
+    /// https://webhosting.provider.com/with/sub/page/to/mysite
     /// </remarks>
-    public string? BlacklistIPRangesForWebhook { get; init; }
+    [Url]
+    public string BaseUrl { get; init; } = string.Empty;
+
+    /// <summary>
+    /// The minimum allowed payment to check for in the payment builder
+    /// </summary>
+    public int MinimumAllowedPayment { get; init; } = 5_00;
 
     /// <summary>
     /// The nets easy configuration section

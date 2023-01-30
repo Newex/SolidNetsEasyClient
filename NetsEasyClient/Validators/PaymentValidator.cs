@@ -1,6 +1,8 @@
 using System;
 using System.Linq;
 using ISO3166;
+using Microsoft.Extensions.Logging;
+using SolidNetsEasyClient.Logging.PaymentValidatorLogging;
 using SolidNetsEasyClient.Models.DTOs.Requests.Payments;
 
 namespace SolidNetsEasyClient.Validators;
@@ -14,62 +16,74 @@ internal static class PaymentValidator
     /// Checks if a payment is valid
     /// </summary>
     /// <param name="payment">The payment</param>
+    /// <param name="logger">The logger</param>
     /// <returns>True if valid otherwise false</returns>
-    internal static bool IsValidPaymentObject(PaymentRequest payment)
+    internal static bool IsValidPaymentObject(PaymentRequest payment, ILogger logger)
     {
         // Checkout URL must not be empty
         if (!EmbeddedCheckoutHasCheckoutUrl(payment))
         {
+            logger.ErrorEmbeddedCheckoutMissingUrl(payment);
             return false;
         }
 
         if (!MustHaveAtLeastOneOrderItem(payment))
         {
+            logger.ErrorMissingOrderItem(payment);
             return false;
         }
 
         if (!HasTermsUrl(payment))
         {
+            logger.ErrorMissingTerms(payment);
             return false;
         }
 
         if (!HasHostedReturnUrl(payment))
         {
+            logger.ErrorMissingReturnUrl(payment);
             return false;
         }
 
         if (!ShippingCountryCodeMustBeISO3166(payment))
         {
+            logger.ErrorInvalidShippingCountryFormat(payment);
             return false;
         }
 
         if (!HasMerchantConsumerDataAndNoConsumerType(payment))
         {
+            logger.ErrorInvalidConsumerData(payment);
             return false;
         }
 
         if (!HasCountryCode(payment))
         {
+            logger.ErrorInvalidCountryCodeCheckout(payment);
             return false;
         }
 
         if (!Below33WebHooks(payment))
         {
+            logger.ErrorMaxWebhooks(payment);
             return false;
         }
 
         if (!CheckWebHooks(payment.Notifications))
         {
+            logger.ErrorInvalidWebhooks(payment);
             return false;
         }
 
         if (!PaymentConfigurationAllMethodOrAllType(payment))
         {
+            logger.ErrorInvalidPaymentConfiguration(payment);
             return false;
         }
 
         if (!NonSubscriptionMustHaveNonNegativeAmount(payment))
         {
+            logger.ErrorInvalidPaymentAmount(payment);
             return false;
         }
 

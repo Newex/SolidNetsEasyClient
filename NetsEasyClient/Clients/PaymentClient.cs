@@ -37,7 +37,7 @@ public partial class PaymentClient : IPaymentClient
     /// <param name="httpClientFactory">The http client factory</param>
     /// <param name="logger">The optional logger</param>
     public PaymentClient(
-        IOptions<PlatformPaymentOptions> options,
+        IOptions<NetsEasyOptions> options,
         IHttpClientFactory httpClientFactory,
         ILogger<PaymentClient>? logger = null
     )

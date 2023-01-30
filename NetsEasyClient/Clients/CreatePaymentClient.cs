@@ -24,7 +24,7 @@ public partial class PaymentClient : IPaymentClient
             _ => throw new NotSupportedException()
         };
 
-        var isValid = !validate || (PaymentValidator.IsValidPaymentObject(request) && !string.IsNullOrWhiteSpace(apiKey));
+        var isValid = !validate || (PaymentValidator.IsValidPaymentObject(request, logger) && !string.IsNullOrWhiteSpace(apiKey));
         if (!isValid)
         {
             logger.ErrorInvalidPaymentOrApiKey(payment, apiKey);
@@ -76,7 +76,7 @@ public partial class PaymentClient : IPaymentClient
             Integration.HostedPaymentPage => WithHostedUrls(request, returnUrl, cancelUrl),
             _ => throw new NotSupportedException()
         };
-        var isValid = !validate || (PaymentValidator.IsValidPaymentObject(payment) && !string.IsNullOrWhiteSpace(apiKey));
+        var isValid = !validate || (PaymentValidator.IsValidPaymentObject(payment, logger) && !string.IsNullOrWhiteSpace(apiKey));
         if (!isValid)
         {
             logger.ErrorInvalidPaymentOrApiKey(payment, apiKey);
@@ -126,7 +126,7 @@ public partial class PaymentClient : IPaymentClient
                 Charge = charge
             }
         };
-        var isValid = !validate || (PaymentValidator.IsValidPaymentObject(payment) && !string.IsNullOrWhiteSpace(apiKey));
+        var isValid = !validate || (PaymentValidator.IsValidPaymentObject(payment, logger) && !string.IsNullOrWhiteSpace(apiKey));
         if (!isValid)
         {
             logger.ErrorInvalidPaymentOrApiKey(payment, apiKey);

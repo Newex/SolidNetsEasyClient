@@ -98,7 +98,7 @@ public enum EventName
     /// <remarks>
     /// payment.cancel.created
     /// </remarks>
-    ReservationCancelled = 10,
+    PaymentCancelled = 10,
 
     /// <summary>
     /// A cancellation has failed
@@ -106,7 +106,7 @@ public enum EventName
     /// <remarks>
     /// payment.cancel.failed
     /// </remarks>
-    ReservationCancellationFailed = 11
+    PaymentCancellationFailed = 11
 }
 
 /// <summary>
@@ -133,8 +133,8 @@ public static class EventNameHelper
             EventNameConstants.RefundInitiated => EventName.RefundInitiated,
             EventNameConstants.RefundFailed => EventName.RefundFailed,
             EventNameConstants.RefundCompleted => EventName.RefundCompleted,
-            EventNameConstants.ReservationCancellationFailed => EventName.ReservationCancellationFailed,
-            EventNameConstants.ReservationCancelled => EventName.ReservationCancelled,
+            EventNameConstants.ReservationCancellationFailed => EventName.PaymentCancellationFailed,
+            EventNameConstants.ReservationCancelled => EventName.PaymentCancelled,
             _ => null,
         };
         return result;
@@ -159,8 +159,8 @@ public static class EventNameHelper
             EventName.RefundInitiated => EventNameConstants.RefundInitiated,
             EventName.RefundFailed => EventNameConstants.RefundFailed,
             EventName.RefundCompleted => EventNameConstants.RefundCompleted,
-            EventName.ReservationCancelled => EventNameConstants.ReservationCancelled,
-            EventName.ReservationCancellationFailed => EventNameConstants.ReservationCancellationFailed,
+            EventName.PaymentCancelled => EventNameConstants.ReservationCancelled,
+            EventName.PaymentCancellationFailed => EventNameConstants.ReservationCancellationFailed,
             _ => null
         };
         return result;

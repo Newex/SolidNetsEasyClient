@@ -47,7 +47,7 @@ public class UnscheduledSubscriptionClient : IUnscheduledSubscriptionClient
     /// <param name="logger">The optional logger</param>
     /// <exception cref="NotSupportedException"></exception>
     public UnscheduledSubscriptionClient(
-        IOptions<PlatformPaymentOptions> options,
+        IOptions<NetsEasyOptions> options,
         IHttpClientFactory httpClientFactory,
         ILogger<UnscheduledSubscriptionClient>? logger = null
     )

@@ -36,44 +36,58 @@ public static partial class LogExtensions
     public static partial void TraceRemoteIP(this ILogger logger, IPAddress? ip);
 
     /// <summary>
-    /// Warning request does not contain remote IP
+    /// Error request does not contain remote IP
     /// </summary>
     /// <param name="logger">The logger</param>
     /// <param name="context">The authorization context</param>
     [LoggerMessage(
         EventId = LogEventIDs.Errors.Forbidden,
-        Level = LogLevel.Warning,
+        Level = LogLevel.Error,
         Message = "Cannot retrieve the remote IP of the client. Denying request for webhook {Context}",
         SkipEnabledCheck = true
     )]
-    public static partial void WarningNoRemoteIP(this ILogger logger, AuthorizationFilterContext context);
+    public static partial void ErrorNoRemoteIP(this ILogger logger, AuthorizationFilterContext context);
 
     /// <summary>
-    /// Warning request IP has been blacklisted
+    /// Error cannot parse proxy IP to IP
+    /// </summary>
+    /// <param name="logger">The logger</param>
+    /// <param name="proxyIP">The proxy IP</param>
+    [LoggerMessage(
+            EventId = LogEventIDs.Errors.Forbidden,
+            Level = LogLevel.Error,
+            Message = "Cannot parse proxy {ProxyIP} to an actual IP address",
+            SkipEnabledCheck = true
+    )]
+    public static partial void ErrorCannotParseProxyToIPAddress(this ILogger logger, string proxyIP);
+
+    /// <summary>
+    /// Error request IP has been blacklisted
     /// </summary>
     /// <param name="logger">The logger</param>
     /// <param name="ip">The IP address</param>
     /// <param name="blacklist">The blacklist</param>
     [LoggerMessage(
         EventId = LogEventIDs.Errors.Forbidden,
-        Level = LogLevel.Warning,
+        Level = LogLevel.Error,
         Message = "Webhook request blacklisted {IP} in {Blacklist}",
         SkipEnabledCheck = true
     )]
-    public static partial void WarningBlacklistedIP(this ILogger logger, IPAddress ip, string[] blacklist);
+    public static partial void ErrorBlacklistedIP(this ILogger logger, IPAddress ip, string blacklist);
 
     /// <summary>
-    /// Warning request is not from a Nets Easy endpoint range
+    /// Error request is not from a Nets Easy endpoint range
     /// </summary>
     /// <param name="logger">The logger</param>
     /// <param name="ip">The IP address</param>
+    /// <param name="whiteListedEndpoints">The white listed Nets Easy endpoints</param>
     [LoggerMessage(
         EventId = LogEventIDs.Errors.Forbidden,
         Level = LogLevel.Warning,
-        Message = "Webhook request IP {IP} not specified as Nets Easy endpoint",
+        Message = "Webhook request IP {IP} not specified as Nets Easy endpoint {WhiteListedEndpoints}",
         SkipEnabledCheck = true
     )]
-    public static partial void WarningNotNetsEasyEndpoint(this ILogger logger, IPAddress ip);
+    public static partial void ErrorNotNetsEasyEndpoint(this ILogger logger, IPAddress ip, string whiteListedEndpoints);
 
     /// <summary>
     /// Warning success response must be 200 OK but was something else

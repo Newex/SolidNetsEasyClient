@@ -242,8 +242,8 @@ public static class Fakes
             EventName.RefundInitiated,
             EventName.RefundFailed,
             EventName.RefundCompleted,
-            EventName.ReservationCancelled,
-            EventName.ReservationCancellationFailed
+            EventName.PaymentCancelled,
+            EventName.PaymentCancellationFailed
         ).OrNull(f))
             .RuleFor(f => f.Url, f => f.Internet.UrlWithPath("https").OrNull(f))
             .RuleFor(f => f.Authorization, f => f.Random.AlphaNumeric(31).OrNull(f));
