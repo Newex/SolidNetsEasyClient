@@ -34,8 +34,8 @@ public sealed class NetsConfigurationBuilder
     /// <returns>A builder object</returns>
     public NetsConfigurationBuilder ConfigureFromConfiguration(IConfiguration configuration)
     {
-        var section = configuration.GetSection(PlatformPaymentOptions.NetsEasyConfigurationSection);
-        _ = services.Configure<PlatformPaymentOptions>(section);
+        var section = configuration.GetSection(NetsEasyOptions.NetsEasyConfigurationSection);
+        _ = services.Configure<NetsEasyOptions>(section);
         return this;
     }
 
@@ -44,7 +44,7 @@ public sealed class NetsConfigurationBuilder
     /// </summary>
     /// <param name="options">The options to set</param>
     /// <returns>A builder object</returns>
-    public NetsConfigurationBuilder ConfigureNetsEasyOptions(Action<PlatformPaymentOptions> options)
+    public NetsConfigurationBuilder ConfigureNetsEasyOptions(Action<NetsEasyOptions> options)
     {
         _ = services.Configure(options);
         return this;
@@ -130,7 +130,7 @@ public sealed class NetsConfigurationBuilder
         services.TryAddScoped(typeof(UnscheduledSubscriptionClient));
 
         // Add payment options
-        _ = services.Configure<PlatformPaymentOptions>(_ => { });
+        _ = services.Configure<NetsEasyOptions>(_ => { });
 
         // Add default encryption option
         _ = services.Configure<WebhookEncryptionOptions>(c => c.Hasher = new HmacSHA256Hasher());

@@ -9,7 +9,7 @@ namespace SolidNetsEasyClient.Builder;
 /// </summary>
 public sealed class NetsPaymentFactory
 {
-    private readonly PlatformPaymentOptions netsOptions;
+    private readonly NetsEasyOptions netsOptions;
     private readonly WebhookEncryptionOptions webhookOptions;
 
     /// <summary>
@@ -18,7 +18,7 @@ public sealed class NetsPaymentFactory
     /// <param name="netsOptions">The Nets Easy options</param>
     /// <param name="webhookOptions">The webhook options</param>
     public NetsPaymentFactory(
-        IOptions<PlatformPaymentOptions> netsOptions,
+        IOptions<NetsEasyOptions> netsOptions,
         IOptions<WebhookEncryptionOptions> webhookOptions
     )
     {

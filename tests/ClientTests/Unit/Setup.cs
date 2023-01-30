@@ -10,7 +10,7 @@ namespace SolidNetsEasyClient.Tests.ClientTests.Unit;
 public static class Setup
 {
     private const string NetsBaseURI = "https://api.dibspayment.eu";
-    private static readonly PlatformPaymentOptions options = new()
+    private static readonly NetsEasyOptions options = new()
     {
         ApiKey = "MycustomAPI_KEY",
         CheckoutKey = "MyCheckout_Key",

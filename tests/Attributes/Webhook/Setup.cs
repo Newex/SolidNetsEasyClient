@@ -31,7 +31,7 @@ public sealed class AuthorizationFilterContextBuilder
         this.ip = IPAddress.Parse(ip);
     }
 
-    public AuthorizationFilterContextBuilder AddOptions(PlatformPaymentOptions options)
+    public AuthorizationFilterContextBuilder AddOptions(NetsEasyOptions options)
     {
         return AddMockedService(Options.Create(options));
     }

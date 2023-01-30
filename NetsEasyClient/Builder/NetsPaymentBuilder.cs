@@ -332,7 +332,7 @@ public sealed class NetsPaymentBuilder
     }
 
     /// <summary>
-    /// Subscribe to an event. The webhook url is calculated by using attribute e.g. <see cref="SolidNetsEasyPaymentCreatedAttribute"/> for the payment created event and the <see cref="PlatformPaymentOptions.BaseUrl"/>
+    /// Subscribe to an event. The webhook url is calculated by using attribute e.g. <see cref="SolidNetsEasyPaymentCreatedAttribute"/> for the payment created event and the <see cref="NetsEasyOptions.BaseUrl"/>
     /// </summary>
     /// <param name="eventName">The event name</param>
     /// <param name="urlHelper">The url helper</param>

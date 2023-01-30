@@ -58,7 +58,7 @@ public sealed class SolidNetsEasyIPFilterAttribute : ActionFilterAttribute, IAut
         }
 
         // Load settings
-        var options = ServiceProviderExtensions.GetOptions<PlatformPaymentOptions>(context.HttpContext.RequestServices);
+        var options = ServiceProviderExtensions.GetOptions<NetsEasyOptions>(context.HttpContext.RequestServices);
 
         // Retrieve client IP
         // Note-Security: This can be spoofed by an adversary

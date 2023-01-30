@@ -41,7 +41,7 @@ public class SubscriptionClient : ISubscriptionClient
     /// <param name="logger">The optional logger</param>
     /// <exception cref="NotSupportedException">Thrown if client mode is not supported</exception>
     public SubscriptionClient(
-        IOptions<PlatformPaymentOptions> options,
+        IOptions<NetsEasyOptions> options,
         IHttpClientFactory httpClientFactory,
         ILogger<SubscriptionClient>? logger = null
     )

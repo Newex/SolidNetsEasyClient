@@ -6,7 +6,7 @@ namespace SolidNetsEasyClient.Models.Options;
 /// <summary>
 /// The platform payment options
 /// </summary>
-public record PlatformPaymentOptions
+public record NetsEasyOptions
 {
     /// <summary>
     /// The http client mode, which can be either in test mode or in live mode
