@@ -10,7 +10,7 @@ using SolidNetsEasyClient.Tests.Tools;
 namespace SolidNetsEasyClient.Tests.EncryptionTests;
 
 [UnitTest]
-public class PaymentCreateFlowTests
+public class AuthorizationHeaderFlowTests
 {
     [Fact]
     public void Creating_webhook_auth_for_exactly_same_input_and_key_returns_same_authorization_values()
@@ -37,8 +37,8 @@ public class PaymentCreateFlowTests
             Nonce = "5kDAnuQfJnhyIq"
         };
 
-        var auth1 = PaymentCreatedFlow.CreateAuthorization(hasher, key, payment);
-        var auth2 = PaymentCreatedFlow.CreateAuthorization(hasher, key, payment);
+        var auth1 = AuthorizationHeaderFlow.CreateAuthorization(hasher, key, payment);
+        var auth2 = AuthorizationHeaderFlow.CreateAuthorization(hasher, key, payment);
 
         auth1.Should().BeEquivalentTo(auth2);
     }
@@ -66,8 +66,8 @@ public class PaymentCreateFlowTests
             Nonce = CustomBase62Converter.Encode(RandomNumberGenerator.GetBytes(10))
         };
 
-        var auth1 = PaymentCreatedFlow.CreateAuthorization(hasher, key1, payment);
-        var auth2 = PaymentCreatedFlow.CreateAuthorization(hasher, key2, payment);
+        var auth1 = AuthorizationHeaderFlow.CreateAuthorization(hasher, key1, payment);
+        var auth2 = AuthorizationHeaderFlow.CreateAuthorization(hasher, key2, payment);
 
         auth1.Should().NotBeSameAs(auth2);
     }
@@ -93,9 +93,9 @@ public class PaymentCreateFlowTests
             OrderReference = "ref:#1",
             Nonce = CustomBase62Converter.Encode(RandomNumberGenerator.GetBytes(10))
         };
-        var (authorization, _) = PaymentCreatedFlow.CreateAuthorization(hasher, key, payment);
+        var authorization = AuthorizationHeaderFlow.CreateAuthorization(hasher, key, payment);
 
-        authorization.Length.Should().BeLessThanOrEqualTo(32);
+        authorization.Authorization.Length.Should().BeLessThanOrEqualTo(32);
     }
 
     public class MyHasher : IHasher

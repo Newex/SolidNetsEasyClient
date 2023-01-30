@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using SolidNetsEasyClient.Helpers.Encryption.Encodings;
 using SolidNetsEasyClient.Models.DTOs;
 
 namespace SolidNetsEasyClient.Helpers.Invariants;
@@ -6,7 +7,7 @@ namespace SolidNetsEasyClient.Helpers.Invariants;
 /// <summary>
 /// Payment creation and webhook response invariant
 /// </summary>
-public readonly record struct PaymentCreatedInvariant
+public readonly record struct PaymentCreatedInvariant : IInvariantSerializable
 {
     /// <summary>
     /// The order reference
@@ -27,4 +28,10 @@ public readonly record struct PaymentCreatedInvariant
     /// The nonce
     /// </summary>
     public string? Nonce { get; init; }
+
+    /// <inheritdoc />
+    public byte[] GetBytes()
+    {
+        return ByteObjectConverter.Serialize(this);
+    }
 }

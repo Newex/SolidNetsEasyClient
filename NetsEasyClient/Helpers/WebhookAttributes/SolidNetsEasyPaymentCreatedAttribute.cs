@@ -10,7 +10,7 @@ using SolidNetsEasyClient.Models.DTOs.Responses.Webhooks.Payloads;
 namespace SolidNetsEasyClient.Helpers.WebhookAttributes;
 
 /// <summary>
-/// SolidNets Easy webhook attribute callback for the <see cref="EventName.PaymentCreated"/> event. Note that Nets expects the response for a success to be exactly 200 OK.
+/// SolidNetsEasy webhook attribute callback for the <see cref="EventName.PaymentCreated"/> event. Note that Nets expects the response for a success to be exactly 200 OK.
 /// </summary>
 public sealed class SolidNetsEasyPaymentCreatedAttribute : SolidNetsEasyEventAttribute<PaymentCreated, PaymentCreatedData>
 {
@@ -33,6 +33,6 @@ public sealed class SolidNetsEasyPaymentCreatedAttribute : SolidNetsEasyEventAtt
             OrderReference = data.Data.Order.Reference,
             Nonce = nonce
         };
-        return PaymentCreatedFlow.ValidatePaymentCreatedEventCallback(hasher, key, invariant, authorization, complement);
+        return AuthorizationHeaderFlow.ValidateAuthorization(hasher, key, invariant, authorization, complement);
     }
 }

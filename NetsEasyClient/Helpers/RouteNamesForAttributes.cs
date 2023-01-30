@@ -20,6 +20,7 @@ public static class RouteNamesForAttributes
         return eventName switch
         {
             EventName.PaymentCreated => RouteNameConstants.PaymentCreatedRoute,
+            EventName.ReservationCreatedV1 => RouteNameConstants.ReservationCreatedV1,
             _ => throw new ArgumentOutOfRangeException(nameof(eventName))
         };
     }

@@ -361,18 +361,13 @@ public sealed class NetsPaymentBuilder
             nonce = nonceSource[..nonceLength];
         }
 
-        (var authorization, var complement) = PaymentCreatedFlow.CreateAuthorization(hasher, key, new PaymentCreatedInvariant
-        {
-            OrderReference = order.Reference,
-            OrderItems = order.Items,
-            Amount = order.Amount,
-            Nonce = nonce
-        });
-        var url = UrlQueryHelpers.AddQuery($"{baseUrl}/{webhookUrl}", (complementName, complement), (nonceName, nonce));
+        var invariant = InvariantConverter.GetInvariant(order, eventName, nonce);
+        var authorization = AuthorizationHeaderFlow.CreateAuthorization(hasher, key, invariant);
+        var url = UrlQueryHelpers.AddQuery($"{baseUrl}/{webhookUrl}", (complementName, authorization.Complement), (nonceName, nonce));
 
         webHooks.Add(new()
         {
-            Authorization = authorization,
+            Authorization = authorization.Authorization,
             EventName = eventName,
             Url = url
         });
