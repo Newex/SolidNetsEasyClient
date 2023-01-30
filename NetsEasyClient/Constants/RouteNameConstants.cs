@@ -49,4 +49,9 @@ public static class RouteNameConstants
     /// The charge failed route
     /// </summary>
     public const string ChargeFailed = "SNE.ChargeFailed";
+
+    /// <summary>
+    /// The refund initiated route
+    /// </summary>
+    public const string RefundInitiated = "SNE.RefundInitiated";
 }

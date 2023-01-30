@@ -100,4 +100,13 @@ public class WebhookController : Controller
         logger.LogInformation("The data: {@ChargeFailed}", charge);
         return Ok();
     }
+
+    [SolidNetsEasyRefundInitiated("nets/refund/initiated")]
+    public ActionResult RefundInitiated([FromBody] RefundInitiated refund)
+    {
+        logger.LogInformation("The header: {@Headers}", Request.Headers);
+        logger.LogInformation("The authorization header: {Authorization}", Request.Headers.Authorization!);
+        logger.LogInformation("The data: {@RefundInitiated}", refund);
+        return Ok();
+    }
 }
