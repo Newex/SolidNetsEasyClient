@@ -34,26 +34,31 @@ public record NetsEasyOptions
     /// <summary>
     /// The checkout url
     /// </summary>
+    [Url]
     public string CheckoutUrl { get; init; } = string.Empty;
 
     /// <summary>
     /// The terms and conditions url for your site
     /// </summary>
+    [Url]
     public string TermsUrl { get; init; } = string.Empty;
 
     /// <summary>
     /// Where to return customer after completed payment when using a hosted checkout page
     /// </summary>
+    [Url]
     public string? ReturnUrl { get; init; }
 
     /// <summary>
     /// Where to return customer after cancelled payment when using a hosted checkout page
     /// </summary>
+    [Url]
     public string? CancelUrl { get; init; } = string.Empty;
 
     /// <summary>
     /// The privacy policy url for your site
     /// </summary>
+    [Url]
     public string PrivacyPolicyUrl { get; init; } = string.Empty;
 
     /// <summary>
@@ -85,6 +90,7 @@ public record NetsEasyOptions
     /// Example, you submit whole url if you only control the path 'mysite'
     /// https://webhosting.provider.com/with/sub/page/to/mysite
     /// </remarks>
+    [Url]
     public string BaseUrl { get; init; } = string.Empty;
 
     /// <summary>
