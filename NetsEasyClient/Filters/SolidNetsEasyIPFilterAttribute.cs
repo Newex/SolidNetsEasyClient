@@ -1,7 +1,6 @@
 using System;
 using System.Linq;
 using System.Net;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
@@ -19,7 +18,8 @@ namespace SolidNetsEasyClient.Filters;
 /// <remarks>
 /// Remember to add the authorization middleware to the pipeline. If there are calls to app.UseRouting() and app.UseEndpoints(...), the call to app.UseAuthorization() must go between them.
 /// </remarks>
-public sealed class SolidNetsEasyIPFilterAttribute : ActionFilterAttribute, IAuthorizationFilter
+[AttributeUsage(AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = false, Inherited = true)]
+public sealed class SolidNetsEasyIPFilterAttribute : Attribute, IAuthorizationFilter
 {
     /// <summary>
     /// Override the configured blacklist of IPs separated by a semi-colon (;)
@@ -108,32 +108,6 @@ public sealed class SolidNetsEasyIPFilterAttribute : ActionFilterAttribute, IAut
             logger.ErrorNotNetsEasyEndpoint(remoteIp, whitelist);
             context.Result = new StatusCodeResult(StatusCodes.Status403Forbidden);
         }
-    }
-
-    /// <summary>
-    /// If successfully executed the action, then change the response to 200 OK if not
-    /// </summary>
-    /// <param name="context">The context</param>
-    public override void OnResultExecuting(ResultExecutingContext context)
-    {
-        context.HttpContext.Response.OnStarting(obj =>
-        {
-            var ctx = (ResultExecutingContext)obj;
-            var logger = ServiceProviderExtensions.GetLogger<SolidNetsEasyIPFilterAttribute>(context.HttpContext.RequestServices);
-            var status = ctx.HttpContext.Response.StatusCode;
-            if (status == StatusCodes.Status200OK)
-            {
-                return Task.CompletedTask;
-            }
-
-            if (status is > 200 and <= 299)
-            {
-                logger.WarningWrongResponseCode(status, ctx.HttpContext.Request);
-                ctx.HttpContext.Response.StatusCode = StatusCodes.Status200OK;
-                return Task.CompletedTask;
-            }
-            return Task.CompletedTask;
-        }, context);
     }
 
     private static bool ContainsIP(string listing, IPAddress ip)

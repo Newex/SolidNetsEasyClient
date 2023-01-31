@@ -88,18 +88,4 @@ public static partial class LogExtensions
         SkipEnabledCheck = true
     )]
     public static partial void ErrorNotNetsEasyEndpoint(this ILogger logger, IPAddress ip, string whiteListedEndpoints);
-
-    /// <summary>
-    /// Warning success response must be 200 OK but was something else
-    /// </summary>
-    /// <param name="logger">The logger</param>
-    /// <param name="statusCode">The response status code</param>
-    /// <param name="request">The http request</param>
-    [LoggerMessage(
-        EventId = LogEventIDs.Errors.Invalid,
-        Level = LogLevel.Warning,
-        Message = "Webhook success response must be 200 OK - instead found {StatusCode} for {Request}",
-        SkipEnabledCheck = true
-    )]
-    public static partial void WarningWrongResponseCode(this ILogger logger, int statusCode, HttpRequest request);
 }

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
@@ -144,6 +145,32 @@ public abstract class SolidNetsEasyEventAttribute<T, TData> : ActionFilterAttrib
             logger.ErrorInvalidAuthorizationHeader();
             context.Result = new StatusCodeResult(StatusCodes.Status403Forbidden);
         }
+    }
+
+    /// <summary>
+    /// If successfully executed the action, then change the response to 200 OK if not
+    /// </summary>
+    /// <param name="context">The context</param>
+    public override void OnResultExecuting(ResultExecutingContext context)
+    {
+        context.HttpContext.Response.OnStarting(obj =>
+        {
+            var ctx = (ResultExecutingContext)obj;
+            var logger = ServiceProviderExtensions.GetLogger<SolidNetsEasyEventAttribute<T, TData>>(context.HttpContext.RequestServices);
+            var status = ctx.HttpContext.Response.StatusCode;
+            if (status == StatusCodes.Status200OK)
+            {
+                return Task.CompletedTask;
+            }
+
+            if (status is > 200 and <= 299)
+            {
+                logger.WarningWrongResponseCode(status, ctx.HttpContext.Request);
+                ctx.HttpContext.Response.StatusCode = StatusCodes.Status200OK;
+                return Task.CompletedTask;
+            }
+            return Task.CompletedTask;
+        }, context);
     }
 
     /// <summary>
