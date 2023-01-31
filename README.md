@@ -2,7 +2,7 @@
 This is a client for making type safe requests to the [nets easy API endpoint](https://developers.nets.eu/nets-easy/en-EU/api/payment-v1/).
 
 ### Status
-Current development status is: under development, non functional library.
+Current development status is: under development, somewhat functional library.
 
 # Quickstart
 
@@ -18,7 +18,7 @@ Register the service in the startup process:
 builder
 .Services
 .AddNetsEasyClient()
-.Configure(builder.Configuration);
+.ConfigureFromConfiguration(builder.Configuration);
 ```
 
 Either via appsettings.json or environment variables set the payment option values (or via the `ConfigureNetsEasyOptions` extension method)
@@ -135,7 +135,7 @@ The `SolidNetsEasyIPFilterAttribute` can both whitelist and blacklist ips or ip-
 But it should be kept in mind that an IP can be spoofed easily.
 
 ## Security disclaimer
-I am not a security expert. I have tried to rely only on known security implementations, from Microsoft. I have not implemented any kind of key rotation mechanism or this is even applicable.
+I am not a security expert. I have tried to rely only on known security implementations, from Microsoft. I have not implemented any kind of key rotation mechanism or if this is even applicable.
 
 If you have any suggestions please let me know.
 
@@ -155,3 +155,6 @@ Use the client to make and manage payments, from the backend. Remember that the 
 - [x] Add unit tests
 - [x] Add easy to use configuration for handling API keys and other client settings
 - [x] Add example site
+- [ ] Proof read README
+- [ ] Add options section that explains each option
+- [ ] Add Nets Terminology for vocabulary such as: Payment, checkout, charge...
