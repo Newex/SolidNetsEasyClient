@@ -2,6 +2,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using ExampleSite.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using SolidNetsEasyClient.Builder;
 using SolidNetsEasyClient.Clients;
 using SolidNetsEasyClient.Models.DTOs.Enums;
@@ -12,11 +14,19 @@ public class CheckoutController : Controller
 {
     private readonly PaymentClient client;
     private readonly NetsPaymentFactory paymentFactory;
+    private readonly NetsNotificationFactory notificationFactory;
+    private readonly ILogger<CheckoutController> logger;
 
-    public CheckoutController(PaymentClient client, NetsPaymentFactory paymentFactory)
+    public CheckoutController(
+        PaymentClient client,
+        NetsPaymentFactory paymentFactory,
+        NetsNotificationFactory notificationFactory,
+        ILogger<CheckoutController>? logger = null)
     {
         this.client = client;
         this.paymentFactory = paymentFactory;
+        this.notificationFactory = notificationFactory;
+        this.logger = logger ?? NullLogger<CheckoutController>.Instance;
     }
 
     [HttpPost("/checkout")]
@@ -54,6 +64,11 @@ public class CheckoutController : Controller
             .SubscribeToEvent(EventName.PaymentCancelled, Url)
             .SubscribeToEvent(EventName.PaymentCancellationFailed, Url)
             .BuildPaymentRequest();
+
+        var notifications = notificationFactory.CreateNotificationBuilder()
+            .AddNotificationForEvent(EventName.PaymentCreated, order)
+            .Build();
+        logger.LogTrace("Notifications unused: {Notifications}", notifications);
 
         var payment = await client.CreatePaymentAsync(paymentRequest, cts);
         var vm = new CheckoutViewModel

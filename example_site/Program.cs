@@ -17,7 +17,6 @@ builder.Logging.AddFilter((_, category, level) =>
 });
 
 builder.Services.AddHealthChecks();
-
 builder.Services.AddControllersWithViews();
 
 // Nets Easy
