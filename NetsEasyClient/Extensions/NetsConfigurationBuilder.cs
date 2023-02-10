@@ -110,8 +110,13 @@ public sealed class NetsConfigurationBuilder
     {
         var instance = new NetsConfigurationBuilder(services);
 
-        // Factories
+        // Add options
+        _ = services.Configure<NetsEasyOptions>(_ => { });
+        _ = services.Configure<WebhookEncryptionOptions>(c => c.Hasher = new HmacSHA256Hasher());
+
+        // Add factories
         services.TryAddScoped<NetsPaymentFactory>();
+        services.TryAddScoped<NetsNotificationFactory>();
 
         // Add http clients
         _ = services.AddHttpClient(ClientConstants.Live, client => client.BaseAddress = NetsEndpoints.LiveBaseUri);
@@ -128,12 +133,6 @@ public sealed class NetsConfigurationBuilder
         // Add unscheduled subscription client
         services.TryAddScoped<IUnscheduledSubscriptionClient, UnscheduledSubscriptionClient>();
         services.TryAddScoped(typeof(UnscheduledSubscriptionClient));
-
-        // Add payment options
-        _ = services.Configure<NetsEasyOptions>(_ => { });
-
-        // Add default encryption option
-        _ = services.Configure<WebhookEncryptionOptions>(c => c.Hasher = new HmacSHA256Hasher());
 
         return instance;
     }
