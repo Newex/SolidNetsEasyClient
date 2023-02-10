@@ -66,7 +66,7 @@ public class CheckoutController : Controller
             .BuildPaymentRequest();
 
         var notifications = notificationFactory.CreateNotificationBuilder()
-            .AddNotificationForEvent(EventName.PaymentCreated, order)
+            .AddNotificationForEvent(EventName.PaymentCreated, order, routeName: "CustomPaymentCreated", routeValues: new { number = 42 })
             .Build();
         logger.LogTrace("Notifications unused: {Notifications}", notifications);
 

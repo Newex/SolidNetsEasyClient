@@ -127,4 +127,14 @@ public class WebhookController : Controller
         logger.LogInformation("The data: {@RefundFailed}", refund);
         return Ok();
     }
+
+    // Must set the name. Each route must have a unique name! This route also needs a parameter: number
+    [SolidNetsEasyPaymentCreated("custom/{number:int}/route", Name = "CustomPaymentCreated")]
+    public ActionResult DuplicatePaymentCreated([FromBody] PaymentCreated payment, int number)
+    {
+        logger.LogInformation("The header: {@Headers}", Request.Headers);
+        logger.LogInformation("The authorization header: {Authorization}", Request.Headers.Authorization!);
+        logger.LogInformation("The data: {@PaymentCreated} and {Number}", payment, number);
+        return Ok();
+    }
 }
