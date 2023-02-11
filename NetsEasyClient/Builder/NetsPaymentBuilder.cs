@@ -351,12 +351,12 @@ public sealed class NetsPaymentBuilder
     /// Subscribe to an event. The webhook url is calculated by using attribute e.g. <see cref="SolidNetsEasyPaymentCreatedAttribute"/> for the payment created event and the <see cref="NetsEasyOptions.BaseUrl"/>
     /// </summary>
     /// <param name="eventName">The event name</param>
-    /// <param name="routeValues">The additional route values for the webhook endpoint</param>
     /// <param name="routeName">The route name. If null will search for the corresponding attribute using the default route name</param>
+    /// <param name="routeValues">The additional route values for the webhook endpoint</param>
     /// <param name="withNonce">True if nonce should be added otherwise false</param>
     /// <returns>A payment builder</returns>
     /// <exception cref="InvalidOperationException">Thrown when invalid <see cref="Order.Reference"/> or webhook endpoint url</exception>
-    public NetsPaymentBuilder SubscribeToEvent(EventName eventName, object? routeValues = null, string? routeName = null, bool withNonce = true)
+    public NetsPaymentBuilder SubscribeToEvent(EventName eventName, string? routeName = null, object? routeValues = null, bool withNonce = true)
     {
         if (!simpleAuthorization)
         {
