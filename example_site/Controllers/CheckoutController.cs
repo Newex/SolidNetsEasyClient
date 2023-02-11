@@ -63,10 +63,12 @@ public class CheckoutController : Controller
             .SubscribeToEvent(EventName.RefundCompleted)
             .SubscribeToEvent(EventName.PaymentCancelled)
             .SubscribeToEvent(EventName.PaymentCancellationFailed)
+            .SubscribeToAllEvents()
             .BuildPaymentRequest();
 
         var notifications = notificationFactory.CreateNotificationBuilder()
             .AddNotificationForSingleEvent(EventName.PaymentCreated, order, routeName: "CustomPaymentCreated", routeValues: new { number = 42 })
+            .AddNotificationForAllEvents()
             .Build();
         logger.LogTrace("Notifications unused: {Notifications}", notifications);
 

@@ -322,6 +322,29 @@ public sealed class NetsPaymentBuilder
     }
 
     /// <summary>
+    /// Subscribe to all events in <see cref="EventName"/> using the simple authorization.
+    /// </summary>
+    /// <remarks>
+    /// Must have all default webhook endpoints configured
+    /// </remarks>
+    /// <returns>A payment builder</returns>
+    public NetsPaymentBuilder SubscribeToAllEvents()
+    {
+        foreach (var eventName in Enum.GetValues<EventName>())
+        {
+            var url = NetsNotificationBuilder.CreateSimpleUrlToWebhook(eventName, null, null, linkGenerator, baseUrl);
+            webHooks.Add(new()
+            {
+                Authorization = authorizationKey,
+                EventName = eventName,
+                Url = url
+            });
+        }
+
+        return this;
+    }
+
+    /// <summary>
     /// Subscribe to an event
     /// </summary>
     /// <param name="eventName">The event name</param>

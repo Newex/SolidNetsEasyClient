@@ -11,6 +11,7 @@ using SolidNetsEasyClient.Models.Options;
 
 namespace SolidNetsEasyClient.Filters;
 
+// TODO: Add IEndpointFilter so this can be used in a minimal API
 /// <summary>
 /// An IP filter which first checks the blacklist and then lastly checks if the request comes from the configured Nets IP range. If the request is on a blacklist or not found in any list the http request will be denied with a status 403 forbidden response.
 /// To change the default behavior when no IP has been found, set <see cref="AllowOnlyWhitelistedIPs"/> property to false.

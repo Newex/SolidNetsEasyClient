@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Security.Cryptography;
 using System.Text;
@@ -44,6 +45,29 @@ public sealed class NetsNotificationBuilder
         nonceName = options.NonceName;
         simpleAuthorization = options.UseSimpleAuthorization;
         bulkName = options.BulkIndicatorName;
+    }
+
+    /// <summary>
+    /// Create notifications for all events <see cref="EventName"/> using simple authorization.
+    /// </summary>
+    /// <remarks>
+    /// Must have all default webhook endpoints configured
+    /// </remarks>
+    /// <returns>A notification builder</returns>
+    public NetsNotificationBuilder AddNotificationForAllEvents()
+    {
+        foreach (var eventName in Enum.GetValues<EventName>())
+        {
+            var url = CreateSimpleUrlToWebhook(eventName, null, null, linkGenerator, baseUrl);
+            notifications.Add(new()
+            {
+                Authorization = authorizationKey,
+                EventName = eventName,
+                Url = url
+            });
+        }
+
+        return this;
     }
 
     /// <summary>
