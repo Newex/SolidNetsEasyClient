@@ -19,7 +19,6 @@ using SolidNetsEasyClient.Validators;
 
 namespace SolidNetsEasyClient.Builder;
 
-// TODO: Make this injectable from DI and register it
 /// <summary>
 /// A builder for creating a Nets payment request
 /// </summary>
