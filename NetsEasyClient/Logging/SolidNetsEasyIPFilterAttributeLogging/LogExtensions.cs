@@ -43,7 +43,7 @@ public static partial class LogExtensions
     [LoggerMessage(
         EventId = LogEventIDs.Errors.Forbidden,
         Level = LogLevel.Error,
-        Message = "Cannot retrieve the remote IP of the client. Denying request for webhook. {IPAddreess} and/or {ProxyIPAddress} missing.",
+        Message = "Cannot retrieve the remote IP of the client. Denying request for webhook. {IPAddress} and/or {ProxyIPAddress} missing.",
         SkipEnabledCheck = true
     )]
     public static partial void ErrorNoRemoteIP(this ILogger logger, IPAddress? ipAddress, string? proxyIPAddress);
