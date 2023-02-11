@@ -39,7 +39,7 @@ public record WebhookEncryptionOptions
     public string NonceName { get; set; } = "nonce";
 
     /// <summary>
-    /// The API key
+    /// The API key that Nets inserts into the Authorization header on webhook callback.
     /// </summary>
     /// <remarks>
     /// Only alphanumeric characters are allowed with a maximum length of 32
