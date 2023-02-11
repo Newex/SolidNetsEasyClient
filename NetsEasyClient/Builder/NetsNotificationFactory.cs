@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Options;
-using SolidNetsEasyClient.Helpers.Encryption;
 using SolidNetsEasyClient.Models.Options;
 
 namespace SolidNetsEasyClient.Builder;
@@ -11,12 +10,8 @@ namespace SolidNetsEasyClient.Builder;
 public class NetsNotificationFactory
 {
     private readonly string baseUrl;
+    private readonly WebhookEncryptionOptions webhookOptions;
     private readonly LinkGenerator linkGenerator;
-    private readonly string complementName;
-    private readonly string nonceName;
-    private readonly int nonceLength;
-    private readonly IHasher hasher;
-    private readonly byte[] key;
 
     /// <summary>
     /// Instantiate a new <see cref="NetsNotificationFactory"/>
@@ -31,12 +26,8 @@ public class NetsNotificationFactory
     )
     {
         baseUrl = options.Value.BaseUrl;
+        this.webhookOptions = webhookOptions.Value;
         this.linkGenerator = linkGenerator;
-        complementName = webhookOptions.Value.ComplementName;
-        nonceName = webhookOptions.Value.NonceName;
-        nonceLength = webhookOptions.Value.NonceLength;
-        hasher = webhookOptions.Value.Hasher;
-        key = webhookOptions.Value.Key;
     }
 
     /// <summary>
@@ -45,6 +36,6 @@ public class NetsNotificationFactory
     /// <returns>The notification builder</returns>
     public NetsNotificationBuilder CreateNotificationBuilder()
     {
-        return new NetsNotificationBuilder(baseUrl, complementName, nonceName, linkGenerator, hasher, key, nonceLength);
+        return new NetsNotificationBuilder(baseUrl, linkGenerator, webhookOptions);
     }
 }

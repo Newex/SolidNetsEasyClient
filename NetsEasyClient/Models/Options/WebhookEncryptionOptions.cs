@@ -1,4 +1,5 @@
 using System;
+using System.ComponentModel.DataAnnotations;
 using SolidNetsEasyClient.Helpers.Encryption;
 
 namespace SolidNetsEasyClient.Models.Options;
@@ -36,4 +37,24 @@ public record WebhookEncryptionOptions
     /// The default nonce name used in webhook
     /// </summary>
     public string NonceName { get; set; } = "nonce";
+
+    /// <summary>
+    /// The API key
+    /// </summary>
+    /// <remarks>
+    /// Only alphanumeric characters are allowed with a maximum length of 32
+    /// </remarks>
+    [StringLength(32)]
+    [RegularExpression("^[a-zA-Z0-9]*$", ErrorMessage = "Only alphanumeric characters are allowed")]
+    public string ApiKey { get; set; } = string.Empty;
+
+    /// <summary>
+    /// True if using a simple authorization with the given <see cref="ApiKey"/>
+    /// </summary>
+    public bool UseSimpleAuthorization { get; set; } = true;
+
+    /// <summary>
+    /// The parameter name to indicate to the webhook that this request is a bulk event - thus we revert to use simple authorization.
+    /// </summary>
+    public string BulkIndicatorName { get; set; } = "bulk";
 }

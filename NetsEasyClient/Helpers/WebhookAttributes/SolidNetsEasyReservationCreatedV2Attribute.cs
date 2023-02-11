@@ -12,6 +12,10 @@ namespace SolidNetsEasyClient.Helpers.WebhookAttributes;
 /// <summary>
 /// SolidNetsEasy webhook attribute callback for the <see cref="EventName.ReservationCreatedV2"/> event. Note that Nets expects the response for a success to be exactly 200 OK.
 /// </summary>
+/// <remarks>
+/// The hidden query parameters are by default: complement (string), nonce (string), bulk (bool).
+/// The required parameter from the request body is: <see cref="ReservationCreatedV2"/>
+/// </remarks>
 public class SolidNetsEasyReservationCreatedV2Attribute : SolidNetsEasyEventAttribute<ReservationCreatedV2, ReservationCreatedDataV2>
 {
     /// <inheritdoc />

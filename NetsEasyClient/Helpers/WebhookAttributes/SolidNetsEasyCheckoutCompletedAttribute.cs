@@ -12,6 +12,10 @@ namespace SolidNetsEasyClient.Helpers.WebhookAttributes;
 /// <summary>
 /// SolidNetsEasy webhook attribute callback for the <see cref="EventName.CheckoutCompleted"/> event. Note that Nets expects the response for a success to be exactly 200 OK.
 /// </summary>
+/// <remarks>
+/// The hidden query parameters are by default: complement (string), nonce (string), bulk (bool).
+/// The required parameter from the request body is: <see cref="CheckoutCompleted"/>
+/// </remarks>
 public class SolidNetsEasyCheckoutCompletedAttribute : SolidNetsEasyEventAttribute<CheckoutCompleted, CheckoutCompletedData>
 {
     /// <inheritdoc />

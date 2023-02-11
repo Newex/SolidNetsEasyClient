@@ -59,6 +59,19 @@ public static partial class LogExtensions
     public static partial void ErrorMoreThanOneEventPayloadArgument(this ILogger logger, InvalidOperationException ex);
 
     /// <summary>
+    /// Error invalid authorization header for bulk webhook
+    /// </summary>
+    /// <param name="logger">The logger</param>
+    /// <param name="authorizationHeader">The authorization header value</param>
+    [LoggerMessage(
+        EventId = LogEventIDs.Errors.Invalid,
+        Level = LogLevel.Error,
+        Message = "Invalid Authorization header from request, does not match BulkAPIKey: {AuthorizationHeader}",
+        SkipEnabledCheck = true
+    )]
+    public static partial void ErrorInvalidBulkAuthorizationHeader(this ILogger logger, string? authorizationHeader);
+
+    /// <summary>
     /// Error missing nonce to authorize
     /// </summary>
     /// <param name="logger">The logger</param>

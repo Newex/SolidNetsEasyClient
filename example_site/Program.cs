@@ -39,6 +39,10 @@ builder
             0x5B,
             0xCC
         };
+
+        // Can NOT have any special characters, e.g. % _ / - + [] etc.
+        // Max length = 32
+        opt.ApiKey = "onlynumbersOrLetters";
     })
     .ConfigureFromConfiguration(builder.Configuration);
 

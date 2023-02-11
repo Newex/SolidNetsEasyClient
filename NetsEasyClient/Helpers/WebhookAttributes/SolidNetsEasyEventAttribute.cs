@@ -79,6 +79,11 @@ public abstract class SolidNetsEasyEventAttribute<T, TData> : ActionFilterAttrib
     /// </summary>
     public bool ValidateAuthorizationHeader { get; set; } = true;
 
+    /// <summary>
+    /// Override the default <see cref="WebhookEncryptionOptions.UseSimpleAuthorization"/> setting
+    /// </summary>
+    public bool? UseSimpleAuthorization { get; set; }
+
     /// <inheritdoc />
     public override void OnActionExecuting(ActionExecutingContext context)
     {
@@ -126,6 +131,23 @@ public abstract class SolidNetsEasyEventAttribute<T, TData> : ActionFilterAttrib
         {
             logger.ErrorMissingEncryptionConfiguration();
             context.Result = new StatusCodeResult(StatusCodes.Status500InternalServerError);
+            return;
+        }
+
+        var simple = UseSimpleAuthorization ?? encryptionOptions.Value.UseSimpleAuthorization;
+        _ = request.Query.TryGetValue(encryptionOptions.Value.BulkIndicatorName, out var bulk);
+        _ = bool.TryParse(bulk, out var isBulk);
+        if (simple || isBulk)
+        {
+            var validAuthorization = request.Headers.Authorization.Equals(encryptionOptions.Value.ApiKey);
+            if (!validAuthorization)
+            {
+                logger.ErrorInvalidBulkAuthorizationHeader(request.Headers.Authorization);
+                context.Result = new StatusCodeResult(StatusCodes.Status403Forbidden);
+                return;
+            }
+
+            // Valid authorization header
             return;
         }
 

@@ -102,7 +102,10 @@ public sealed class NetsConfigurationBuilder
     /// <returns>A builder object</returns>
     public NetsConfigurationBuilder ConfigureEncryptionOptions(Action<WebhookEncryptionOptions> configure)
     {
-        _ = services.Configure(configure);
+        _ = services.AddOptions<WebhookEncryptionOptions>()
+                                     .Configure(configure)
+                                     .ValidateDataAnnotations()
+                                     .ValidateOnStart();
         return this;
     }
 

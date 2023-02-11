@@ -12,6 +12,10 @@ namespace SolidNetsEasyClient.Helpers.WebhookAttributes;
 /// <summary>
 /// SolidNetsEasy webhook attribute callback for the <see cref="EventName.RefundInitiated"/> event. Note that Nets expects the response for a success to be exactly 200 OK.
 /// </summary>
+/// <remarks>
+/// The hidden query parameters are by default: complement (string), nonce (string), bulk (bool).
+/// The required parameter from the request body is: <see cref="RefundInitiated"/>
+/// </remarks>
 public class SolidNetsEasyRefundInitiatedAttribute : SolidNetsEasyEventAttribute<RefundInitiated, RefundInitiatedData>
 {
     /// <inheritdoc />
