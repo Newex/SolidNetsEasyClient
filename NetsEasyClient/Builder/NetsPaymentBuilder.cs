@@ -1,9 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Security.Cryptography;
-using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Routing;
 using SolidNetsEasyClient.Extensions;
-using SolidNetsEasyClient.Helpers;
 using SolidNetsEasyClient.Helpers.Encryption;
 using SolidNetsEasyClient.Helpers.Encryption.Encodings;
 using SolidNetsEasyClient.Helpers.Encryption.Flows;
@@ -47,8 +46,22 @@ public sealed class NetsPaymentBuilder
     private readonly IHasher hasher;
     private readonly byte[] key;
     private readonly int nonceLength;
+    private readonly bool simpleAuthorization;
+    private readonly string authorizationKey;
+    private readonly LinkGenerator linkGenerator;
 
-    internal NetsPaymentBuilder(string baseUrl, string complementName, string nonceName, IHasher hasher, byte[] key, int nonceLength, Order order, int minimumPayment)
+    internal NetsPaymentBuilder(
+        string baseUrl,
+        string complementName,
+        string nonceName,
+        IHasher hasher,
+        byte[] key,
+        int nonceLength,
+        Order order,
+        int minimumPayment,
+        bool simpleAuthorization,
+        string authorizationKey,
+        LinkGenerator linkGenerator)
     {
         this.order = order;
         this.minimumPayment = minimumPayment;
@@ -63,6 +76,9 @@ public sealed class NetsPaymentBuilder
         }
 
         this.nonceLength = nonceLength;
+        this.simpleAuthorization = simpleAuthorization;
+        this.authorizationKey = authorizationKey;
+        this.linkGenerator = linkGenerator;
     }
 
     /// <summary>
@@ -335,43 +351,49 @@ public sealed class NetsPaymentBuilder
     /// Subscribe to an event. The webhook url is calculated by using attribute e.g. <see cref="SolidNetsEasyPaymentCreatedAttribute"/> for the payment created event and the <see cref="NetsEasyOptions.BaseUrl"/>
     /// </summary>
     /// <param name="eventName">The event name</param>
-    /// <param name="urlHelper">The url helper</param>
     /// <param name="routeValues">The additional route values for the webhook endpoint</param>
     /// <param name="routeName">The route name. If null will search for the corresponding attribute using the default route name</param>
     /// <param name="withNonce">True if nonce should be added otherwise false</param>
     /// <returns>A payment builder</returns>
     /// <exception cref="InvalidOperationException">Thrown when invalid <see cref="Order.Reference"/> or webhook endpoint url</exception>
-    public NetsPaymentBuilder SubscribeToEvent(EventName eventName, IUrlHelper urlHelper, object? routeValues = null, string? routeName = null, bool withNonce = true)
+    public NetsPaymentBuilder SubscribeToEvent(EventName eventName, object? routeValues = null, string? routeName = null, bool withNonce = true)
     {
-        if (string.IsNullOrWhiteSpace(order.Reference))
+        if (!simpleAuthorization)
         {
-            throw new InvalidOperationException("Order reference must be set to use the in-built webhook creator");
+            if (string.IsNullOrWhiteSpace(order.Reference))
+            {
+                throw new InvalidOperationException("Order reference must be set to use the in-built webhook creator");
+            }
+
+            string? nonce = null;
+            if (withNonce)
+            {
+                var nonceSource = CustomBase62Converter.Encode(RandomNumberGenerator.GetBytes(256));
+                nonce = nonceSource[..nonceLength];
+            }
+
+            var invariant = InvariantConverter.GetInvariant(order, eventName, nonce);
+            var authorization = AuthorizationHeaderFlow.CreateAuthorization(hasher, key, invariant);
+
+            var url = NetsNotificationBuilder.CreateAdvancedUrlToWebhook(eventName, routeName, routeValues, linkGenerator, baseUrl, authorization.Complement, nonce, complementName, nonceName);
+
+            webHooks.Add(new()
+            {
+                Authorization = authorization.Authorization,
+                EventName = eventName,
+                Url = url
+            });
         }
-
-        routeName ??= RouteNamesForAttributes.GetRouteNameByEvent(eventName);
-        var webhookUrl = urlHelper.RouteUrl(routeName, routeValues)?.TrimStart('/');
-        if (webhookUrl is null)
+        else
         {
-            throw new InvalidOperationException("Could not create webhook url endpoint. Ensure you have marked an action with the attribute of SolidNetsEasy_{EventName}_Attribute");
+            var url = NetsNotificationBuilder.CreateSimpleUrlToWebhook(eventName, routeName, routeValues, linkGenerator, baseUrl);
+            webHooks.Add(new()
+            {
+                Authorization = authorizationKey,
+                EventName = eventName,
+                Url = url
+            });
         }
-
-        string? nonce = null;
-        if (withNonce)
-        {
-            var nonceSource = CustomBase62Converter.Encode(RandomNumberGenerator.GetBytes(256));
-            nonce = nonceSource[..nonceLength];
-        }
-
-        var invariant = InvariantConverter.GetInvariant(order, eventName, nonce);
-        var authorization = AuthorizationHeaderFlow.CreateAuthorization(hasher, key, invariant);
-        var url = UrlQueryHelpers.AddQuery($"{baseUrl}/{webhookUrl}", (complementName, authorization.Complement), (nonceName, nonce));
-
-        webHooks.Add(new()
-        {
-            Authorization = authorization.Authorization,
-            EventName = eventName,
-            Url = url
-        });
 
         return this;
     }

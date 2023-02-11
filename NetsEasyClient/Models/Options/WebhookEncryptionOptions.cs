@@ -49,8 +49,11 @@ public record WebhookEncryptionOptions
     public string AuthorizationKey { get; set; } = string.Empty;
 
     /// <summary>
-    /// True if using a simple authorization with the given <see cref="AuthorizationKey"/>
+    /// True if using a simple authorization with the given <see cref="AuthorizationKey"/>. If false a hash will be calculated and an endpoint url will be constructed so that the hash value can be validated using a-priori information.
     /// </summary>
+    /// <remarks>
+    /// A webhook bulk event notification will always use the <see cref="AuthorizationKey"/>
+    /// </remarks>
     public bool UseSimpleAuthorization { get; set; } = true;
 
     /// <summary>

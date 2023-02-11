@@ -26,7 +26,7 @@ public sealed class NetsNotificationBuilder
     private readonly byte[] key;
     private readonly int nonceLength;
     private readonly string authorizationKey;
-    private readonly List<WebHook> notifications = new();
+    private readonly List<WebHook> notifications = new(32);
     private readonly string complementName;
     private readonly string nonceName;
     private readonly bool simpleAuthorization;
@@ -64,9 +64,7 @@ public sealed class NetsNotificationBuilder
             var invariant = InvariantConverter.GetInvariant(order, eventName, nonce);
             var authorization = AuthorizationHeaderFlow.CreateAuthorization(hasher, key, invariant);
 
-            routeName ??= RouteNamesForAttributes.GetRouteNameByEvent(eventName);
-            var webhookUrl = (linkGenerator.GetPathByName(routeName, routeValues) ?? string.Empty).TrimStart('/');
-            var url = UrlQueryHelpers.AddQuery($"{baseUrl}/{webhookUrl}", (complementName, authorization.Complement), (nonceName, nonce));
+            var url = CreateAdvancedUrlToWebhook(eventName, routeName, routeValues, linkGenerator, baseUrl, authorization.Complement, nonce, complementName, nonceName);
 
             notifications.Add(new()
             {
@@ -77,7 +75,7 @@ public sealed class NetsNotificationBuilder
         }
         else
         {
-            var url = CreateSimpleUrlToWebhook(eventName, routeName, routeValues);
+            var url = CreateSimpleUrlToWebhook(eventName, routeName, routeValues, linkGenerator, baseUrl);
             notifications.Add(new()
             {
                 Authorization = authorizationKey,
@@ -117,7 +115,7 @@ public sealed class NetsNotificationBuilder
     /// <returns>A notification builder</returns>
     public NetsNotificationBuilder AddNotificationForBulkEvent(EventName eventName, string? routeName = null, object? routeValues = null)
     {
-        var url = UrlQueryHelpers.AddQuery(CreateSimpleUrlToWebhook(eventName, routeName, routeValues), (bulkName, "true"));
+        var url = UrlQueryHelpers.AddQuery(CreateSimpleUrlToWebhook(eventName, routeName, routeValues, linkGenerator, baseUrl), (bulkName, "true"));
         notifications.Add(new()
         {
             Authorization = authorizationKey,
@@ -140,7 +138,7 @@ public sealed class NetsNotificationBuilder
         };
     }
 
-    private string CreateSimpleUrlToWebhook(EventName eventName, string? routeName, object? routeValues)
+    internal static string CreateSimpleUrlToWebhook(EventName eventName, string? routeName, object? routeValues, LinkGenerator linkGenerator, string baseUrl)
     {
         var sb = new StringBuilder();
         routeName ??= RouteNamesForAttributes.GetRouteNameByEvent(eventName);
@@ -149,5 +147,18 @@ public sealed class NetsNotificationBuilder
           .Append('/')
           .Append(webhookUrl);
         return sb.ToString();
+    }
+
+    internal static string CreateAdvancedUrlToWebhook(EventName eventName, string? routeName, object? routeValues, LinkGenerator linkGenerator, string baseUrl, string? complement, string? nonce, string? complementName, string? nonceName)
+    {
+        var sb = new StringBuilder();
+        routeName ??= RouteNamesForAttributes.GetRouteNameByEvent(eventName);
+        var webhookUrl = (linkGenerator.GetPathByName(routeName, routeValues) ?? string.Empty).TrimStart('/');
+        _ = sb.Append(baseUrl)
+          .Append('/')
+          .Append(webhookUrl);
+        var root = sb.ToString();
+        var url = UrlQueryHelpers.AddQuery(root, (complementName, complement), (nonceName, nonce));
+        return url;
     }
 }
