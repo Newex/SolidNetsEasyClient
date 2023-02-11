@@ -1,6 +1,5 @@
 using System.Net;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.Logging;
 
 namespace SolidNetsEasyClient.Logging.SolidNetsEasyIPFilterAttributeLogging;
@@ -39,14 +38,15 @@ public static partial class LogExtensions
     /// Error request does not contain remote IP
     /// </summary>
     /// <param name="logger">The logger</param>
-    /// <param name="context">The authorization context</param>
+    /// <param name="ipAddress">The remote ip address</param>
+    /// <param name="proxyIPAddress">The client proxy ip address</param>
     [LoggerMessage(
         EventId = LogEventIDs.Errors.Forbidden,
         Level = LogLevel.Error,
-        Message = "Cannot retrieve the remote IP of the client. Denying request for webhook {Context}",
+        Message = "Cannot retrieve the remote IP of the client. Denying request for webhook. {IPAddreess} and/or {ProxyIPAddress} missing.",
         SkipEnabledCheck = true
     )]
-    public static partial void ErrorNoRemoteIP(this ILogger logger, AuthorizationFilterContext context);
+    public static partial void ErrorNoRemoteIP(this ILogger logger, IPAddress? ipAddress, string? proxyIPAddress);
 
     /// <summary>
     /// Error cannot parse proxy IP to IP
