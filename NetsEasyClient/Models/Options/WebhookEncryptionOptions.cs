@@ -39,17 +39,17 @@ public record WebhookEncryptionOptions
     public string NonceName { get; set; } = "nonce";
 
     /// <summary>
-    /// The API key that Nets inserts into the Authorization header on webhook callback.
+    /// The authorization key that Nets inserts into the Authorization header on webhook callback.
     /// </summary>
     /// <remarks>
     /// Only alphanumeric characters are allowed with a maximum length of 32
     /// </remarks>
     [StringLength(32)]
     [RegularExpression("^[a-zA-Z0-9]*$", ErrorMessage = "Only alphanumeric characters are allowed")]
-    public string ApiKey { get; set; } = string.Empty;
+    public string AuthorizationKey { get; set; } = string.Empty;
 
     /// <summary>
-    /// True if using a simple authorization with the given <see cref="ApiKey"/>
+    /// True if using a simple authorization with the given <see cref="AuthorizationKey"/>
     /// </summary>
     public bool UseSimpleAuthorization { get; set; } = true;
 

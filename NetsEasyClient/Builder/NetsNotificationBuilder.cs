@@ -25,7 +25,7 @@ public sealed class NetsNotificationBuilder
     private readonly IHasher hasher;
     private readonly byte[] key;
     private readonly int nonceLength;
-    private readonly string apiKey;
+    private readonly string authorizationKey;
     private readonly List<WebHook> notifications = new();
     private readonly string complementName;
     private readonly string nonceName;
@@ -39,7 +39,7 @@ public sealed class NetsNotificationBuilder
         hasher = options.Hasher;
         key = options.Key;
         nonceLength = options.NonceLength;
-        apiKey = options.ApiKey;
+        authorizationKey = options.AuthorizationKey;
         complementName = options.ComplementName;
         nonceName = options.NonceName;
         simpleAuthorization = options.UseSimpleAuthorization;
@@ -80,7 +80,7 @@ public sealed class NetsNotificationBuilder
             var url = CreateSimpleUrlToWebhook(eventName, routeName, routeValues);
             notifications.Add(new()
             {
-                Authorization = apiKey,
+                Authorization = authorizationKey,
                 EventName = eventName,
                 Url = url
             });
@@ -120,7 +120,7 @@ public sealed class NetsNotificationBuilder
         var url = UrlQueryHelpers.AddQuery(CreateSimpleUrlToWebhook(eventName, routeName, routeValues), (bulkName, "true"));
         notifications.Add(new()
         {
-            Authorization = apiKey,
+            Authorization = authorizationKey,
             EventName = eventName,
             Url = url
         });

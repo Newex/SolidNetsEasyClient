@@ -42,7 +42,7 @@ builder
 
         // Can NOT have any special characters, e.g. % _ / - + [] etc.
         // Max length = 32
-        opt.ApiKey = "onlynumbersOrLetters";
+        opt.AuthorizationKey = "onlynumbersOrLetters";
     })
     .ConfigureFromConfiguration(builder.Configuration);
 

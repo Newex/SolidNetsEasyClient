@@ -139,7 +139,7 @@ public abstract class SolidNetsEasyEventAttribute<T, TData> : ActionFilterAttrib
         _ = bool.TryParse(bulk, out var isBulk);
         if (simple || isBulk)
         {
-            var validAuthorization = request.Headers.Authorization.Equals(encryptionOptions.Value.ApiKey);
+            var validAuthorization = request.Headers.Authorization.Equals(encryptionOptions.Value.AuthorizationKey);
             if (!validAuthorization)
             {
                 logger.ErrorInvalidBulkAuthorizationHeader(request.Headers.Authorization);
