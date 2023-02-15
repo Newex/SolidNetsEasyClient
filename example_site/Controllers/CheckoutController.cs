@@ -63,7 +63,6 @@ public class CheckoutController : Controller
             .SubscribeToEvent(EventName.RefundCompleted)
             .SubscribeToEvent(EventName.PaymentCancelled)
             .SubscribeToEvent(EventName.PaymentCancellationFailed)
-            .SubscribeToAllEvents()
             .BuildPaymentRequest();
 
         var notifications = notificationFactory.CreateNotificationBuilder()
