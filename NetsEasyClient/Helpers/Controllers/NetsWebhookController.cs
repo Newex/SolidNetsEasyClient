@@ -1,17 +1,21 @@
+using System;
 using System.Threading;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using SolidNetsEasyClient.Helpers.WebhookAttributes;
+using SolidNetsEasyClient.Logging;
+using SolidNetsEasyClient.Logging.NetsWebhookControllerLogging;
 using SolidNetsEasyClient.Models.DTOs.Enums;
 using SolidNetsEasyClient.Models.DTOs.Responses.Webhooks;
+using SolidNetsEasyClient.Models.DTOs.Responses.Webhooks.Payloads;
 
 namespace SolidNetsEasyClient.Helpers.Controllers;
 
 /// <summary>
-/// Default Nets webhook controller
+/// Default Nets webhook controller. Override the Nets actions to handle the given webhook event.
 /// </summary>
 /// <remarks>
-/// Every action only logs the headers, the event DTO and then returns a 200 OK.
+/// Default implementation only logs the headers, the event DTO and then returns a 200 OK.
 /// </remarks>
 public abstract class NetsWebhookController : Controller
 {
@@ -29,9 +33,9 @@ public abstract class NetsWebhookController : Controller
     [SolidNetsEasyPaymentCreated("nets/payment/created")]
     public virtual ActionResult NetsPaymentCreated([FromBody] PaymentCreated payment, CancellationToken cancellationToken)
     {
-        Logger.LogInformation("The header: {@Headers}", Request.Headers);
-        Logger.LogInformation("The authorization header: {Authorization}", Request.Headers.Authorization!);
-        Logger.LogInformation("The data: {@Payment}", payment);
+        Logger.InfoHeader(Request.Headers);
+        Logger.InfoAuthorizationHeader(Request.Headers.Authorization);
+        Logger.InfoData<PaymentCreated, PaymentCreatedData>(payment);
         return Ok();
     }
 
@@ -44,9 +48,9 @@ public abstract class NetsWebhookController : Controller
     [SolidNetsEasyReservationCreatedV1("nets/reservationv1/created")]
     public virtual ActionResult NetsReservationCreatedV1([FromBody] ReservationCreatedV1 reservation, CancellationToken cancellationToken)
     {
-        Logger.LogInformation("The header: {@Headers}", Request.Headers);
-        Logger.LogInformation("The authorization header: {Authorization}", Request.Headers.Authorization!);
-        Logger.LogInformation("The data: {@ReservationV1}", reservation);
+        Logger.InfoHeader(Request.Headers);
+        Logger.InfoAuthorizationHeader(Request.Headers.Authorization);
+        Logger.InfoData<ReservationCreatedV1, ReservationCreatedDataV1>(reservation);
         return Ok();
     }
 
@@ -59,9 +63,9 @@ public abstract class NetsWebhookController : Controller
     [SolidNetsEasyReservationCreatedV2("nets/reservationv2/created")]
     public virtual ActionResult NetsReservationCreatedV2([FromBody] ReservationCreatedV2 reservation, CancellationToken cancellationToken)
     {
-        Logger.LogInformation("The header: {@Headers}", Request.Headers);
-        Logger.LogInformation("The authorization header: {Authorization}", Request.Headers.Authorization!);
-        Logger.LogInformation("The data: {@ReservationV2}", reservation);
+        Logger.InfoHeader(Request.Headers);
+        Logger.InfoAuthorizationHeader(Request.Headers.Authorization);
+        Logger.InfoData<ReservationCreatedV2, ReservationCreatedDataV2>(reservation);
         return Ok();
     }
 
@@ -74,9 +78,9 @@ public abstract class NetsWebhookController : Controller
     [SolidNetsEasyReservationFailed("nets/reservation/failed")]
     public virtual ActionResult NetsReservationFailed([FromBody] ReservationFailed reservation, CancellationToken cancellationToken)
     {
-        Logger.LogInformation("The header: {@Headers}", Request.Headers);
-        Logger.LogInformation("The authorization header: {Authorization}", Request.Headers.Authorization!);
-        Logger.LogInformation("The data: {@ReservationFailed}", reservation);
+        Logger.InfoHeader(Request.Headers);
+        Logger.InfoAuthorizationHeader(Request.Headers.Authorization);
+        Logger.InfoData<ReservationFailed, ReservationFailedData>(reservation);
         return Ok();
     }
 
@@ -89,9 +93,9 @@ public abstract class NetsWebhookController : Controller
     [SolidNetsEasyCheckoutCompleted("nets/checkout/completed")]
     public virtual ActionResult NetsCheckoutCompleted([FromBody] CheckoutCompleted checkout, CancellationToken cancellationToken)
     {
-        Logger.LogInformation("The header: {@Headers}", Request.Headers);
-        Logger.LogInformation("The authorization header: {Authorization}", Request.Headers.Authorization!);
-        Logger.LogInformation("The data: {@CheckoutCompleted}", checkout);
+        Logger.InfoHeader(Request.Headers);
+        Logger.InfoAuthorizationHeader(Request.Headers.Authorization);
+        Logger.InfoData<CheckoutCompleted, CheckoutCompletedData>(checkout);
         return Ok();
     }
 
@@ -104,9 +108,9 @@ public abstract class NetsWebhookController : Controller
     [SolidNetsEasyChargeCreated("nets/charge/created")]
     public virtual ActionResult NetsChargeCreated([FromBody] ChargeCreated charge, CancellationToken cancellationToken)
     {
-        Logger.LogInformation("The header: {@Headers}", Request.Headers);
-        Logger.LogInformation("The authorization header: {Authorization}", Request.Headers.Authorization!);
-        Logger.LogInformation("The data: {@ChargeCreated}", charge);
+        Logger.InfoHeader(Request.Headers);
+        Logger.InfoAuthorizationHeader(Request.Headers.Authorization);
+        Logger.InfoData<ChargeCreated, ChargeData>(charge);
         return Ok();
     }
 
@@ -119,9 +123,9 @@ public abstract class NetsWebhookController : Controller
     [SolidNetsEasyPaymentCancelled("nets/payment/cancelled")]
     public virtual ActionResult NetsPaymentCancelled([FromBody] PaymentCancelled payment, CancellationToken cancellationToken)
     {
-        Logger.LogInformation("The header: {@Headers}", Request.Headers);
-        Logger.LogInformation("The authorization header: {Authorization}", Request.Headers.Authorization!);
-        Logger.LogInformation("The data: {@PaymentCancelled}", payment);
+        Logger.InfoHeader(Request.Headers);
+        Logger.InfoAuthorizationHeader(Request.Headers.Authorization);
+        Logger.InfoData<PaymentCancelled, PaymentCancelledData>(payment);
         return Ok();
     }
 
@@ -134,9 +138,9 @@ public abstract class NetsWebhookController : Controller
     [SolidNetsEasyPaymentCancellationFailed("nets/payment/cancelled/failed")]
     public virtual ActionResult NetsPaymentCancellationFailed([FromBody] PaymentCancellationFailed payment, CancellationToken cancellationToken)
     {
-        Logger.LogInformation("The header: {@Headers}", Request.Headers);
-        Logger.LogInformation("The authorization header: {Authorization}", Request.Headers.Authorization!);
-        Logger.LogInformation("The data: {@PaymentCancellationFailed}", payment);
+        Logger.InfoHeader(Request.Headers);
+        Logger.InfoAuthorizationHeader(Request.Headers.Authorization);
+        Logger.InfoData<PaymentCancellationFailed, PaymentCancellationFailedData>(payment);
         return Ok();
     }
 
@@ -149,9 +153,9 @@ public abstract class NetsWebhookController : Controller
     [SolidNetsEasyChargeFailed("nets/charge/failed")]
     public virtual ActionResult NetsChargeFailed([FromBody] ChargeFailed charge, CancellationToken cancellationToken)
     {
-        Logger.LogInformation("The header: {@Headers}", Request.Headers);
-        Logger.LogInformation("The authorization header: {Authorization}", Request.Headers.Authorization!);
-        Logger.LogInformation("The data: {@ChargeFailed}", charge);
+        Logger.InfoHeader(Request.Headers);
+        Logger.InfoAuthorizationHeader(Request.Headers.Authorization);
+        Logger.InfoData<ChargeFailed, ChargeFailedData>(charge);
         return Ok();
     }
 
@@ -164,9 +168,9 @@ public abstract class NetsWebhookController : Controller
     [SolidNetsEasyRefundInitiated("nets/refund/initiated")]
     public virtual ActionResult NetsRefundInitiated([FromBody] RefundInitiated refund, CancellationToken cancellationToken)
     {
-        Logger.LogInformation("The header: {@Headers}", Request.Headers);
-        Logger.LogInformation("The authorization header: {Authorization}", Request.Headers.Authorization!);
-        Logger.LogInformation("The data: {@RefundInitiated}", refund);
+        Logger.InfoHeader(Request.Headers);
+        Logger.InfoAuthorizationHeader(Request.Headers.Authorization);
+        Logger.InfoData<RefundInitiated, RefundInitiatedData>(refund);
         return Ok();
     }
 
@@ -179,9 +183,9 @@ public abstract class NetsWebhookController : Controller
     [SolidNetsEasyRefundCompleted("nets/refund/completed")]
     public virtual ActionResult NetsRefundCompleted([FromBody] RefundCompleted refund, CancellationToken cancellationToken)
     {
-        Logger.LogInformation("The header: {@Headers}", Request.Headers);
-        Logger.LogInformation("The authorization header: {Authorization}", Request.Headers.Authorization!);
-        Logger.LogInformation("The data: {@RefundCompleted}", refund);
+        Logger.InfoHeader(Request.Headers);
+        Logger.InfoAuthorizationHeader(Request.Headers.Authorization);
+        Logger.InfoData<RefundCompleted, RefundCompletedData>(refund);
         return Ok();
     }
 
@@ -194,9 +198,42 @@ public abstract class NetsWebhookController : Controller
     [SolidNetsEasyRefundFailed("nets/refund/failed")]
     public virtual ActionResult NetsRefundFailed([FromBody] RefundFailed refund, CancellationToken cancellationToken)
     {
-        Logger.LogInformation("The header: {@Headers}", Request.Headers);
-        Logger.LogInformation("The authorization header: {Authorization}", Request.Headers.Authorization!);
-        Logger.LogInformation("The data: {@RefundFailed}", refund);
+        Logger.InfoHeader(Request.Headers);
+        Logger.InfoAuthorizationHeader(Request.Headers.Authorization);
+        Logger.InfoData<RefundFailed, RefundFailedData>(refund);
         return Ok();
+    }
+}
+
+file static class WebhookDataLogger<T, D>
+        where T : Webhook<D>
+        where D : IWebhookData, new()
+{
+    public static readonly Action<ILogger, T, Exception?> DataLogger = LoggerMessage.Define<T>(LogLevel.Information, LogEventIDs.Neutral.Info, "The data: {Data}", new LogDefineOptions
+    {
+        SkipEnabledCheck = true
+    });
+}
+
+/// <summary>
+/// Log webhook data extension
+/// </summary>
+public static class LogDataExtension
+{
+    /// <summary>
+    /// Log webhook data as <see cref="LogLevel.Information"/>
+    /// </summary>
+    /// <typeparam name="T">The webhook type</typeparam>
+    /// <typeparam name="D">The webhook data payload type</typeparam>
+    /// <param name="logger">The logger</param>
+    /// <param name="data">The webhook event</param>
+    public static void InfoData<T, D>(this ILogger logger, T data)
+        where T : Webhook<D>
+        where D : IWebhookData, new()
+    {
+        if (logger.IsEnabled(LogLevel.Information))
+        {
+            WebhookDataLogger<T, D>.DataLogger(logger, data, null);
+        }
     }
 }
