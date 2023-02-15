@@ -22,6 +22,24 @@ public sealed class WebhookController : NetsWebhookController
 
     protected override ILogger Logger { get; init; }
 
+    /// <summary>
+    /// Override one of the default hooks to implement custom logic handler
+    /// </summary>
+    /// <param name="charge">The charge webhook event</param>
+    /// <param name="cancellationToken">The cancellation token</param>
+    /// <returns>200 OK if handled event - note that other results (i.e. 201 or 404) will make Nets renotify for a total of 10 times.</returns>
+    [SolidNetsEasyChargeCreated("nets/my_charge")]
+    public override ActionResult NetsChargeCreated([FromBody] ChargeCreated charge, CancellationToken cancellationToken)
+    {
+        return base.NetsChargeCreated(charge, cancellationToken);
+    }
+
+    /// <summary>
+    /// When duplicating a handler you must also set the Name!
+    /// </summary>
+    /// <param name="payment">The payment created event</param>
+    /// <param name="number">A number</param>
+    /// <returns>200 OK</returns>
     [SolidNetsEasyPaymentCreated("custom/{number:int}/route", Name = "CustomPaymentCreated")]
     public ActionResult DuplicatePaymentCreated([FromBody] PaymentCreated payment, int number)
     {
@@ -29,12 +47,5 @@ public sealed class WebhookController : NetsWebhookController
         Logger.LogInformation("The authorization header: {Authorization}", Request.Headers.Authorization!);
         Logger.LogInformation("The data: {@PaymentCreated} and {Number}", payment, number);
         return Ok();
-    }
-
-    /// <inheritdoc />
-    [SolidNetsEasyChargeCreated("nets/my_charge")]
-    public override ActionResult NetsChargeCreated([FromBody] ChargeCreated charge, CancellationToken cancellationToken)
-    {
-        return base.NetsChargeCreated(charge, cancellationToken);
     }
 }
