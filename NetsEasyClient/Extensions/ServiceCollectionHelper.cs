@@ -1,4 +1,5 @@
 using Microsoft.Extensions.DependencyInjection;
+using SolidNetsEasyClient.Builder;
 
 namespace SolidNetsEasyClient.Extensions;
 

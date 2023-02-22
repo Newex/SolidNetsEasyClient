@@ -4,13 +4,12 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Polly;
-using SolidNetsEasyClient.Builder;
 using SolidNetsEasyClient.Clients;
 using SolidNetsEasyClient.Constants;
 using SolidNetsEasyClient.Helpers.Encryption;
 using SolidNetsEasyClient.Models.Options;
 
-namespace SolidNetsEasyClient.Extensions;
+namespace SolidNetsEasyClient.Builder;
 
 /// <summary>
 /// The nets configuration builder
@@ -28,7 +27,8 @@ public sealed class NetsConfigurationBuilder
     }
 
     /// <summary>
-    /// Add an API key, commerce platform tag and set the client operating mode from a configuration source, such as: environment variable or appsettings.json file
+    /// Add an API key, commerce platform tag and set the client operating mode from a configuration source, such as: environment variable or appsettings.json file.
+    /// Furthermore if the configuration properties contain webhook settings, these will be configured.
     /// </summary>
     /// <param name="configuration">The configuration object</param>
     /// <returns>A builder object</returns>
@@ -36,6 +36,9 @@ public sealed class NetsConfigurationBuilder
     {
         var section = configuration.GetSection(NetsEasyOptions.NetsEasyConfigurationSection);
         _ = services.Configure<NetsEasyOptions>(section);
+
+        var webhookSection = configuration.GetSection(WebhookEncryptionOptions.WebhookEncryptionConfigurationSection);
+        _ = services.Configure<WebhookEncryptionOptions>(webhookSection);
         return this;
     }
 
@@ -106,6 +109,18 @@ public sealed class NetsConfigurationBuilder
                                      .Configure(configure)
                                      .ValidateDataAnnotations()
                                      .ValidateOnStart();
+        return this;
+    }
+
+    /// <summary>
+    /// Configure the webhook encryption options from a configuration file
+    /// </summary>
+    /// <param name="configuration">The configuration properties</param>
+    /// <returns>A builder object</returns>
+    public NetsConfigurationBuilder ConfigureEncryptionOptions(IConfiguration configuration)
+    {
+        var section = configuration.GetSection(WebhookEncryptionOptions.WebhookEncryptionConfigurationSection);
+        _ = services.Configure<WebhookEncryptionOptions>(section);
         return this;
     }
 
