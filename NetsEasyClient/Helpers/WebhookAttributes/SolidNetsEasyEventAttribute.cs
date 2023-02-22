@@ -135,9 +135,7 @@ public abstract class SolidNetsEasyEventAttribute<T, TData> : ActionFilterAttrib
         }
 
         var simple = UseSimpleAuthorization ?? encryptionOptions.Value.UseSimpleAuthorization;
-        _ = request.Query.TryGetValue(encryptionOptions.Value.BulkIndicatorName, out var bulk);
-        _ = bool.TryParse(bulk, out var isBulk);
-        if (simple || isBulk)
+        if (simple)
         {
             var validAuthorization = request.Headers.Authorization.Equals(encryptionOptions.Value.AuthorizationKey);
             if (!validAuthorization)

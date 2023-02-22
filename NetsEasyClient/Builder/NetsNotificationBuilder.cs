@@ -31,7 +31,6 @@ public sealed class NetsNotificationBuilder
     private readonly string complementName;
     private readonly string nonceName;
     private readonly bool simpleAuthorization;
-    private readonly string bulkName;
 
     internal NetsNotificationBuilder(string baseUrl, LinkGenerator linkGenerator, WebhookEncryptionOptions options)
     {
@@ -44,7 +43,6 @@ public sealed class NetsNotificationBuilder
         complementName = options.ComplementName;
         nonceName = options.NonceName;
         simpleAuthorization = options.UseSimpleAuthorization;
-        bulkName = options.BulkIndicatorName;
     }
 
     /// <summary>
@@ -123,26 +121,6 @@ public sealed class NetsNotificationBuilder
         notifications.Add(new()
         {
             Authorization = authorization,
-            EventName = eventName,
-            Url = url
-        });
-
-        return this;
-    }
-
-    /// <summary>
-    /// Create notification for bulk charges
-    /// </summary>
-    /// <param name="eventName">The event name</param>
-    /// <param name="routeName">The optional route name</param>
-    /// <param name="routeValues">The optional route values</param>
-    /// <returns>A notification builder</returns>
-    public NetsNotificationBuilder AddNotificationForBulkEvent(EventName eventName, string? routeName = null, object? routeValues = null)
-    {
-        var url = UrlQueryHelpers.AddQuery(CreateSimpleUrlToWebhook(eventName, routeName, routeValues, linkGenerator, baseUrl), (bulkName, "true"));
-        notifications.Add(new()
-        {
-            Authorization = authorizationKey,
             EventName = eventName,
             Url = url
         });
