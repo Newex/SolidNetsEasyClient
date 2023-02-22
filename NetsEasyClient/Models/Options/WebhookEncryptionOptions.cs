@@ -56,10 +56,5 @@ public record WebhookEncryptionOptions
     /// </remarks>
     public bool UseSimpleAuthorization { get; set; } = true;
 
-    /// <summary>
-    /// The parameter name to indicate to the webhook that this request is a bulk event - thus we revert to use simple authorization.
-    /// </summary>
-    public string BulkIndicatorName { get; set; } = "bulk";
-
     internal const string WebhookEncryptionConfigurationSection = NetsEasyOptions.NetsEasyConfigurationSection + ":Webhook";
 }
