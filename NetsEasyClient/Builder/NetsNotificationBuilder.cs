@@ -69,6 +69,26 @@ public sealed class NetsNotificationBuilder
     }
 
     /// <summary>
+    /// Create notification for an event using
+    /// </summary>
+    /// <param name="eventName">The event name</param>
+    /// <param name="routeName">The optional route name. Default uses the default route name to the given event</param>
+    /// <param name="routeValues">The optional route values</param>
+    /// <returns>A notification builder</returns>
+    public NetsNotificationBuilder AddNotificationForEvent(EventName eventName, string? routeName = null, object? routeValues = null)
+    {
+        var url = CreateSimpleUrlToWebhook(eventName, routeName, routeValues, linkGenerator, baseUrl);
+        notifications.Add(new()
+        {
+            Authorization = authorizationKey,
+            EventName = eventName,
+            Url = url
+        });
+
+        return this;
+    }
+
+    /// <summary>
     /// Create notification using in-built functionality to construct url and the authorization header. Requires an existing Action handler for the event.
     /// </summary>
     /// <param name="eventName">The event to subscribe to</param>
