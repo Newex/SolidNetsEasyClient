@@ -3,7 +3,7 @@ namespace SolidNetsEasyClient.Logging;
 /// <summary>
 /// Log event IDs
 /// </summary>
-public static class LogEventIDs
+internal static class LogEventIDs
 {
     /// <summary>
     /// Neutral events
