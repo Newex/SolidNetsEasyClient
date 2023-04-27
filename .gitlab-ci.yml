@@ -1,0 +1,41 @@
+# Local private registry
+image: registry.digify/dotnet/sdk:7.0
+
+variables:
+  GITLAB_NUGET_URL: ${CI_API_V4_URL}/projects/5/packages/nuget/index.json
+  MAIN_PROJECT: ${CI_PROJECT_DIR}/NetsEasyClient/payments.csproj
+  TEST_PROJECT: ${CI_PROJECT_DIR}/tests/tests.csproj
+  ASSEMBLY: SolidNetsEasyClient
+  USERNAME: ${GITLAB_PACKAGE_REGISTRY_USERNAME}
+  PASSWORD: ${GITLAB_PACKAGE_REGISTRY_PASSWORD}
+
+workflow:
+  rules:
+    - if: $CI_COMMIT_TAG =~ /v\.\d+\.\d+\.\d+\-?.*/ && $CI_DEFAULT_BRANCH
+
+before_script:
+  # Self signed CA
+  - cp /mnt/certs/tls.crt /usr/local/share/ca-certificates/my-ca.crt
+  - update-ca-certificates
+  - dotnet nuget add source "${GITLAB_NUGET_URL}" --name gitlab --username "${USERNAME}" --password "${PASSWORD}" --store-password-in-clear-text
+
+stages:
+  - test-and-build
+
+build:
+  stage: test-and-build
+  script:
+    - PACKAGE_VERSION=${CI_COMMIT_TAG:2}
+    - PACKAGE=${CI_PROJECT_DIR}/NetsEasyClient/bin/Release/${ASSEMBLY}.${PACKAGE_VERSION}.nupkg
+    - dotnet build ${MAIN_PROJECT} -c Release -p:PackageVersion=${PACKAGE_VERSION}
+    - dotnet test ${TEST_PROJECT} --filter "Category=UnitTest" -p:PackageVersion=${PACKAGE_VERSION}
+    - dotnet pack ${MAIN_PROJECT} -c Release -p:PackageVersion=${PACKAGE_VERSION}
+    
+    # Private Gitlab nuget registry
+    - dotnet nuget push "${PACKAGE}" -s gitlab -k "${PASSWORD}"
+
+    # Public nuget.org registry
+    - dotnet nuget push -s https://api.nuget.org/v3/index.json ${PACKAGE} -k $NUGET_KEY
+
+    # Public github.com registry
+    - dotnet nuget push -s https://nuget.pkg.github.com/Newex/index.json -k ${GITHUB_KEY} ${PACKAGE}
