@@ -8,6 +8,8 @@ variables:
   ASSEMBLY: SolidNetsEasyClient
   USERNAME: ${GITLAB_PACKAGE_REGISTRY_USERNAME}
   PASSWORD: ${GITLAB_PACKAGE_REGISTRY_PASSWORD}
+  NUGET_KEY: ${NUGET_KEY}
+  GITHUB_KEY: ${GITHUB_KEY}
 
 workflow:
   rules:
@@ -35,7 +37,7 @@ build:
     - dotnet nuget push "${PACKAGE}" -s gitlab -k "${PASSWORD}"
 
     # Public nuget.org registry
-    - dotnet nuget push -s https://api.nuget.org/v3/index.json ${PACKAGE} -k $NUGET_KEY
+    - dotnet nuget push -s https://api.nuget.org/v3/index.json ${PACKAGE} -k ${NUGET_KEY}
 
     # Public github.com registry
     - dotnet nuget push -s https://nuget.pkg.github.com/Newex/index.json -k ${GITHUB_KEY} ${PACKAGE}
