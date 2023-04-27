@@ -15,29 +15,52 @@ workflow:
   rules:
     - if: $CI_COMMIT_TAG =~ /v\.\d+\.\d+\.\d+\-?.*/ && $CI_DEFAULT_BRANCH
 
-before_script:
-  # Self signed CA
-  - cp /mnt/certs/tls.crt /usr/local/share/ca-certificates/my-ca.crt
-  - update-ca-certificates
-  - dotnet nuget add source "${GITLAB_NUGET_URL}" --name gitlab --username "${USERNAME}" --password "${PASSWORD}" --store-password-in-clear-text
-
 stages:
   - test-and-build
+  - deploy
+
+before_script:
+  - PACKAGE_VERSION=${CI_COMMIT_TAG:2}
+  - PACKAGE=release/${ASSEMBLY}.${PACKAGE_VERSION}.nupkg
 
 build:
   stage: test-and-build
+  artifacts:
+    untracked: false
+    when: on_success
+    expire_in: "30 days"
+    paths:
+      - "release/"
   script:
-    - PACKAGE_VERSION=${CI_COMMIT_TAG:2}
-    - PACKAGE=${CI_PROJECT_DIR}/NetsEasyClient/bin/Release/${ASSEMBLY}.${PACKAGE_VERSION}.nupkg
     - dotnet build ${MAIN_PROJECT} -c Release -p:PackageVersion=${PACKAGE_VERSION}
     - dotnet test ${TEST_PROJECT} --filter "Category=UnitTest" -p:PackageVersion=${PACKAGE_VERSION}
-    - dotnet pack ${MAIN_PROJECT} -c Release -p:PackageVersion=${PACKAGE_VERSION}
-    
+    - dotnet pack ${MAIN_PROJECT} -c Release -p:PackageVersion=${PACKAGE_VERSION} -o release
+
+deploy_gitlab:
+  stage: deploy
+  dependencies:
+    - "build"
+  before_script:
+    # Self signed CA
+    - cp /mnt/certs/tls.crt /usr/local/share/ca-certificates/my-ca.crt
+    - update-ca-certificates
+    - dotnet nuget add source "${GITLAB_NUGET_URL}" --name gitlab --username "${USERNAME}" --password "${PASSWORD}" --store-password-in-clear-text
+  script:
     # Private Gitlab nuget registry
     - dotnet nuget push "${PACKAGE}" -s gitlab -k "${PASSWORD}"
 
+deploy_nuget:
+  stage: deploy
+  dependencies:
+    - "build"
+  script:
     # Public nuget.org registry
     - dotnet nuget push -s https://api.nuget.org/v3/index.json ${PACKAGE} -k ${NUGET_KEY}
 
+deploy_github:
+  stage: deploy
+  dependencies:
+    - "build"
+  script:
     # Public github.com registry
     - dotnet nuget push -s https://nuget.pkg.github.com/Newex/index.json -k ${GITHUB_KEY} ${PACKAGE}
