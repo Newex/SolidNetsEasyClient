@@ -6,7 +6,6 @@
     <Nullable>enable</Nullable>
     <AssemblyName>SolidNetsEasyClient.Tests</AssemblyName>
     <RootNamespace>SolidNetsEasyClient.Tests</RootNamespace>
-    <CodeAnalysisRuleset>custom.ruleset</CodeAnalysisRuleset>
 
     <IsPackable>false</IsPackable>
   </PropertyGroup>
