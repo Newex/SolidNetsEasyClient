@@ -60,10 +60,10 @@ deploy_nuget:
     # Public nuget.org registry
     - dotnet nuget push -s https://api.nuget.org/v3/index.json ${PACKAGE} -k ${NUGET_KEY} --skip-duplicate
 
-deploy_github:
-  stage: deploy
-  dependencies:
-    - "build"
-  script:
-    # Public github.com registry
-    - dotnet nuget push -s https://nuget.pkg.github.com/Newex/index.json -k ${GITHUB_KEY} ${PACKAGE} --skip-duplicate
+# deploy_github:
+#   stage: deploy
+#   dependencies:
+#     - "build"
+#   script:
+#     # Public github.com registry
+#     - dotnet nuget push -s https://nuget.pkg.github.com/Newex/index.json -k ${GITHUB_KEY} ${PACKAGE} --skip-duplicate
