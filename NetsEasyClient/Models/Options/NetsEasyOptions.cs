@@ -29,37 +29,37 @@ public record NetsEasyOptions
     /// <remarks>
     /// Use key from the front end. Can be exposed to the end user.
     /// </remarks>
-    public string CheckoutKey { get; init; } = string.Empty;
+    public string CheckoutKey { get; set; } = string.Empty;
 
     /// <summary>
     /// The checkout url
     /// </summary>
     [Url]
-    public string CheckoutUrl { get; init; } = string.Empty;
+    public string CheckoutUrl { get; set; } = string.Empty;
 
     /// <summary>
     /// The terms and conditions url for your site
     /// </summary>
     [Url]
-    public string TermsUrl { get; init; } = string.Empty;
+    public string TermsUrl { get; set; } = string.Empty;
 
     /// <summary>
     /// Where to return customer after completed payment when using a hosted checkout page
     /// </summary>
     [Url]
-    public string? ReturnUrl { get; init; }
+    public string? ReturnUrl { get; set; }
 
     /// <summary>
     /// Where to return customer after cancelled payment when using a hosted checkout page
     /// </summary>
     [Url]
-    public string? CancelUrl { get; init; } = string.Empty;
+    public string? CancelUrl { get; set; } = string.Empty;
 
     /// <summary>
     /// The privacy policy url for your site
     /// </summary>
     [Url]
-    public string PrivacyPolicyUrl { get; init; } = string.Empty;
+    public string PrivacyPolicyUrl { get; set; } = string.Empty;
 
     /// <summary>
     /// An identifier of the ecommerce platform
@@ -73,7 +73,7 @@ public record NetsEasyOptions
     /// If empty these values will be used: 20.103.218.104/30 and 20.31.57.60/30 for the Live and Test mode respectively.
     /// Must be in CIDR format.
     /// </remarks>
-    public string? NetsIPWebhookEndpoints { get; init; }
+    public string? NetsIPWebhookEndpoints { get; set; }
 
     /// <summary>
     /// Blacklist IPs requests sent to the webhook endpoint
@@ -81,7 +81,7 @@ public record NetsEasyOptions
     /// <remarks>
     /// Each IP should be separated by a semi-colon (;)
     /// </remarks>
-    public string? BlacklistIPsForWebhook { get; init; }
+    public string? BlacklistIPsForWebhook { get; set; }
 
     /// <summary>
     /// The full url to the base for the website which is in your control
@@ -91,12 +91,12 @@ public record NetsEasyOptions
     /// https://webhosting.provider.com/with/sub/page/to/mysite
     /// </remarks>
     [Url]
-    public string BaseUrl { get; init; } = string.Empty;
+    public string BaseUrl { get; set; } = string.Empty;
 
     /// <summary>
     /// The minimum allowed payment to check for in the payment builder
     /// </summary>
-    public int MinimumAllowedPayment { get; init; } = 5_00;
+    public int MinimumAllowedPayment { get; set; } = 5_00;
 
     /// <summary>
     /// The nets easy configuration section
