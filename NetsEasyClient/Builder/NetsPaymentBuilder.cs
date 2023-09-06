@@ -282,7 +282,7 @@ public sealed class NetsPaymentBuilder
     /// <param name="interval">The minimum number of days between charges, an interval of zero means no restriction. This interval commences from either the day the subscription was created or the most recent subscription charge, whichever is later</param>
     /// <param name="endDate">The date and time when the subscription expires. It is not possible to charge this subscription after this date</param>
     /// <returns>A payment builder</returns>
-    public NetsPaymentBuilder AsRegularSubscription(int interval, DateTimeOffset endDate)
+    public NetsPaymentBuilder AsRegularSubscription(int interval, DateTimeOffset? endDate = null)
     {
         // Must have end date if creating subscription
         unscheduled = null;
