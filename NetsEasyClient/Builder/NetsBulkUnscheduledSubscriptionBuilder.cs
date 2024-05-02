@@ -13,7 +13,7 @@ namespace SolidNetsEasyClient.Builder;
 /// </summary>
 public sealed class NetsBulkUnscheduledSubscriptionBuilder
 {
-    private readonly List<ChargeUnscheduledSubscription> subscriptions = new();
+    private readonly List<ChargeUnscheduledSubscription> subscriptions = [];
     private readonly List<WebHook> webhooks = new(32);
     private string externalBulkChargeId = string.Empty;
 
