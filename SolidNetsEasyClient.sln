@@ -9,6 +9,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "tests", "tests\tests.csproj
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExampleSite", "examples\mvc\mvc.csproj", "{CBAE8780-6D59-43AB-B24F-83C8E5C280A5}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "examples", "examples", "{04EF596C-C32A-4E36-8F39-D52D4C5A7FD9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "minimalapi", "examples\minimalapi\minimalapi.csproj", "{12F69F3F-3695-4D70-B5C2-4DB2513A16E9}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -30,5 +34,12 @@ Global
 		{CBAE8780-6D59-43AB-B24F-83C8E5C280A5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CBAE8780-6D59-43AB-B24F-83C8E5C280A5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CBAE8780-6D59-43AB-B24F-83C8E5C280A5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{12F69F3F-3695-4D70-B5C2-4DB2513A16E9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{12F69F3F-3695-4D70-B5C2-4DB2513A16E9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{12F69F3F-3695-4D70-B5C2-4DB2513A16E9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{12F69F3F-3695-4D70-B5C2-4DB2513A16E9}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{12F69F3F-3695-4D70-B5C2-4DB2513A16E9} = {04EF596C-C32A-4E36-8F39-D52D4C5A7FD9}
 	EndGlobalSection
 EndGlobal
