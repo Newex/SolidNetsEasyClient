@@ -1,5 +1,9 @@
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using SolidNetsEasyClient.Constants;
+using SolidNetsEasyClient.Models.DTOs.Enums;
+using SolidNetsEasyClient.Models.DTOs.Requests.Customers;
+using SolidNetsEasyClient.Models.DTOs.Requests.Payments;
 
 namespace SolidNetsEasyClient.Models.Options;
 
@@ -35,7 +39,7 @@ public record NetsEasyOptions
     /// The checkout url
     /// </summary>
     [Url]
-    public string CheckoutUrl { get; set; } = string.Empty;
+    public string? CheckoutUrl { get; set; }
 
     /// <summary>
     /// The terms and conditions url for your site
@@ -94,9 +98,74 @@ public record NetsEasyOptions
     public string BaseUrl { get; set; } = string.Empty;
 
     /// <summary>
+    /// The integration type, to be used in the checkout page.
+    /// </summary>
+    /// <remarks>
+    /// The default value is <see cref="Integration.EmbeddedCheckout"/>.
+    /// </remarks>
+    public Integration? IntegrationType { get; set; }
+
+    /// <summary>
+    /// The default customer type. Valid values are 'B2C' or 'B2B'. Default is 'B2C'.
+    /// </summary>
+    public ConsumerTypeEnum? DefaultCostumerType { get; set; }
+
+    /// <summary>
+    /// The supported costumer types to show on the checkout page.
+    /// </summary>
+    public IEnumerable<ConsumerTypeEnum>? SupportedTypes { get; set; }
+
+    /// <summary>
+    /// If true, you must handle customer data. Name, email etc. and regulatory
+    /// compliance (GDPR etc.).
+    /// This setting allows customers to NOT input further information on checkout.
+    /// </summary>
+    /// <remarks>
+    /// Allows you to initiate the checkout with customer data so that your
+    /// customer only need to provide payment details. It is possible to exclude
+    /// all consumer and company information from the payment (only for certain
+    /// payment methods) when it is set to true. If you still want to add
+    /// consumer information to the payment you need to use the consumer object
+    /// (either a privatePerson or a company, not both).
+    /// </remarks>
+    public bool? MerchantHandlesConsumerData { get; set; }
+
+    /// <summary>
+    /// The merchants (your) 3 letter country code.
+    /// </summary>
+    public string? CountryCode { get; set; }
+
+    /// <summary>
+    /// The list of countries the merchant ships to. If null, all countries supported by NETS will be accepted.
+    /// The format is a 3 letter country code (ISO 3166-1).
+    /// </summary>
+    /// <remarks>
+    /// <![CDATA[ Supported countries: https://developer.nexigroup.com/nexi-checkout/en-EU/api/#country-codes-and-phone-prefixes ]]>
+    /// </remarks>
+    public IEnumerable<string>? SupportedShippingCountries { get; set; }
+
+    /// <summary>
+    /// The merchant number. Use this only if you are a Nexi Group
+    /// partner and initiating the checkout with your partner keys. If you are
+    /// using the integration keys for your webshop, there is no need to specify
+    /// this header. The maximum length is 128 characters.
+    /// </summary>
+    public string? NetsPartnerMerchantNumber { get; set; }
+
+    /// <summary>
+    /// The optional supported payment methods to be used in the checkout process.
+    /// </summary>
+    public IEnumerable<PaymentMethodConfiguration>? PaymentMethodsConfiguration { get; set; }
+
+    /// <summary>
     /// The minimum allowed payment to check for in the payment builder
     /// </summary>
     public int MinimumAllowedPayment { get; set; } = 5_00;
+
+    /// <summary>
+    /// The authorization to use when NETS calls the webhook.
+    /// </summary>
+    public string? WebhookAuthorization { get; set; }
 
     /// <summary>
     /// The nets easy configuration section

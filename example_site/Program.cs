@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using SolidNetsEasyClient.Constants;
 using SolidNetsEasyClient.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -20,31 +21,14 @@ builder.Services.AddHealthChecks();
 builder.Services.AddControllersWithViews();
 
 // Nets Easy
-builder
-    .Services
-    .AddNetsEasyClient()
-    .ConfigureEncryptionOptions(opt =>
-    {
-        // Key rotation is not implemented - so do not leak key
-        opt.Key = new byte[10]
-        {
-            0x53,
-            0x31,
-            0xC8,
-            0xAF,
-            0x6A,
-            0xF3,
-            0x6D,
-            0xFA,
-            0x5B,
-            0xCC
-        };
-
-        // Can NOT have any special characters, e.g. % _ / - + [] etc.
-        // Max length = 32
-        opt.AuthorizationKey = "onlynumbersOrLetters";
-    })
-    .ConfigureFromConfiguration(builder.Configuration);
+builder.Services
+       .AddNetsEasyClient(options =>
+       {
+           // Keys
+           options.ApiKey = "my-test-api-key";
+           options.CheckoutKey = "my-checkout-key";
+           options.ClientMode = ClientMode.Test;
+       });
 
 var app = builder.Build();
 

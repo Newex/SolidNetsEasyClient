@@ -48,7 +48,7 @@ public partial class PaymentClient : IPaymentClient
             ClientMode.Test => ClientConstants.Test,
             _ => throw new NotSupportedException("Client mode must be either in Live or Test mode")
         };
-        checkoutUrl = options.Value.CheckoutUrl;
+        checkoutUrl = options.Value.CheckoutUrl ?? string.Empty;
         termsUrl = options.Value.TermsUrl;
         returnUrl = options.Value.ReturnUrl;
         cancelUrl = options.Value.CancelUrl;

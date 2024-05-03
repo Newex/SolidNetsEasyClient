@@ -7,24 +7,25 @@ using Microsoft.Extensions.Logging.Abstractions;
 using SolidNetsEasyClient.Builder;
 using SolidNetsEasyClient.Clients;
 using SolidNetsEasyClient.Models.DTOs.Enums;
+using SolidNetsEasyClient.Models.DTOs.Requests.Webhooks;
 
 namespace ExampleSite.Controllers;
 
 public class CheckoutController : Controller
 {
-    private readonly PaymentClient client;
-    private readonly NetsPaymentFactory paymentFactory;
+    private readonly NetsPaymentClient client;
+    private readonly NetsPaymentBuilder paymentBuilder;
     private readonly NetsNotificationFactory notificationFactory;
     private readonly ILogger<CheckoutController> logger;
 
     public CheckoutController(
-        PaymentClient client,
-        NetsPaymentFactory paymentFactory,
+        NetsPaymentClient client,
+        NetsPaymentBuilder paymentBuilder,
         NetsNotificationFactory notificationFactory,
         ILogger<CheckoutController>? logger = null)
     {
         this.client = client;
-        this.paymentFactory = paymentFactory;
+        this.paymentBuilder = paymentBuilder;
         this.notificationFactory = notificationFactory;
         this.logger = logger ?? NullLogger<CheckoutController>.Instance;
     }
@@ -34,47 +35,20 @@ public class CheckoutController : Controller
     {
         var order = PaymentRequestHelper.MinimalOrderExample(basket.Item, basket.Quantity);
 
-        var paymentBuilder = paymentFactory.CreatePaymentBuilder(order);
-        var paymentRequest = paymentBuilder
-            .EmbedCheckoutOnMyPage()
-            .WithPrivateCustomer(
-                customerId: "jdoe",
-                firstName: "John",
-                lastName: "Doe",
-                email: "john@doe.com",
-                new()
-                {
-                    Number = "54545454",
-                    Prefix = "+45"
-                },
-                retypeCostumerData: false
-            )
-            .ChargePaymentOnCreation(false)
-            .AsSinglePayment()
-            .SubscribeToEvent(EventName.PaymentCreated)
-            .SubscribeToEvent(EventName.ReservationCreatedV1)
-            .SubscribeToEvent(EventName.ReservationCreatedV2)
-            .SubscribeToEvent(EventName.ReservationFailed)
-            .SubscribeToEvent(EventName.CheckoutCompleted)
-            .SubscribeToEvent(EventName.ChargeCreated)
-            .SubscribeToEvent(EventName.ChargeFailed)
-            .SubscribeToEvent(EventName.RefundInitiated)
-            .SubscribeToEvent(EventName.RefundFailed)
-            .SubscribeToEvent(EventName.RefundCompleted)
-            .SubscribeToEvent(EventName.PaymentCancelled)
-            .SubscribeToEvent(EventName.PaymentCancellationFailed)
-            .BuildPaymentRequest();
+        var paymentRequest = paymentBuilder.CreateSinglePayment(order)
+                                    .AddWebhook("https://localhost/webhook/callback", EventName.PaymentCreated, "randomAuth123")
+                                    .AddWebhook("https://localhost/webhook/callback", EventName.PaymentCancelled, "randomAuth123")
+                                    .Build();
+        var payment = await client.StartCheckoutPayment(paymentRequest, cts);
 
-        var notifications = notificationFactory.CreateNotificationBuilder()
-            .AddNotificationForSingleEvent(EventName.PaymentCreated, order, routeName: "CustomPaymentCreated", routeValues: new { number = 42 })
-            .AddNotificationForAllEvents()
-            .Build();
-        logger.LogTrace("Notifications unused: {Notifications}", notifications);
+        if (payment is null)
+        {
+            return View("SomethingWentWrong");
+        }
 
-        var payment = await client.CreatePaymentAsync(paymentRequest, cts);
         var vm = new CheckoutViewModel
         {
-            CheckoutKey = client.CheckoutKey,
+            CheckoutKey = client.CheckoutKey ?? string.Empty,
             PaymentID = payment.PaymentId.ToString("N")
         };
         return View(vm);

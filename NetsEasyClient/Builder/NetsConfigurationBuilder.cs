@@ -3,9 +3,9 @@ using System.Net.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using Polly;
 using SolidNetsEasyClient.Clients;
 using SolidNetsEasyClient.Constants;
+using SolidNetsEasyClient.DelegatingHandlers;
 using SolidNetsEasyClient.Helpers.Encryption;
 using SolidNetsEasyClient.Models.Options;
 
@@ -20,10 +20,12 @@ public sealed class NetsConfigurationBuilder
     /// private readonly ServiceDescriptor
     /// </summary>
     private readonly IServiceCollection services;
+    private readonly IHttpClientBuilder httpBuilder;
 
-    private NetsConfigurationBuilder(IServiceCollection services)
+    private NetsConfigurationBuilder(IServiceCollection services, IHttpClientBuilder httpBuilder)
     {
         this.services = services;
+        this.httpBuilder = httpBuilder;
     }
 
     /// <summary>
@@ -54,61 +56,24 @@ public sealed class NetsConfigurationBuilder
     }
 
     /// <summary>
-    /// Configure the http client for a specific mode
+    /// Configure the http client factory builder for NETS.
     /// </summary>
-    /// <param name="mode">The client mode</param>
-    /// <param name="options">The http client options</param>
-    /// <param name="transientHttpErrorPolicy">The retry policy configuration for the Polly library</param>
+    /// <param name="configure">The configuration action</param>
     /// <returns>A builder object</returns>
-    /// <exception cref="NotSupportedException">If client mode is not supported</exception>
-    public NetsConfigurationBuilder ConfigureHttpClient(ClientMode mode, Action<HttpClient> options, Func<PolicyBuilder<HttpResponseMessage>, IAsyncPolicy<HttpResponseMessage>>? transientHttpErrorPolicy = null)
+    public NetsConfigurationBuilder ConfigureHttpClientFactory(Action<IHttpClientBuilder> configure)
     {
-        var clientMode = mode switch
-        {
-            ClientMode.Live => ClientConstants.Live,
-            ClientMode.Test => ClientConstants.Test,
-            _ => throw new NotSupportedException()
-        };
-
-        _ = transientHttpErrorPolicy is not null
-            ? services
-                .AddHttpClient(clientMode, options)
-                .AddTransientHttpErrorPolicy(transientHttpErrorPolicy)
-            : services.AddHttpClient(clientMode, options);
+        configure(httpBuilder);
         return this;
     }
 
     /// <summary>
-    /// Configure the http client transient retry policy for a specific mode
+    /// Configure the typed http client, for NETS.
     /// </summary>
-    /// <param name="mode">The client mode</param>
-    /// <param name="transientHttpErrorPolicy">The retry policy configuration using the Polly library</param>
+    /// <param name="configure">The configuration action</param>
     /// <returns>A builder object</returns>
-    /// <exception cref="NotSupportedException">Thrown if client mode is not supported</exception>
-    public NetsConfigurationBuilder ConfigureRetryPolicy(ClientMode mode, Func<PolicyBuilder<HttpResponseMessage>, IAsyncPolicy<HttpResponseMessage>> transientHttpErrorPolicy)
+    public NetsConfigurationBuilder ConfigureHttpClient(Action<HttpClient> configure)
     {
-        var clientMode = mode switch
-        {
-            ClientMode.Live => ClientConstants.Live,
-            ClientMode.Test => ClientConstants.Test,
-            _ => throw new NotSupportedException()
-        };
-
-        _ = services.AddHttpClient(clientMode).AddTransientHttpErrorPolicy(transientHttpErrorPolicy);
-        return this;
-    }
-
-    /// <summary>
-    /// Configure the webhook encryption options
-    /// </summary>
-    /// <param name="configure">The options to configure</param>
-    /// <returns>A builder object</returns>
-    public NetsConfigurationBuilder ConfigureEncryptionOptions(Action<WebhookEncryptionOptions> configure)
-    {
-        _ = services.AddOptions<WebhookEncryptionOptions>()
-                                     .Configure(configure)
-                                     .ValidateDataAnnotations()
-                                     .ValidateOnStart();
+        httpBuilder.ConfigureHttpClient(configure);
         return this;
     }
 
@@ -126,23 +91,31 @@ public sealed class NetsConfigurationBuilder
 
     internal static NetsConfigurationBuilder Create(IServiceCollection services)
     {
-        var instance = new NetsConfigurationBuilder(services);
-
         // Add options
-        _ = services.Configure<NetsEasyOptions>(_ => { });
         _ = services.Configure<WebhookEncryptionOptions>(c => c.Hasher = new HmacSHA256Hasher());
 
         // Add factories
-        services.TryAddScoped<NetsPaymentFactory>();
         services.TryAddScoped<NetsNotificationFactory>();
 
         // Add http clients
-        _ = services.AddHttpClient(ClientConstants.Live, client => client.BaseAddress = NetsEndpoints.LiveBaseUri);
-        _ = services.AddHttpClient(ClientConstants.Test, client => client.BaseAddress = NetsEndpoints.TestingBaseUri);
+        var httpbuilder = services.AddHttpClient<NetsPaymentClient>((provider, client) =>
+        {
+            var opt = provider.GetRequiredService<NetsEasyOptions>();
+
+            var baseUrl = opt.ClientMode switch
+            {
+                ClientMode.Test => NetsEndpoints.TestingBaseUri,
+                ClientMode.Live => NetsEndpoints.LiveBaseUri,
+                _ => throw new InvalidOperationException("Mode not supported")
+            };
+            client.BaseAddress = baseUrl;
+        }) // Pipeline
+            .AddHttpMessageHandler<NetsAuthorizationHandler>();
 
         // Add payment client
         services.TryAddScoped<IPaymentClient, PaymentClient>();
         services.TryAddScoped(typeof(PaymentClient));
+        services.TryAddScoped<NetsPaymentBuilder>();
 
         // Add subscription client
         services.TryAddScoped<ISubscriptionClient, SubscriptionClient>();
@@ -152,6 +125,6 @@ public sealed class NetsConfigurationBuilder
         services.TryAddScoped<IUnscheduledSubscriptionClient, UnscheduledSubscriptionClient>();
         services.TryAddScoped(typeof(UnscheduledSubscriptionClient));
 
-        return instance;
+        return new NetsConfigurationBuilder(services, httpbuilder);
     }
 }
