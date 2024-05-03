@@ -453,3 +453,4 @@ startup.sh
 db_init.lock
 /FILES
 Session.vim
+.mono/

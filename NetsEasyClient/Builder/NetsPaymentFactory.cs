@@ -8,28 +8,21 @@ namespace SolidNetsEasyClient.Builder;
 /// <summary>
 /// The payment builder factory
 /// </summary>
-public sealed class NetsPaymentFactory
-{
-    private readonly NetsEasyOptions netsOptions;
-    private readonly WebhookEncryptionOptions webhookOptions;
-    private readonly LinkGenerator linkGenerator;
-
-    /// <summary>
-    /// Instantiate a new <see cref="NetsPaymentFactory"/>
-    /// </summary>
-    /// <param name="netsOptions">The Nets Easy options</param>
-    /// <param name="webhookOptions">The webhook options</param>
-    /// <param name="linkGenerator">The link generator</param>
-    public NetsPaymentFactory(
-        IOptions<NetsEasyOptions> netsOptions,
-        IOptions<WebhookEncryptionOptions> webhookOptions,
-        LinkGenerator linkGenerator
+/// <remarks>
+/// Instantiate a new <see cref="NetsPaymentFactory"/>
+/// </remarks>
+/// <param name="netsOptions">The Nets Easy options</param>
+/// <param name="webhookOptions">The webhook options</param>
+/// <param name="linkGenerator">The link generator</param>
+public sealed class NetsPaymentFactory(
+    IOptions<NetsEasyOptions> netsOptions,
+    IOptions<WebhookEncryptionOptions> webhookOptions,
+    LinkGenerator linkGenerator
     )
-    {
-        this.netsOptions = netsOptions.Value;
-        this.webhookOptions = webhookOptions.Value;
-        this.linkGenerator = linkGenerator;
-    }
+{
+    private readonly NetsEasyOptions netsOptions = netsOptions.Value;
+    private readonly WebhookEncryptionOptions webhookOptions = webhookOptions.Value;
+    private readonly LinkGenerator linkGenerator = linkGenerator;
 
     /// <summary>
     /// Create a new payment builder
