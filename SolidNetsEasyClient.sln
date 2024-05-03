@@ -7,7 +7,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "payments", "NetsEasyClient\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "tests", "tests\tests.csproj", "{15E6CE57-F2CF-4AA0-B1B7-42E754EAC186}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExampleSite", "example_site\ExampleSite.csproj", "{CBAE8780-6D59-43AB-B24F-83C8E5C280A5}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExampleSite", "examples\mvc\mvc.csproj", "{CBAE8780-6D59-43AB-B24F-83C8E5C280A5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

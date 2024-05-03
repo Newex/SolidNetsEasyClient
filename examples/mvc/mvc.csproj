@@ -9,7 +9,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\NetsEasyClient\payments.csproj" />
+    <ProjectReference Include="..\..\NetsEasyClient\payments.csproj" />
   </ItemGroup>
 
 </Project>
