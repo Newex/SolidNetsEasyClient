@@ -2,7 +2,6 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using SolidNetsEasyClient.Constants;
 using SolidNetsEasyClient.Models.DTOs.Enums;
-using SolidNetsEasyClient.Models.DTOs.Requests.Customers;
 using SolidNetsEasyClient.Models.DTOs.Requests.Payments;
 
 namespace SolidNetsEasyClient.Models.Options;

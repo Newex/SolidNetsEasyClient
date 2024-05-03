@@ -1,8 +1,10 @@
+using Microsoft.AspNetCore.Mvc;
 using SolidNetsEasyClient.Builder;
 using SolidNetsEasyClient.Clients;
 using SolidNetsEasyClient.Extensions;
 using SolidNetsEasyClient.Models.DTOs.Enums;
 using SolidNetsEasyClient.Models.DTOs.Requests.Orders;
+using SolidNetsEasyClient.Models.DTOs.Responses.Webhooks;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,25 +12,11 @@ var builder = WebApplication.CreateBuilder(args);
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.AddNetsEasyClient(options =>
+builder.Services.AddNetsEasyEmbeddedCheckout(checkoutUrl: "https://localhost:8000/checkout",
+                                             termsUrl: "https://localhost:8000/terms",
+                                             privacyPolicyUrl: "https://localhost:8000/privacy")
+.ConfigureNetsEasyOptions(options =>
 {
-    // The nets easy option configuration
-    /**
-    MUST set these required option values.
-        - The NETS API key
-
-        == IF using EmbeddedCheckout ==
-        - CheckoutKey
-        - CheckoutUrl
-        - TermsUrl
-        - PrivacyPolicyUrl
-
-        == IF using HostedCheckout ==
-        - ReturnUrl
-        - CancelUrl
-        - TermsUrl
-        - PrivacyPolicyUrl
-    */
     options.ApiKey = "my-api-key";
 });
 
@@ -44,16 +32,16 @@ if (app.Environment.IsDevelopment())
 app.MapPost("/checkout", async (NetsPaymentBuilder builder, NetsPaymentClient client, Order order, CancellationToken cancellationToken) =>
 {
     var paymentBuilder = builder.CreateSinglePayment(order, "my-order-id");
-    paymentBuilder.AddWebhook("https://localhost:8000/webhook/callback", EventName.PaymentCreated, "authHeaderVal123");
+    paymentBuilder.AddWebhook("https://localhost:8000/nets/paid", EventName.PaymentCreated, "authHeaderVal123");
 
     var paymentRequest = paymentBuilder.Build();
     var paymentResult = await client.StartCheckoutPayment(paymentRequest, cancellationToken);
     return TypedResults.Created("/payment/my-order-id", paymentResult);
 });
 
-app.MapGet("payment/{orderId}", (HttpContext context, NetsPaymentClient client, string orderId) =>
+// Must be POST
+app.MapPost("/nets/paid", (HttpContext context, NetsPaymentClient client, [FromBody] PaymentCreated paymentCreated) =>
 {
-    // TODO: implement example
     var authHeader = context.Request.Headers.Authorization;
     if (string.IsNullOrEmpty(authHeader))
     {
@@ -65,6 +53,8 @@ app.MapGet("payment/{orderId}", (HttpContext context, NetsPaymentClient client, 
         return Results.Forbid();
     }
 
+    // Handle payment accepted!
+    var orderId = paymentCreated.Data.Order.Reference;
     return Results.Ok(orderId);
 });
 

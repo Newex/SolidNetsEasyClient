@@ -21,14 +21,9 @@ builder.Services.AddHealthChecks();
 builder.Services.AddControllersWithViews();
 
 // Nets Easy
-builder.Services
-       .AddNetsEasyClient(options =>
-       {
-           // Keys
-           options.ApiKey = "my-test-api-key";
-           options.CheckoutKey = "my-checkout-key";
-           options.ClientMode = ClientMode.Test;
-       });
+builder.Services.AddNetsEasyEmbeddedCheckout(checkoutUrl: "https://localhost/checkout",
+                                             termsUrl: "https://localhost/terms",
+                                             privacyPolicyUrl: "https://localhost/privacy");
 
 var app = builder.Build();
 
