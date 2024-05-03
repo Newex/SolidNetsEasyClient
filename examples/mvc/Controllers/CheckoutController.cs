@@ -15,18 +15,15 @@ public class CheckoutController : Controller
 {
     private readonly NetsPaymentClient client;
     private readonly NetsPaymentBuilder paymentBuilder;
-    private readonly NetsNotificationFactory notificationFactory;
     private readonly ILogger<CheckoutController> logger;
 
     public CheckoutController(
         NetsPaymentClient client,
         NetsPaymentBuilder paymentBuilder,
-        NetsNotificationFactory notificationFactory,
         ILogger<CheckoutController>? logger = null)
     {
         this.client = client;
         this.paymentBuilder = paymentBuilder;
-        this.notificationFactory = notificationFactory;
         this.logger = logger ?? NullLogger<CheckoutController>.Instance;
     }
 

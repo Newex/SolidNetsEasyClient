@@ -1,9 +1,36 @@
+using SolidNetsEasyClient.Builder;
+using SolidNetsEasyClient.Clients;
+using SolidNetsEasyClient.Extensions;
+using SolidNetsEasyClient.Models.DTOs.Enums;
+using SolidNetsEasyClient.Models.DTOs.Requests.Orders;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddNetsEasyClient(options =>
+{
+    // The nets easy option configuration
+    /**
+    MUST set these required option values.
+        - The NETS API key
+
+        == IF using EmbeddedCheckout ==
+        - CheckoutKey
+        - CheckoutUrl
+        - TermsUrl
+        - PrivacyPolicyUrl
+
+        == IF using HostedCheckout ==
+        - ReturnUrl
+        - CancelUrl
+        - TermsUrl
+        - PrivacyPolicyUrl
+    */
+    options.ApiKey = "my-api-key";
+});
 
 var app = builder.Build();
 
@@ -14,29 +41,31 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-var summaries = new[]
+app.MapPost("/checkout", async (NetsPaymentBuilder builder, NetsPaymentClient client, Order order, CancellationToken cancellationToken) =>
 {
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
+    var paymentBuilder = builder.CreateSinglePayment(order, "my-order-id");
+    paymentBuilder.AddWebhook("https://localhost:8000/webhook/callback", EventName.PaymentCreated, "authHeaderVal123");
 
-app.MapGet("/weatherforecast", () =>
+    var paymentRequest = paymentBuilder.Build();
+    var paymentResult = await client.StartCheckoutPayment(paymentRequest, cancellationToken);
+    return TypedResults.Created("/payment/my-order-id", paymentResult);
+});
+
+app.MapGet("payment/{orderId}", (HttpContext context, NetsPaymentClient client, string orderId) =>
 {
-    var forecast = Enumerable.Range(1, 5).Select(index =>
-        new WeatherForecast
-        (
-            DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-            Random.Shared.Next(-20, 55),
-            summaries[Random.Shared.Next(summaries.Length)]
-        ))
-        .ToArray();
-    return forecast;
-})
-.WithName("GetWeatherForecast")
-.WithOpenApi();
+    // TODO: implement example
+    var authHeader = context.Request.Headers.Authorization;
+    if (string.IsNullOrEmpty(authHeader))
+    {
+        return Results.Forbid();
+    }
+    var isValid = string.Equals("authHeaderVal123", authHeader);
+    if (!isValid)
+    {
+        return Results.Forbid();
+    }
+
+    return Results.Ok(orderId);
+});
 
 app.Run();
-
-record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
-{
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-}

@@ -88,16 +88,6 @@ public record NetsEasyOptions
     public string? BlacklistIPsForWebhook { get; set; }
 
     /// <summary>
-    /// The full url to the base for the website which is in your control
-    /// </summary>
-    /// <remarks>
-    /// Example, you submit whole url if you only control the path 'mysite'
-    /// https://webhosting.provider.com/with/sub/page/to/mysite
-    /// </remarks>
-    [Url]
-    public string BaseUrl { get; set; } = string.Empty;
-
-    /// <summary>
     /// The integration type, to be used in the checkout page.
     /// </summary>
     /// <remarks>

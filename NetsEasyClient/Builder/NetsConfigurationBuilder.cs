@@ -95,7 +95,6 @@ public sealed class NetsConfigurationBuilder
         _ = services.Configure<WebhookEncryptionOptions>(c => c.Hasher = new HmacSHA256Hasher());
 
         // Add factories
-        services.TryAddScoped<NetsNotificationFactory>();
 
         // Add http clients
         var httpbuilder = services.AddHttpClient<NetsPaymentClient>((provider, client) =>
