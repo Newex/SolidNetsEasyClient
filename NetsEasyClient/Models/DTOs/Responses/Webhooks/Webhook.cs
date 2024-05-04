@@ -11,13 +11,13 @@ namespace SolidNetsEasyClient.Models.DTOs.Responses.Webhooks;
 /// A basic webhook event structure
 /// </summary>
 /// <typeparam name="T">The webhook data</typeparam>
+[JsonDerivedType(typeof(PaymentCreated))]
 public abstract record Webhook<T>
-where T : IWebhookData, new()
+where T : WebhookData, new()
 {
     /// <summary>
     /// A unique identifier of this event. You can use this identifier to detect whether this event is new or has already been handled by you.
     /// </summary>
-    [JsonConverter(typeof(GuidTypeConverter))]
     [JsonPropertyName("id")]
     [Required]
     public Guid Id { get; init; }
@@ -34,7 +34,6 @@ where T : IWebhookData, new()
     /// </summary>
     [Required]
     [JsonPropertyName("timestamp")]
-    [JsonConverter(typeof(DateTimeOffsetConverter))]
     public DateTimeOffset Timestamp { get; init; }
 
     /// <summary>

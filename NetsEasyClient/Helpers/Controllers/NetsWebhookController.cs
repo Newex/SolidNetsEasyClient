@@ -207,7 +207,7 @@ public abstract class NetsWebhookController : Controller
 
 file static class WebhookDataLogger<T, D>
         where T : Webhook<D>
-        where D : IWebhookData, new()
+        where D : WebhookData, new()
 {
     public static readonly Action<ILogger, T, Exception?> DataLogger = LoggerMessage.Define<T>(LogLevel.Information, LogEventIDs.Neutral.Info, "The data: {Data}", new LogDefineOptions
     {
@@ -229,7 +229,7 @@ public static class LogDataExtension
     /// <param name="data">The webhook event</param>
     public static void InfoData<T, D>(this ILogger logger, T data)
         where T : Webhook<D>
-        where D : IWebhookData, new()
+        where D : WebhookData, new()
     {
         if (logger.IsEnabled(LogLevel.Information))
         {

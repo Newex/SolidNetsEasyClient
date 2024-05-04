@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
-using SolidNetsEasyClient.Converters;
 using SolidNetsEasyClient.Models.DTOs.Responses.Webhooks.Common;
 
 namespace SolidNetsEasyClient.Models.DTOs.Responses.Webhooks.Payloads;
@@ -10,16 +9,8 @@ namespace SolidNetsEasyClient.Models.DTOs.Responses.Webhooks.Payloads;
 /// <summary>
 /// The data associated with this event.
 /// </summary>
-public record ChargeFailedData : IWebhookData
+public record ChargeFailedData : WebhookData
 {
-    /// <summary>
-    /// The payment identifier
-    /// </summary>
-    [Required]
-    [JsonConverter(typeof(GuidTypeConverter))]
-    [JsonPropertyName("paymentId")]
-    public Guid PaymentId { get; init; }
-
     /// <summary>
     /// Contains information about an error (client error or server error).
     /// </summary>
@@ -31,7 +22,6 @@ public record ChargeFailedData : IWebhookData
     /// The charge identifier.
     /// </summary>
     [Required]
-    [JsonConverter(typeof(GuidTypeConverter))]
     [JsonPropertyName("chargeId")]
     public Guid ChargeId { get; init; }
 
@@ -46,7 +36,6 @@ public record ChargeFailedData : IWebhookData
     /// A unique identifier (UUID) for the reservation that can help in diagnostics.
     /// </summary>
     [Required]
-    [JsonConverter(typeof(GuidTypeConverter))]
     [JsonPropertyName("reservationId")]
     public Guid ReservationId { get; init; }
 

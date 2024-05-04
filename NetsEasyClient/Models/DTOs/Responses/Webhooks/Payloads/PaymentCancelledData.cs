@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
-using SolidNetsEasyClient.Converters;
 using SolidNetsEasyClient.Models.DTOs.Responses.Webhooks.Common;
 
 namespace SolidNetsEasyClient.Models.DTOs.Responses.Webhooks.Payloads;
@@ -10,21 +9,12 @@ namespace SolidNetsEasyClient.Models.DTOs.Responses.Webhooks.Payloads;
 /// <summary>
 /// The data associated with this event.
 /// </summary>
-public record PaymentCancelledData : IWebhookData
+public record PaymentCancelledData : WebhookData
 {
-    /// <summary>
-    /// The payment identifier
-    /// </summary>
-    [Required]
-    [JsonConverter(typeof(GuidTypeConverter))]
-    [JsonPropertyName("paymentId")]
-    public Guid PaymentId { get; init; }
-
     /// <summary>
     /// The cancellation id
     /// </summary>
     [Required]
-    [JsonConverter(typeof(GuidTypeConverter))]
     [JsonPropertyName("cancelId")]
     public Guid CancelId { get; init; }
 

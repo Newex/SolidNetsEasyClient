@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
-using SolidNetsEasyClient.Converters;
 using SolidNetsEasyClient.Models.DTOs.Enums;
 using SolidNetsEasyClient.Models.DTOs.Responses.Webhooks.Common;
 
@@ -11,20 +10,11 @@ namespace SolidNetsEasyClient.Models.DTOs.Responses.Webhooks.Payloads;
 /// <summary>
 /// The data associated with this event.
 /// </summary>
-public record ChargeData : IWebhookData
+public record ChargeData : WebhookData
 {
-    /// <summary>
-    /// The payment identifier.
-    /// </summary>
-    [Required]
-    [JsonConverter(typeof(GuidTypeConverter))]
-    [JsonPropertyName("paymentId")]
-    public Guid PaymentId { get; init; }
-
     /// <summary>
     /// The subscription identifier.
     /// </summary>
-    [JsonConverter(typeof(GuidTypeConverter))]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("subscriptionId")]
     public Guid? SubscriptionId { get; init; }
@@ -32,7 +22,6 @@ public record ChargeData : IWebhookData
     /// <summary>
     /// The charge identifier.
     /// </summary>
-    [JsonConverter(typeof(GuidTypeConverter))]
     [JsonPropertyName("chargeId")]
     public Guid ChargeId { get; init; }
 

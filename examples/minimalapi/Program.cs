@@ -5,6 +5,7 @@ using SolidNetsEasyClient.Extensions;
 using SolidNetsEasyClient.Models.DTOs.Enums;
 using SolidNetsEasyClient.Models.DTOs.Requests.Orders;
 using SolidNetsEasyClient.Models.DTOs.Responses.Webhooks;
+using SolidNetsEasyClient.SerializationContexts;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,6 +19,11 @@ builder.Services.AddNetsEasyEmbeddedCheckout(checkoutUrl: "https://localhost:800
 .ConfigureNetsEasyOptions(options =>
 {
     options.ApiKey = "my-api-key";
+});
+
+builder.Services.ConfigureHttpJsonOptions(options =>
+{
+    options.SerializerOptions.TypeInfoResolverChain.Add(WebhookSerializationContext.Default);
 });
 
 var app = builder.Build();
