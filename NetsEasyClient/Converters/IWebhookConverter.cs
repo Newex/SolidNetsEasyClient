@@ -69,7 +69,7 @@ public class IWebhookConverter : JsonConverter<IWebhook<WebhookData>>
                         {
                             EventName.PaymentCreated => GetPaymentCreatedData(ref reader, options),
                             EventName.PaymentCancelled => GetPaymentCancelledData(ref reader, options),
-                            EventName.ChargeCreated => throw new NotImplementedException(),
+                            EventName.ChargeCreated => GetChargeData(ref reader, options),
                             EventName.ChargeFailed => throw new NotImplementedException(),
                             EventName.CheckoutCompleted => throw new NotImplementedException(),
                             EventName.PaymentCancellationFailed => throw new NotImplementedException(),
@@ -224,6 +224,11 @@ public class IWebhookConverter : JsonConverter<IWebhook<WebhookData>>
                 paymentCancelledDataConverter.Write(writer, value.Data as PaymentCancelledData ?? new(), options);
                 break;
             case EventName.ChargeCreated:
+                if (options.Converters.FirstOrDefault(x => x.CanConvert(typeof(ChargeData))) is not JsonConverter<ChargeData> chargeDataConverter)
+                {
+                    chargeDataConverter = new ChargeCreatedDataConverter();
+                }
+                chargeDataConverter.Write(writer, value.Data as ChargeData ?? new(), options);
                 break;
             case EventName.ChargeFailed:
                 break;
@@ -266,5 +271,15 @@ public class IWebhookConverter : JsonConverter<IWebhook<WebhookData>>
         }
 
         return paymentCancelledDataConverter.Read(ref reader, typeof(PaymentCreatedData), options);
+    }
+
+    private static ChargeData? GetChargeData(ref Utf8JsonReader reader, JsonSerializerOptions options)
+    {
+        if (options.Converters.FirstOrDefault(x => x.CanConvert(typeof(ChargeData))) is not JsonConverter<ChargeData> chargeDataConverter)
+        {
+            chargeDataConverter = new ChargeCreatedDataConverter();
+        }
+
+        return chargeDataConverter.Read(ref reader, typeof(ChargeData), options);
     }
 }
