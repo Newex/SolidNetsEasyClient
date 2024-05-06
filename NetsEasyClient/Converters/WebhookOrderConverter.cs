@@ -77,7 +77,54 @@ public class WebhookOrderConverter : JsonConverter<WebhookOrder>
     /// <inheritdoc />
     public override void Write(Utf8JsonWriter writer, WebhookOrder value, JsonSerializerOptions options)
     {
-        throw new NotImplementedException();
+        writer.WriteStartObject();
+
+        writer.WriteString("reference", value.Reference);
+
+        writer.WritePropertyName("amount");
+        writer.WriteStartObject();
+        writer.WriteNumber("amount", value.Amount.Amount);
+        writer.WriteString("currency", value.Amount.Currency.ToString().ToUpperInvariant());
+        writer.WriteEndObject();
+
+        writer.WritePropertyName("orderItems");
+        writer.WriteStartArray();
+
+        foreach (var item in value.OrderItems)
+        {
+            writer.WriteStartObject();
+
+            writer.WriteString("reference", item.Reference);
+            writer.WriteString("name", item.Name);
+            writer.WriteNumber("quantity", item.Quantity);
+            writer.WriteString("unit", item.Unit);
+            writer.WriteNumber("unitPrice", item.UnitPrice);
+
+            if (item.TaxRate.HasValue)
+                writer.WriteNumber("taxRate", item.TaxRate.GetValueOrDefault());
+            else if (!options.DefaultIgnoreCondition.HasFlag(JsonIgnoreCondition.WhenWritingNull))
+            {
+                writer.WriteNull("taxRate");
+            }
+
+            if (item.TaxAmount.HasValue)
+            {
+                writer.WriteNumber("taxAmount", item.TaxAmount.GetValueOrDefault());
+            }
+            else if (!options.DefaultIgnoreCondition.HasFlag(JsonIgnoreCondition.WhenWritingNull))
+            {
+                writer.WriteNull("taxAmount");
+            }
+
+            writer.WriteNumber("grossTotalAmount", item.GrossTotalAmount);
+            writer.WriteNumber("netTotalAmount", item.NetTotalAmount);
+
+            writer.WriteEndObject();
+        }
+
+        writer.WriteEndArray();
+
+        writer.WriteEndObject();
     }
 
     private static WebhookAmount? GetWebhookAmount(ref Utf8JsonReader reader)

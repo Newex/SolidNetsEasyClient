@@ -201,12 +201,17 @@ public class IWebhookConverter : JsonConverter<IWebhook<WebhookData>>
     /// <inheritdoc />
     public override void Write(Utf8JsonWriter writer, IWebhook<WebhookData> value, JsonSerializerOptions options)
     {
+        if (options.Converters.FirstOrDefault(x => x.CanConvert(typeof(PaymentCreatedData))) is not JsonConverter<PaymentCreatedData> paymentCreatedDataConverter)
+        {
+            throw new JsonException("Must register payment created data converter");
+        }
+
         writer.WriteStartObject();
 
         // Write id without dashes
         writer.WriteString("id", value.Id.ToString("N"));
         writer.WriteNumber("merchantId", value.MerchantId);
-        writer.WriteString("timestamp", value.Timestamp.ToString("yyyy-MM-dd'T'HH:mm:ss.fffK"));
+        writer.WriteString("timestamp", value.Timestamp);
         writer.WriteString("event", EventNameHelper.ToStringEventName(value.Event));
 
         writer.WritePropertyName("data");
@@ -214,6 +219,7 @@ public class IWebhookConverter : JsonConverter<IWebhook<WebhookData>>
         switch (value.Event)
         {
             case EventName.PaymentCreated:
+                paymentCreatedDataConverter.Write(writer, value.Data as PaymentCreatedData ?? new(), options);
                 break;
             case EventName.PaymentCancelled:
                 break;

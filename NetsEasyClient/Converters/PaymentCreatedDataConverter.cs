@@ -69,6 +69,14 @@ public class PaymentCreatedDataConverter : JsonConverter<PaymentCreatedData>
     /// <inheritdoc />
     public override void Write(Utf8JsonWriter writer, PaymentCreatedData value, JsonSerializerOptions options)
     {
-        throw new NotImplementedException();
+        var orderWriter = new WebhookOrderConverter();
+
+        writer.WriteStartObject();
+
+        writer.WriteString("paymentId", value.PaymentId.ToString("N"));
+        writer.WritePropertyName("order");
+        orderWriter.Write(writer, value.Order, options);
+
+        writer.WriteEndObject();
     }
 }
