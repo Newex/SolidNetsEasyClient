@@ -24,11 +24,11 @@ public class WebhookOrderConverter : JsonConverter<WebhookOrder>
 
         if (options.Converters.FirstOrDefault(x => x.CanConvert(typeof(IList<Item>))) is not JsonConverter<IList<Item>> orderItemsConverter)
         {
-            throw new JsonException("Must register OrderItemsConverter.");
+            orderItemsConverter = new OrderItemsConverter();
         }
         if (options.Converters.FirstOrDefault(x => x.CanConvert(typeof(WebhookAmount))) is not JsonConverter<WebhookAmount> webhookAmountConverter)
         {
-            throw new JsonException("Must register WebhookAmountConverter.");
+            webhookAmountConverter = new WebhookAmountConverter();
         }
 
         // properties
@@ -88,11 +88,11 @@ public class WebhookOrderConverter : JsonConverter<WebhookOrder>
     {
         if (options.Converters.FirstOrDefault(x => x.CanConvert(typeof(IList<Item>))) is not JsonConverter<IList<Item>> orderItemsConverter)
         {
-            throw new JsonException("Must register OrderItemsConverter.");
+            orderItemsConverter = new OrderItemsConverter();
         }
         if (options.Converters.FirstOrDefault(x => x.CanConvert(typeof(WebhookAmount))) is not JsonConverter<WebhookAmount> webhookAmountConverter)
         {
-            throw new JsonException("Must register WebhookAmountConverter.");
+            webhookAmountConverter = new WebhookAmountConverter();
         }
 
         writer.WriteStartObject();

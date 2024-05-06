@@ -24,7 +24,7 @@ public class PaymentCreatedDataConverter : JsonConverter<PaymentCreatedData>
         // Converters
         if (options.Converters.FirstOrDefault(x => x.CanConvert(typeof(WebhookOrder))) is not JsonConverter<WebhookOrder> webhookOrderConverter)
         {
-            throw new JsonException("Must register WebhookOrderConverter.");
+            webhookOrderConverter = new WebhookOrderConverter();
         }
 
         // Properties
@@ -69,13 +69,16 @@ public class PaymentCreatedDataConverter : JsonConverter<PaymentCreatedData>
     /// <inheritdoc />
     public override void Write(Utf8JsonWriter writer, PaymentCreatedData value, JsonSerializerOptions options)
     {
-        var orderWriter = new WebhookOrderConverter();
+        if (options.Converters.FirstOrDefault(x => x.CanConvert(typeof(WebhookOrder))) is not JsonConverter<WebhookOrder> webhookOrderConverter)
+        {
+            webhookOrderConverter = new WebhookOrderConverter();
+        }
 
         writer.WriteStartObject();
 
         writer.WriteString("paymentId", value.PaymentId.ToString("N"));
         writer.WritePropertyName("order");
-        orderWriter.Write(writer, value.Order, options);
+        webhookOrderConverter.Write(writer, value.Order, options);
 
         writer.WriteEndObject();
     }

@@ -54,10 +54,6 @@ public class PaymentCreatedSerializationSnapshotTests
     {
         // Arrange
         var options = new JsonSerializerOptions(JsonSerializerOptions.Default);
-        options.Converters.Add(new WebhookAmountConverter());
-        options.Converters.Add(new OrderItemsConverter());
-        options.Converters.Add(new WebhookOrderConverter());
-        options.Converters.Add(new PaymentCreatedDataConverter());
         options.Converters.Add(new IWebhookConverter());
         var memoryStream = new MemoryStream();
         var writer = new Utf8JsonWriter(memoryStream);
