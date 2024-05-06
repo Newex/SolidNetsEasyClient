@@ -1,10 +1,8 @@
 using System;
-using System.Collections.Generic;
 using System.Globalization;
 using System.Text;
 using System.Text.Json;
 using SolidNetsEasyClient.Converters;
-using SolidNetsEasyClient.Models.DTOs;
 using SolidNetsEasyClient.Models.DTOs.Enums;
 using SolidNetsEasyClient.Models.DTOs.Responses.Webhooks;
 using SolidNetsEasyClient.Models.DTOs.Responses.Webhooks.Payloads;
@@ -17,33 +15,33 @@ public class PaymentCreatedWebHookSerializationTests
 {
     const string PaymentCreatedJson = """
     {
-        "id": "458a4e068f454f768a40b9e576914820",
-        "merchantId": 100017120,
-        "timestamp": "2021-05-04T22:08:16.6623+02:00",
-        "event": "payment.created",
-        "data": {
-            "order": {
-                "amount": {
-                    "amount": 5500,
-                    "currency": "SEK"
-                },
-                "reference": "42369",
-                "orderItems": [
-                    {
-                        "reference": "Sneaky NE2816-82",
-                        "name": "Sneaky",
-                        "quantity": 2,
-                        "unit": "pcs",
-                        "unitPrice": 2500,
-                        "taxRate": 1000,
-                        "taxAmount": 500,
-                        "netTotalAmount": 5000,
-                        "grossTotalAmount": 5500
-                    }
-                ]
-            },
-            "paymentId": "02a900006091a9a96937598058c4e474"
-        }
+      "id": "458a4e068f454f768a40b9e576914820",
+      "merchantId": 100017120,
+      "timestamp": "2021-05-04T22:08:16.6623+02:00",
+      "event": "payment.created",
+      "data": {
+          "order": {
+              "amount": {
+                  "amount": 5500,
+                  "currency": "SEK"
+              },
+              "reference": "42369",
+              "orderItems": [
+                  {
+                      "reference": "Sneaky NE2816-82",
+                      "name": "Sneaky",
+                      "quantity": 2,
+                      "unit": "pcs",
+                      "unitPrice": 2500,
+                      "taxRate": 1000,
+                      "taxAmount": 500,
+                      "netTotalAmount": 5000,
+                      "grossTotalAmount": 5500
+                  }
+              ]
+          },
+          "paymentId": "02a900006091a9a96937598058c4e474"
+      }
     }
     """;
 
@@ -63,8 +61,8 @@ public class PaymentCreatedWebHookSerializationTests
                     Currency = Currency.SEK
                 },
                 Reference = "42369",
-                OrderItems = new List<Item>
-                    {
+                OrderItems =
+                    [
                         new()
                         {
                             Reference = "Sneaky NE2816-82",
@@ -74,7 +72,7 @@ public class PaymentCreatedWebHookSerializationTests
                             UnitPrice = 2500,
                             TaxRate = 1000,
                         }
-                    },
+                    ],
             },
             PaymentId = new Guid("02a900006091a9a96937598058c4e474")
         }
