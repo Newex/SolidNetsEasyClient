@@ -4,6 +4,7 @@ using System.Globalization;
 using System.Net;
 using System.Net.Http;
 using System.Threading;
+using System.Threading.Tasks;
 using SolidNetsEasyClient.Constants;
 using SolidNetsEasyClient.Models.DTOs;
 using SolidNetsEasyClient.Models.DTOs.Enums;
@@ -17,7 +18,7 @@ namespace SolidNetsEasyClient.Tests.ClientTests.Unit;
 public class SubscriptionClientTests
 {
     [Fact]
-    public async void Retrieving_non_existing_subscription_throws_exception()
+    public async Task Retrieving_non_existing_subscription_throws_exception()
     {
         // Arrange
         const string response = /*lang=json,strict*/ "{\"error\": \"Not found\"}";
@@ -32,7 +33,7 @@ public class SubscriptionClientTests
     }
 
     [Fact]
-    public async void Retrieving_existing_subscription_by_external_reference_returns_SubscriptionDetails()
+    public async Task Retrieving_existing_subscription_by_external_reference_returns_SubscriptionDetails()
     {
         // Arrange
         const string response = "{\n" +
@@ -88,7 +89,7 @@ public class SubscriptionClientTests
     }
 
     [Fact]
-    public async void Bulk_charging_subscriptions_returns_a_deserializable_BulkId_object()
+    public async Task Bulk_charging_subscriptions_returns_a_deserializable_BulkId_object()
     {
         const string response = /*lang=json,strict*/ @"{ ""bulkId"": ""50490f2b-98bd-4782-b08d-413ee70aa1f7"" }";
         var subscriptions = new List<SubscriptionCharge>
@@ -117,7 +118,7 @@ public class SubscriptionClientTests
     }
 
     [Fact]
-    public async void Retrieving_bulk_charges_returns_PaginatedSubscriptions()
+    public async Task Retrieving_bulk_charges_returns_PaginatedSubscriptions()
     {
         // Arrange
         const string response = "{\n" +
@@ -167,7 +168,7 @@ public class SubscriptionClientTests
     }
 
     [Fact]
-    public async void Verify_subscriptions_returns_bulk_id()
+    public async Task Verify_subscriptions_returns_bulk_id()
     {
         // Arrange
         const string response = /*lang=json,strict*/ @"{ ""bulkId"": ""50490f2b-98bd-4782-b08d-413ee70aa1f7"" }";
@@ -197,7 +198,7 @@ public class SubscriptionClientTests
     }
 
     [Fact]
-    public async void Retrieve_paginated_subscriptions()
+    public async Task Retrieve_paginated_subscriptions()
     {
         // Arrange
         const string response = "{\n" +
