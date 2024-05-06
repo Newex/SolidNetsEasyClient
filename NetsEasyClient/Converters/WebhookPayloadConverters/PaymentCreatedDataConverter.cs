@@ -5,7 +5,7 @@ using System.Text.Json.Serialization;
 using SolidNetsEasyClient.Models.DTOs.Responses.Webhooks.Common;
 using SolidNetsEasyClient.Models.DTOs.Responses.Webhooks.Payloads;
 
-namespace SolidNetsEasyClient.Converters;
+namespace SolidNetsEasyClient.Converters.WebhookPayloadConverters;
 
 /// <summary>
 /// Payment created webhook payload json converter
