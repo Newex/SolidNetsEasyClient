@@ -5,6 +5,7 @@ using SolidNetsEasyClient.Extensions;
 using SolidNetsEasyClient.Models.DTOs.Enums;
 using SolidNetsEasyClient.Models.DTOs.Requests.Orders;
 using SolidNetsEasyClient.Models.DTOs.Responses.Webhooks;
+using SolidNetsEasyClient.Models.DTOs.Responses.Webhooks.Payloads;
 using SolidNetsEasyClient.SerializationContexts;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -23,7 +24,7 @@ builder.Services.AddNetsEasyEmbeddedCheckout(checkoutUrl: "https://localhost:800
 
 builder.Services.ConfigureHttpJsonOptions(options =>
 {
-    options.SerializerOptions.TypeInfoResolverChain.Add(WebhookSerializationContext.Default);
+    // options.SerializerOptions.TypeInfoResolverChain.Add(WebhookSerializationContext.Default);
 });
 
 var app = builder.Build();
@@ -38,7 +39,7 @@ if (app.Environment.IsDevelopment())
 app.MapPost("/checkout", async (NetsPaymentBuilder builder, NetsPaymentClient client, Order order, CancellationToken cancellationToken) =>
 {
     var paymentBuilder = builder.CreateSinglePayment(order, "my-order-id");
-    paymentBuilder.AddWebhook("https://localhost:8000/nets/paid", EventName.PaymentCreated, "authHeaderVal123");
+    paymentBuilder.AddWebhook("https://localhost:8000/nets/webhook", EventName.PaymentCreated, "authHeaderVal123");
 
     var paymentRequest = paymentBuilder.Build();
     var paymentResult = await client.StartCheckoutPayment(paymentRequest, cancellationToken);
@@ -46,7 +47,7 @@ app.MapPost("/checkout", async (NetsPaymentBuilder builder, NetsPaymentClient cl
 });
 
 // Must be POST
-app.MapPost("/nets/paid", (HttpContext context, NetsPaymentClient client, [FromBody] PaymentCreated paymentCreated) =>
+app.MapPost("/nets/webhook", (HttpContext context, NetsPaymentClient client, [FromBody] IWebhook<WebhookData> webhook) =>
 {
     var authHeader = context.Request.Headers.Authorization;
     if (string.IsNullOrEmpty(authHeader))
@@ -59,9 +60,7 @@ app.MapPost("/nets/paid", (HttpContext context, NetsPaymentClient client, [FromB
         return Results.Forbid();
     }
 
-    // Handle payment accepted!
-    var orderId = paymentCreated.Data.Order.Reference;
-    return Results.Ok(orderId);
+    throw new NotImplementedException();
 });
 
 app.Run();

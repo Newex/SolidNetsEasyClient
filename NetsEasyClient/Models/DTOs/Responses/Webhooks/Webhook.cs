@@ -10,16 +10,28 @@ namespace SolidNetsEasyClient.Models.DTOs.Responses.Webhooks;
 /// <summary>
 /// A basic webhook event structure
 /// </summary>
-/// <typeparam name="T">The webhook data</typeparam>
 [JsonDerivedType(typeof(PaymentCreated))]
-public abstract record Webhook<T>
-where T : WebhookData, new()
+[JsonDerivedType(typeof(ChargeCreated))]
+[JsonDerivedType(typeof(ChargeFailed))]
+[JsonDerivedType(typeof(CheckoutCompleted))]
+[JsonDerivedType(typeof(PaymentCancellationFailed))]
+[JsonDerivedType(typeof(PaymentCancelled))]
+[JsonDerivedType(typeof(RefundCompleted))]
+[JsonDerivedType(typeof(RefundFailed))]
+[JsonDerivedType(typeof(RefundInitiated))]
+[JsonDerivedType(typeof(ReservationCreatedV1))]
+[JsonDerivedType(typeof(ReservationCreatedV2))]
+[JsonDerivedType(typeof(ReservationFailed))]
+[JsonConverter(typeof(IWebhookConverter))]
+public abstract record Webhook<T> : IWebhook<T>
+where T : WebhookData
 {
     /// <summary>
     /// A unique identifier of this event. You can use this identifier to detect whether this event is new or has already been handled by you.
     /// </summary>
     [JsonPropertyName("id")]
     [Required]
+    [JsonConverter(typeof(GuidTypeConverter))]
     public Guid Id { get; init; }
 
     /// <summary>
@@ -49,5 +61,38 @@ where T : WebhookData, new()
     /// </summary>
     [Required]
     [JsonPropertyName("data")]
-    public T Data { get; init; } = new();
+    public abstract T Data { get; init; }
+}
+
+/// <summary>
+/// Webhook data structure
+/// </summary>
+/// <typeparam name="T"></typeparam>
+public interface IWebhook<out T>
+where T : WebhookData
+{
+    /// <summary>
+    /// A unique identifier of this event. You can use this identifier to detect whether this event is new or has already been handled by you.
+    /// </summary>
+    Guid Id { get; init; }
+
+    /// <summary>
+    /// The merchant number.
+    /// </summary>
+    int MerchantId { get; init; }
+
+    /// <summary>
+    /// The time at which the event occurred formatted according to RFC339, for example 2021-03-23T15:30:55.23Z.
+    /// </summary>
+    DateTimeOffset Timestamp { get; init; }
+
+    /// <summary>
+    /// The name of the event
+    /// </summary>
+    EventName Event { get; init; }
+
+    /// <summary>
+    /// The data associated with this event
+    /// </summary>
+    T Data { get; }
 }
