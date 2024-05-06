@@ -4,7 +4,6 @@ using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using SolidNetsEasyClient.Models.DTOs;
-using SolidNetsEasyClient.Models.DTOs.Enums;
 using SolidNetsEasyClient.Models.DTOs.Responses.Webhooks.Common;
 
 namespace SolidNetsEasyClient.Converters.WebhookPayloadConverters;
@@ -26,6 +25,10 @@ public class WebhookOrderConverter : JsonConverter<WebhookOrder>
         if (options.Converters.FirstOrDefault(x => x.CanConvert(typeof(IList<Item>))) is not JsonConverter<IList<Item>> orderItemsConverter)
         {
             throw new JsonException("Must register OrderItemsConverter.");
+        }
+        if (options.Converters.FirstOrDefault(x => x.CanConvert(typeof(WebhookAmount))) is not JsonConverter<WebhookAmount> webhookAmountConverter)
+        {
+            throw new JsonException("Must register WebhookAmountConverter.");
         }
 
         // properties
@@ -52,7 +55,7 @@ public class WebhookOrderConverter : JsonConverter<WebhookOrder>
                 case JsonTokenType.StartObject:
                     if (propertyName.Equals("amount"))
                     {
-                        amount = GetWebhookAmount(ref reader);
+                        amount = webhookAmountConverter.Read(ref reader, typeof(WebhookAmount), options);
                     }
                     break;
                 case JsonTokenType.StartArray:
@@ -87,156 +90,21 @@ public class WebhookOrderConverter : JsonConverter<WebhookOrder>
         {
             throw new JsonException("Must register OrderItemsConverter.");
         }
+        if (options.Converters.FirstOrDefault(x => x.CanConvert(typeof(WebhookAmount))) is not JsonConverter<WebhookAmount> webhookAmountConverter)
+        {
+            throw new JsonException("Must register WebhookAmountConverter.");
+        }
 
         writer.WriteStartObject();
 
         writer.WriteString("reference", value.Reference);
 
         writer.WritePropertyName("amount");
-        writer.WriteStartObject();
-        writer.WriteNumber("amount", value.Amount.Amount);
-        writer.WriteString("currency", value.Amount.Currency.ToString().ToUpperInvariant());
-        writer.WriteEndObject();
+        webhookAmountConverter.Write(writer, value.Amount, options);
 
         writer.WritePropertyName("orderItems");
         orderItemsConverter.Write(writer, value.OrderItems, options);
 
         writer.WriteEndObject();
-    }
-
-    private static WebhookAmount? GetWebhookAmount(ref Utf8JsonReader reader)
-    {
-        // properties
-        int? amount = null;
-        string? currencyText = null;
-        var propertyName = "";
-
-        var parsing = true;
-
-        while (parsing)
-        {
-            parsing = reader.Read();
-            switch (reader.TokenType)
-            {
-                case JsonTokenType.PropertyName:
-                    propertyName = reader.GetString()!;
-                    break;
-                case JsonTokenType.Number:
-                    var number = reader.GetInt32();
-                    if (propertyName.Equals("amount")) amount = number;
-                    break;
-                case JsonTokenType.String:
-                    var text = reader.GetString()!;
-                    if (propertyName.Equals("currency")) currencyText = text;
-                    break;
-                case JsonTokenType.EndObject:
-                    if (!amount.HasValue || currencyText is null)
-                    {
-                        throw new JsonException("Missing properties to deserialize to WebhookAmount");
-                    }
-
-                    parsing = false;
-                    break;
-            }
-        }
-
-        var hasCurrency = Enum.TryParse<Currency>(currencyText, out var currency);
-        if (!amount.HasValue || currencyText is null || !hasCurrency)
-        {
-            throw new JsonException("Missing properties to deserialize to WebhookAmount");
-        }
-
-        return new()
-        {
-            Amount = amount.GetValueOrDefault(),
-            Currency = currency
-        };
-    }
-
-    private static List<Item> GetOrderItems(ref Utf8JsonReader reader)
-    {
-        List<Item> result = [];
-
-        // current item
-        string? reference = null;
-        string? name = null;
-        double? quantity = null;
-        string? unit = null;
-        int? unitPrice = null;
-        int? taxRate = null;
-
-        // calculated properties
-        int? taxAmount = null;
-        int? grossTotalAmount = null;
-        int? netTotalAmount = null;
-
-        var propertyName = "";
-
-        var parsing = true;
-        while (parsing)
-        {
-            parsing = reader.Read();
-            var token = reader.TokenType;
-            switch (token)
-            {
-                case JsonTokenType.PropertyName:
-                    propertyName = reader.GetString()!;
-                    break;
-                case JsonTokenType.EndObject:
-                    if (reference is null || name is null || !quantity.HasValue || unit is null || !unitPrice.HasValue || !taxRate.HasValue)
-                    {
-                        if (result.Count == 0)
-                        {
-                            parsing = false;
-                            break;
-                        }
-                        else throw new JsonException("Missing properties to deserialize order items");
-                    }
-
-                    var item = new Item()
-                    {
-                        Reference = reference,
-                        Name = name,
-                        Quantity = quantity.GetValueOrDefault(),
-                        Unit = unit,
-                        UnitPrice = unitPrice.GetValueOrDefault(),
-                        TaxRate = taxRate.GetValueOrDefault(),
-                    };
-                    var isValid = item.TaxAmount == taxAmount
-                                  && item.GrossTotalAmount == grossTotalAmount.GetValueOrDefault()
-                                  && item.NetTotalAmount == netTotalAmount.GetValueOrDefault();
-
-                    if (!isValid)
-                    {
-                        throw new JsonException("Malformed order item. Mismatching calculated properties for the TaxAmount, GrossTotalAmount or NetTotalAmount");
-                    }
-
-                    result.Add(item);
-                    break;
-                case JsonTokenType.String:
-                    var text = reader.GetString()!;
-                    if (propertyName.Equals("reference")) reference = text;
-                    else if (propertyName.Equals("name")) name = text;
-                    else if (propertyName.Equals("unit")) unit = text;
-                    break;
-                case JsonTokenType.Number:
-                    if (propertyName.Equals("quantity"))
-                    {
-                        quantity = reader.GetDouble();
-                    }
-                    else if (propertyName.Equals("unitPrice")) unitPrice = reader.GetInt32();
-                    else if (propertyName.Equals("taxRate")) taxRate = reader.GetInt32();
-                    else if (propertyName.Equals("taxAmount")) taxAmount = reader.GetInt32();
-                    else if (propertyName.Equals("grossTotalAmount")) grossTotalAmount = reader.GetInt32();
-                    else if (propertyName.Equals("netTotalAmount")) netTotalAmount = reader.GetInt32();
-                    break;
-                case JsonTokenType.EndArray:
-                    if (result.Count > 0) parsing = false;
-                    else throw new JsonException("Could not parse webhook order items.");
-                    break;
-            }
-        }
-
-        return result;
     }
 }
