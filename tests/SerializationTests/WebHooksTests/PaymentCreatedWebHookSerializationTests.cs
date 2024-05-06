@@ -141,6 +141,7 @@ public class PaymentCreatedWebHookSerializationTests
     {
         // Arrange
         var options = new JsonSerializerOptions(JsonSerializerOptions.Default);
+        options.Converters.Add(new OrderItemsConverter());
         options.Converters.Add(new WebhookOrderConverter());
         options.Converters.Add(new PaymentCreatedDataConverter());
         options.Converters.Add(new IWebhookConverter());

@@ -1,12 +1,13 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using SolidNetsEasyClient.Models.DTOs;
 using SolidNetsEasyClient.Models.DTOs.Enums;
 using SolidNetsEasyClient.Models.DTOs.Responses.Webhooks.Common;
 
-namespace SolidNetsEasyClient.Converters;
+namespace SolidNetsEasyClient.Converters.WebhookPayloadConverters;
 
 /// <summary>
 /// Webhook order payload json converter
@@ -20,6 +21,11 @@ public class WebhookOrderConverter : JsonConverter<WebhookOrder>
         if (jsonToken == JsonTokenType.Null || jsonToken == JsonTokenType.None)
         {
             return null;
+        }
+
+        if (options.Converters.FirstOrDefault(x => x.CanConvert(typeof(IList<Item>))) is not JsonConverter<IList<Item>> orderItemsConverter)
+        {
+            throw new JsonException("Must register OrderItemsConverter.");
         }
 
         // properties
@@ -52,7 +58,7 @@ public class WebhookOrderConverter : JsonConverter<WebhookOrder>
                 case JsonTokenType.StartArray:
                     if (propertyName.Equals("orderItems"))
                     {
-                        orderItems = GetOrderItems(ref reader);
+                        orderItems = orderItemsConverter.Read(ref reader, typeof(IList<Item>), options)?.ToList() ?? [];
 
                         // Stop if amount and reference have been parsed
                         parsing = !(amount is not null && reference is not null);
@@ -77,6 +83,11 @@ public class WebhookOrderConverter : JsonConverter<WebhookOrder>
     /// <inheritdoc />
     public override void Write(Utf8JsonWriter writer, WebhookOrder value, JsonSerializerOptions options)
     {
+        if (options.Converters.FirstOrDefault(x => x.CanConvert(typeof(IList<Item>))) is not JsonConverter<IList<Item>> orderItemsConverter)
+        {
+            throw new JsonException("Must register OrderItemsConverter.");
+        }
+
         writer.WriteStartObject();
 
         writer.WriteString("reference", value.Reference);
@@ -88,41 +99,7 @@ public class WebhookOrderConverter : JsonConverter<WebhookOrder>
         writer.WriteEndObject();
 
         writer.WritePropertyName("orderItems");
-        writer.WriteStartArray();
-
-        foreach (var item in value.OrderItems)
-        {
-            writer.WriteStartObject();
-
-            writer.WriteString("reference", item.Reference);
-            writer.WriteString("name", item.Name);
-            writer.WriteNumber("quantity", item.Quantity);
-            writer.WriteString("unit", item.Unit);
-            writer.WriteNumber("unitPrice", item.UnitPrice);
-
-            if (item.TaxRate.HasValue)
-                writer.WriteNumber("taxRate", item.TaxRate.GetValueOrDefault());
-            else if (!options.DefaultIgnoreCondition.HasFlag(JsonIgnoreCondition.WhenWritingNull))
-            {
-                writer.WriteNull("taxRate");
-            }
-
-            if (item.TaxAmount.HasValue)
-            {
-                writer.WriteNumber("taxAmount", item.TaxAmount.GetValueOrDefault());
-            }
-            else if (!options.DefaultIgnoreCondition.HasFlag(JsonIgnoreCondition.WhenWritingNull))
-            {
-                writer.WriteNull("taxAmount");
-            }
-
-            writer.WriteNumber("grossTotalAmount", item.GrossTotalAmount);
-            writer.WriteNumber("netTotalAmount", item.NetTotalAmount);
-
-            writer.WriteEndObject();
-        }
-
-        writer.WriteEndArray();
+        orderItemsConverter.Write(writer, value.OrderItems, options);
 
         writer.WriteEndObject();
     }
