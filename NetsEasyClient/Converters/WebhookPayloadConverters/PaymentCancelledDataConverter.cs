@@ -104,9 +104,7 @@ public class PaymentCancelledDataConverter : JsonConverter<PaymentCancelledData>
         writer.WriteString("cancelId", value.CancelId.ToString("N"));
 
         writer.WritePropertyName("orderItems");
-        writer.WriteStartArray();
         orderItemsConverter.Write(writer, value.OrderItems, options);
-        writer.WriteEndArray();
 
 
         writer.WriteEndObject();

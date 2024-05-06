@@ -7,19 +7,17 @@
     paymentId: Guid_2,
     cancelId: Guid_1,
     orderItems: [
-      [
-        {
-          reference: Sneaky NE2816-82,
-          name: Sneaky,
-          quantity: 2,
-          unit: pcs,
-          unitPrice: 2500,
-          taxRate: 1000,
-          taxAmount: 500,
-          grossTotalAmount: 5500,
-          netTotalAmount: 5000
-        }
-      ]
+      {
+        reference: Sneaky NE2816-82,
+        name: Sneaky,
+        quantity: 2,
+        unit: pcs,
+        unitPrice: 2500,
+        taxRate: 1000,
+        taxAmount: 500,
+        grossTotalAmount: 5500,
+        netTotalAmount: 5000
+      }
     ]
   }
 }
