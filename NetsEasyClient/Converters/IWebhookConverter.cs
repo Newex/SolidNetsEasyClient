@@ -22,11 +22,6 @@ public class IWebhookConverter : JsonConverter<IWebhook<WebhookData>>
             return null;
         }
 
-        if (options.Converters.FirstOrDefault(x => x.CanConvert(typeof(PaymentCreatedData))) is not JsonConverter<PaymentCreatedData> paymentCreatedDataConverter)
-        {
-            throw new JsonException("Must register payment created data converter");
-        }
-
         Guid? id = null;
         int? merchantId = null;
         DateTimeOffset? timestamp = null;
@@ -71,8 +66,8 @@ public class IWebhookConverter : JsonConverter<IWebhook<WebhookData>>
 
                         data = eventName.GetValueOrDefault() switch
                         {
-                            EventName.PaymentCreated => paymentCreatedDataConverter.Read(ref reader, typeof(PaymentCreatedData), options),
-                            EventName.PaymentCancelled => throw new NotImplementedException(),
+                            EventName.PaymentCreated => GetPaymentCreatedData(ref reader, options),
+                            EventName.PaymentCancelled => GetPaymentCancelledData(ref reader, options),
                             EventName.ChargeCreated => throw new NotImplementedException(),
                             EventName.ChargeFailed => throw new NotImplementedException(),
                             EventName.CheckoutCompleted => throw new NotImplementedException(),
@@ -201,11 +196,6 @@ public class IWebhookConverter : JsonConverter<IWebhook<WebhookData>>
     /// <inheritdoc />
     public override void Write(Utf8JsonWriter writer, IWebhook<WebhookData> value, JsonSerializerOptions options)
     {
-        if (options.Converters.FirstOrDefault(x => x.CanConvert(typeof(PaymentCreatedData))) is not JsonConverter<PaymentCreatedData> paymentCreatedDataConverter)
-        {
-            throw new JsonException("Must register payment created data converter");
-        }
-
         writer.WriteStartObject();
 
         // Write id without dashes
@@ -219,9 +209,18 @@ public class IWebhookConverter : JsonConverter<IWebhook<WebhookData>>
         switch (value.Event)
         {
             case EventName.PaymentCreated:
+                if (options.Converters.FirstOrDefault(x => x.CanConvert(typeof(PaymentCreatedData))) is not JsonConverter<PaymentCreatedData> paymentCreatedDataConverter)
+                {
+                    throw new JsonException("Must register payment created data converter");
+                }
                 paymentCreatedDataConverter.Write(writer, value.Data as PaymentCreatedData ?? new(), options);
                 break;
             case EventName.PaymentCancelled:
+                if (options.Converters.FirstOrDefault(x => x.CanConvert(typeof(PaymentCancelledData))) is not JsonConverter<PaymentCancelledData> paymentCancelledDataConverter)
+                {
+                    throw new JsonException("Must register payment cancelled data converter");
+                }
+                paymentCancelledDataConverter.Write(writer, value.Data as PaymentCancelledData ?? new(), options);
                 break;
             case EventName.ChargeCreated:
                 break;
@@ -246,5 +245,25 @@ public class IWebhookConverter : JsonConverter<IWebhook<WebhookData>>
         }
 
         writer.WriteEndObject();
+    }
+
+    private WebhookData? GetPaymentCreatedData(ref Utf8JsonReader reader, JsonSerializerOptions options)
+    {
+        if (options.Converters.FirstOrDefault(x => x.CanConvert(typeof(PaymentCreatedData))) is not JsonConverter<PaymentCreatedData> paymentCreatedDataConverter)
+        {
+            throw new JsonException("Must register payment created data converter");
+        }
+
+        return paymentCreatedDataConverter.Read(ref reader, typeof(PaymentCreatedData), options);
+    }
+
+    private WebhookData? GetPaymentCancelledData(ref Utf8JsonReader reader, JsonSerializerOptions options)
+    {
+        if (options.Converters.FirstOrDefault(x => x.CanConvert(typeof(PaymentCancelledData))) is not JsonConverter<PaymentCancelledData> paymentCancelledDataConverter)
+        {
+            throw new JsonException("Must register payment cancelled data converter");
+        }
+
+        return paymentCancelledDataConverter.Read(ref reader, typeof(PaymentCreatedData), options);
     }
 }
