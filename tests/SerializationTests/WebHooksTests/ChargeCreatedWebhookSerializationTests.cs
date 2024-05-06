@@ -2,10 +2,13 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
+using System.Text;
 using System.Text.Json;
+using SolidNetsEasyClient.Converters;
 using SolidNetsEasyClient.Models.DTOs;
 using SolidNetsEasyClient.Models.DTOs.Enums;
 using SolidNetsEasyClient.Models.DTOs.Responses.Webhooks;
+using SolidNetsEasyClient.Models.DTOs.Responses.Webhooks.Payloads;
 using SolidNetsEasyClient.Tests.SerializationTests.WebHooksTests.ActualResponses;
 
 namespace SolidNetsEasyClient.Tests.SerializationTests.WebHooksTests;
@@ -13,54 +16,49 @@ namespace SolidNetsEasyClient.Tests.SerializationTests.WebHooksTests;
 [UnitTest]
 public class ChargeCreatedWebhookSerializationTests
 {
-    [Fact]
-    public void Can_deserialize_expected_string_to_ChargedCreated_object()
+    const string Json = """
     {
-        // Arrange
-        // Example from: https://developers.nets.eu/nets-easy/en-EU/api/webhooks/#charge-created
-        const string json = "{\n" +
-            "\"id\": \"01ee00006091b2196937598058c4e488\",\n" +
-            "\"timestamp\": \"2021-05-04T22:44:10.1185+02:00\",\n" +
-            "\"merchantNumber\": 100017120,\n" +
-            "\"event\": \"payment.charge.created.v2\",\n" +
-            "\"data\": {\n" +
-                "\"chargeId\": \"01ee00006091b2196937598058c4e488\",\n" +
-                "\"orderItems\": [\n" +
-                    "{\n" +
-                        "\t\t\t\"reference\": \"Sneaky NE2816-82\",\n" +
-                        "\t\t\t\"name\": \"Sneaky\",\n" +
-                        "\t\t\t\"quantity\": 2,\n" +
-                        "\t\t\t\"unit\": \"pcs\",\n" +
-                        "\t\t\t\"unitPrice\": 2500,\n" +
-                        "\t\t\t\"taxRate\": 1000,\n" +
-                        "\t\t\t\"taxAmount\": 500,\n" +
-                        "\t\t\t\"netTotalAmount\": 5000,\n" +
-                        "\t\t\t\"grossTotalAmount\": 5500\n" +
-                    "}\n" +
-                "],\n" +
-                "\"paymentMethod\": \"Visa\",\n" +
-                "\"paymentType\": \"PREPAID-INVOICE\",\n" +
-                "\"amount\": {\n" +
-                    "\"amount\": 5500,\n" +
-                    "\"currency\": \"SEK\"\n" +
-                "},\n" +
-                "\"paymentId\": \"025400006091b1ef6937598058c4e487\"\n" +
-            "}\n" +
-        "}\n";
-
-        Debug.WriteLine(json);
-
-        var expected = new ChargeCreated
-        {
-            Id = new("01ee00006091b2196937598058c4e488"),
-            Timestamp = DateTimeOffset.Parse("2021-05-04T22:44:10.1185+02:00", CultureInfo.InvariantCulture),
-            MerchantNumber = 100017120,
-            Event = EventName.ChargeCreated,
-            Data = new()
-            {
-                ChargeId = new("01ee00006091b2196937598058c4e488"),
-                OrderItems = new List<Item>
+        "id": "01ee00006091b2196937598058c4e488",
+        "timestamp": "2021-05-04T22:44:10.1185+02:00",
+        "merchantNumber": 100017120,
+        "event": "payment.charge.created.v2",
+        "data": {
+            "chargeId": "01ee00006091b2196937598058c4e488",
+            "orderItems": [
                 {
+                    "reference": "Sneaky NE2816-82",
+                    "name": "Sneaky",
+                    "quantity": 2,
+                    "unit": "pcs",
+                    "unitPrice": 2500,
+                    "taxRate": 1000,
+                    "taxAmount": 500,
+                    "netTotalAmount": 5000,
+                    "grossTotalAmount": 5500
+                }
+            ],
+            "paymentMethod": "Visa",
+            "paymentType": "PREPAID-INVOICE",
+            "amount": {
+                "amount": 5500,
+                "currency": "SEK"
+            },
+            "paymentId": "025400006091b1ef6937598058c4e487"
+        }
+    }
+    """;
+
+    private readonly ChargeCreated chargeCreated = new()
+    {
+        Id = new("01ee00006091b2196937598058c4e488"),
+        Timestamp = DateTimeOffset.Parse("2021-05-04T22:44:10.1185+02:00", CultureInfo.InvariantCulture),
+        MerchantNumber = 100017120,
+        Event = EventName.ChargeCreated,
+        Data = new()
+        {
+            ChargeId = new("01ee00006091b2196937598058c4e488"),
+            OrderItems =
+                [
                     new()
                     {
                         Reference = "Sneaky NE2816-82",
@@ -70,23 +68,32 @@ public class ChargeCreatedWebhookSerializationTests
                         UnitPrice = 2500,
                         TaxRate = 1000,
                     }
-                },
-                PaymentMethod = PaymentMethodEnum.Visa,
-                PaymentType = PaymentTypeEnum.PrepaidInvoice,
-                Amount = new()
-                {
-                    Amount = 5500,
-                    Currency = Currency.SEK
-                },
-                PaymentId = new("025400006091b1ef6937598058c4e487")
+                ],
+            PaymentMethod = PaymentMethodEnum.Visa,
+            PaymentType = PaymentTypeEnum.PrepaidInvoice,
+            Amount = new()
+            {
+                Amount = 5500,
+                Currency = Currency.SEK
             },
-        };
+            PaymentId = new("025400006091b1ef6937598058c4e487")
+        },
+    };
+
+    [Fact]
+    public void Can_deserialize_expected_string_to_ChargedCreated_object()
+    {
+        // Arrange
+        // Example from: https://developers.nets.eu/nets-easy/en-EU/api/webhooks/#charge-created
+
+        Debug.WriteLine(Json);
+
 
         // Act
-        var actual = JsonSerializer.Deserialize<ChargeCreated>(json);
+        var actual = JsonSerializer.Deserialize<ChargeCreated>(Json);
 
         // Assert
-        actual.Should().BeEquivalentTo(expected);
+        actual.Should().BeEquivalentTo(chargeCreated);
     }
 
     [Fact]
@@ -131,5 +138,21 @@ public class ChargeCreatedWebhookSerializationTests
 
         // Assert
         actual.Should().BeEquivalentTo(expected);
+    }
+
+    [Fact]
+    public void Deserialize_payment_response_using_custom_converter()
+    {
+        // Arrange
+        var options = new JsonSerializerOptions(JsonSerializerOptions.Default);
+        options.Converters.Add(new IWebhookConverter());
+        var reader = new Utf8JsonReader(Encoding.UTF8.GetBytes(Json));
+
+        // Act
+        var actual = JsonSerializer.Deserialize<IWebhook<WebhookData>>(ref reader, options);
+        var chargeCreated = actual as ChargeCreated;
+
+        // Assert
+        chargeCreated.Should().NotBeNull().And.BeEquivalentTo(chargeCreated);
     }
 }
