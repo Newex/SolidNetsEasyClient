@@ -1,10 +1,13 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Text;
 using System.Text.Json;
+using SolidNetsEasyClient.Converters;
 using SolidNetsEasyClient.Models.DTOs;
 using SolidNetsEasyClient.Models.DTOs.Enums;
 using SolidNetsEasyClient.Models.DTOs.Responses.Webhooks;
+using SolidNetsEasyClient.Models.DTOs.Responses.Webhooks.Payloads;
 using SolidNetsEasyClient.Tests.SerializationTests.WebHooksTests.ActualResponses;
 
 namespace SolidNetsEasyClient.Tests.SerializationTests.WebHooksTests;
@@ -12,48 +15,46 @@ namespace SolidNetsEasyClient.Tests.SerializationTests.WebHooksTests;
 [UnitTest]
 public class PaymentCancelledSerializationTests
 {
-    [Fact]
-    public void Can_deserialize_example_payment_cancelled_event_to_PaymentCancelled_object()
+    const string Json = """
     {
-        // Arrange
-        const string json = "{\n" +
-        "\"id\": \"df7f9346097842bdb90c869b5c9ccfa9\",\n" +
-        "\"merchantId\": 100017120,\n" +
-        "\"timestamp\": \"2021-05-04T22:33:33.5969+02:00\",\n" +
-        "\"event\": \"payment.cancel.created\",\n" +
-        "\"data\": {\n" +
-                "\"cancelId\": \"df7f9346097842bdb90c869b5c9ccfa9\",\n" +
-                "\"orderItems\": [\n" +
-                    "{\n" +
-                        "\"reference\": \"Sneaky NE2816-82\",\n" +
-                        "\"name\": \"Sneaky\",\n" +
-                        "\"quantity\": 2,\n" +
-                        "\"unit\": \"pcs\",\n" +
-                        "\"unitPrice\": 2500,\n" +
-                        "\"taxRate\": 1000,\n" +
-                        "\"taxAmount\": 500,\n" +
-                        "\"netTotalAmount\": 5000,\n" +
-                        "\"grossTotalAmount\": 5500\n" +
-                    "}\n" +
-                "],\n" +
-                "\"amount\": {\n" +
-                    "\"amount\": 5500,\n" +
-                    "\"currency\": \"SEK\"\n" +
-                "},\n" +
-                "\"paymentId\": \"006400006091abfe6937598058c4e47e\"\n" +
-            "}\n" +
-        "}\n";
-        var expected = new PaymentCancelled
+      "id": "df7f9346097842bdb90c869b5c9ccfa9",
+      "merchantId": 100017120,
+      "timestamp": "2021-05-04T22:33:33.5969+02:00",
+      "event": "payment.cancel.created",
+      "data": {
+        "cancelId": "df7f9346097842bdb90c869b5c9ccfa9",
+        "orderItems": [
+          {
+            "reference": "Sneaky NE2816-82",
+            "name": "Sneaky",
+            "quantity": 2,
+            "unit": "pcs",
+            "unitPrice": 2500,
+            "taxRate": 1000,
+            "taxAmount": 500,
+            "netTotalAmount": 5000,
+            "grossTotalAmount": 5500
+          }
+        ],
+          "amount": {
+            "amount": 5500,
+            "currency": "SEK"
+          },
+          "paymentId": "006400006091abfe6937598058c4e47e"
+        }
+    }
+    """;
+    private readonly PaymentCancelled paymentCancelled = new()
+    {
+        Id = new("df7f9346097842bdb90c869b5c9ccfa9"),
+        MerchantId = 100017120,
+        Timestamp = DateTimeOffset.Parse("2021-05-04T22:33:33.5969+02:00", CultureInfo.InvariantCulture),
+        Event = EventName.PaymentCancelled,
+        Data = new()
         {
-            Id = new("df7f9346097842bdb90c869b5c9ccfa9"),
-            MerchantId = 100017120,
-            Timestamp = DateTimeOffset.Parse("2021-05-04T22:33:33.5969+02:00", CultureInfo.InvariantCulture),
-            Event = EventName.PaymentCancelled,
-            Data = new()
-            {
-                CancelId = new("df7f9346097842bdb90c869b5c9ccfa9"),
-                OrderItems = new List<Item>
-                {
+            CancelId = new("df7f9346097842bdb90c869b5c9ccfa9"),
+            OrderItems =
+                [
                     new()
                     {
                         Reference = "Sneaky NE2816-82",
@@ -63,21 +64,26 @@ public class PaymentCancelledSerializationTests
                         UnitPrice = 25_00,
                         TaxRate = 1000,
                     }
-                },
-                Amount = new()
-                {
-                    Amount = 5500,
-                    Currency = Currency.SEK
-                },
-                PaymentId = new("006400006091abfe6937598058c4e47e")
+                ],
+            Amount = new()
+            {
+                Amount = 5500,
+                Currency = Currency.SEK
             },
-        };
+            PaymentId = new("006400006091abfe6937598058c4e47e")
+        },
+    };
+
+    [Fact]
+    public void Can_deserialize_example_payment_cancelled_event_to_PaymentCancelled_object()
+    {
+        // Arrange
 
         // Act
-        var actual = JsonSerializer.Deserialize<PaymentCancelled>(json);
+        var actual = JsonSerializer.Deserialize<PaymentCancelled>(Json);
 
         // Assert
-        actual.Should().BeEquivalentTo(expected);
+        actual.Should().BeEquivalentTo(paymentCancelled);
     }
 
     [Fact]
@@ -120,5 +126,21 @@ public class PaymentCancelledSerializationTests
 
         // Assert
         actual.Should().BeEquivalentTo(expected);
+    }
+
+    [Fact]
+    public void Deserialize_payment_cancelled_response_webhook()
+    {
+        // Arrange
+        var options = new JsonSerializerOptions(JsonSerializerOptions.Default);
+        options.Converters.Add(new IWebhookConverter());
+        var reader = new Utf8JsonReader(Encoding.UTF8.GetBytes(Json));
+
+        // Act
+        var actual = JsonSerializer.Deserialize<IWebhook<WebhookData>>(ref reader, options);
+        var paymentCancelled = actual as PaymentCancelled;
+
+        // Assert
+        paymentCancelled.Should().NotBeNull().And.BeEquivalentTo(paymentCancelled);
     }
 }
