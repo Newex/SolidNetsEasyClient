@@ -113,8 +113,8 @@ public class PaymentCreatedWebHookSerializationTests
                         Currency = Currency.DKK
                     },
                     Reference = "282f89f2-d620-4cc0-91bb-9cce1897f0bc",
-                    OrderItems = new List<Item>
-                    {
+                    OrderItems =
+                    [
                         new()
                         {
                             Name ="Nuka-Cola",
@@ -124,7 +124,7 @@ public class PaymentCreatedWebHookSerializationTests
                             Unit = "ea",
                             UnitPrice = 40_00,
                         }
-                    },
+                    ],
                 },
                 PaymentId = new("023e0000636f3df7e30174516bf6aa48")
             }
