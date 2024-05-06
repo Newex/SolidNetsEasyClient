@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
+using SolidNetsEasyClient.Converters;
 using SolidNetsEasyClient.Models.DTOs.Enums;
 using SolidNetsEasyClient.Models.DTOs.Responses.Webhooks.Common;
 
@@ -17,12 +18,14 @@ public record ChargeData : WebhookData
     /// </summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("subscriptionId")]
+    [JsonConverter(typeof(NullableGuidTypeConverter))]
     public Guid? SubscriptionId { get; init; }
 
     /// <summary>
     /// The charge identifier.
     /// </summary>
     [JsonPropertyName("chargeId")]
+    [JsonConverter(typeof(GuidTypeConverter))]
     public Guid ChargeId { get; init; }
 
     /// <summary>

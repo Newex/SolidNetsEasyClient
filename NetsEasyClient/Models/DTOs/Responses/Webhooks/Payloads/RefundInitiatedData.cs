@@ -1,6 +1,7 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
+using SolidNetsEasyClient.Converters;
 using SolidNetsEasyClient.Models.DTOs.Responses.Webhooks.Common;
 
 namespace SolidNetsEasyClient.Models.DTOs.Responses.Webhooks.Payloads;
@@ -15,6 +16,7 @@ public record RefundInitiatedData : WebhookData
     /// </summary>
     [Required]
     [JsonPropertyName("refundId")]
+    [JsonConverter(typeof(GuidTypeConverter))]
     public Guid RefundId { get; init; }
 
     /// <summary>
@@ -22,6 +24,7 @@ public record RefundInitiatedData : WebhookData
     /// </summary>
     [Required]
     [JsonPropertyName("chargeId")]
+    [JsonConverter(typeof(GuidTypeConverter))]
     public Guid ChargeId { get; init; }
 
     /// <summary>

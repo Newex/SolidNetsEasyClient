@@ -1,6 +1,7 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
+using SolidNetsEasyClient.Converters;
 
 namespace SolidNetsEasyClient.Models.DTOs.Responses.Webhooks.Payloads;
 
@@ -26,5 +27,6 @@ public record WebhookData
     /// </summary>
     [Required]
     [JsonPropertyName("paymentId")]
+    [JsonConverter(typeof(GuidTypeConverter))]
     public Guid PaymentId { get; init; }
 }
