@@ -33,7 +33,7 @@ public record ChargeData : WebhookData
     /// </summary>
     [Required]
     [JsonPropertyName("orderItems")]
-    public IList<Item> OrderItems { get; init; } = new List<Item>();
+    public IList<Item> OrderItems { get; init; } = [];
 
     /// <summary>
     /// The payment method, for example 'Visa' or 'Mastercard'.
