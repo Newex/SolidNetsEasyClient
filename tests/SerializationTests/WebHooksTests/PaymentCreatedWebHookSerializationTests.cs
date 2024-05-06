@@ -139,7 +139,7 @@ public class PaymentCreatedWebHookSerializationTests
     }
 
     [Fact]
-    public void Deserialize_payment_response_using_JsonTypeInfo()
+    public void Deserialize_payment_response_using_custom_converter()
     {
         // Arrange
         var options = new JsonSerializerOptions(JsonSerializerOptions.Default);
