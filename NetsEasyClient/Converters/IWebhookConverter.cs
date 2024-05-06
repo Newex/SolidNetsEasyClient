@@ -68,7 +68,8 @@ public class IWebhookConverter : JsonConverter<IWebhook<WebhookData>>
                         {
                             continue;
                         }
-                        data = eventName switch
+
+                        data = eventName.GetValueOrDefault() switch
                         {
                             EventName.PaymentCreated => paymentCreatedDataConverter.Read(ref reader, typeof(PaymentCreatedData), options),
                             EventName.PaymentCancelled => throw new NotImplementedException(),

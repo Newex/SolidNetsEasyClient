@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using SolidNetsEasyClient.Builder;
 using SolidNetsEasyClient.Clients;
+using SolidNetsEasyClient.Converters;
 using SolidNetsEasyClient.Extensions;
 using SolidNetsEasyClient.Models.DTOs.Enums;
 using SolidNetsEasyClient.Models.DTOs.Requests.Orders;
@@ -25,6 +26,7 @@ builder.Services.AddNetsEasyEmbeddedCheckout(checkoutUrl: "https://localhost:800
 builder.Services.ConfigureHttpJsonOptions(options =>
 {
     // options.SerializerOptions.TypeInfoResolverChain.Add(WebhookSerializationContext.Default);
+    options.SerializerOptions.Converters.Add(new IWebhookConverter());
 });
 
 var app = builder.Build();
