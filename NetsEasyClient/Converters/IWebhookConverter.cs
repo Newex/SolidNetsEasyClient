@@ -248,7 +248,7 @@ public class IWebhookConverter : JsonConverter<IWebhook<WebhookData>>
         writer.WriteEndObject();
     }
 
-    private WebhookData? GetPaymentCreatedData(ref Utf8JsonReader reader, JsonSerializerOptions options)
+    private static PaymentCreatedData? GetPaymentCreatedData(ref Utf8JsonReader reader, JsonSerializerOptions options)
     {
         if (options.Converters.FirstOrDefault(x => x.CanConvert(typeof(PaymentCreatedData))) is not JsonConverter<PaymentCreatedData> paymentCreatedDataConverter)
         {
@@ -258,7 +258,7 @@ public class IWebhookConverter : JsonConverter<IWebhook<WebhookData>>
         return paymentCreatedDataConverter.Read(ref reader, typeof(PaymentCreatedData), options);
     }
 
-    private static WebhookData? GetPaymentCancelledData(ref Utf8JsonReader reader, JsonSerializerOptions options)
+    private static PaymentCancelledData? GetPaymentCancelledData(ref Utf8JsonReader reader, JsonSerializerOptions options)
     {
         if (options.Converters.FirstOrDefault(x => x.CanConvert(typeof(PaymentCancelledData))) is not JsonConverter<PaymentCancelledData> paymentCancelledDataConverter)
         {
