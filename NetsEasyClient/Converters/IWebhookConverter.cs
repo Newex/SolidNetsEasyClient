@@ -284,6 +284,11 @@ public class IWebhookConverter : JsonConverter<IWebhook<WebhookData>>
                 reservationCreated2Converter.Write(writer, value.Data as ReservationCreatedDataV2 ?? new(), options);
                 break;
             case EventName.ReservationFailed:
+                if (options.Converters.FirstOrDefault(x => x.CanConvert(typeof(ReservationFailedData))) is not JsonConverter<ReservationFailedData> reservationFailedConverter)
+                {
+                    reservationFailedConverter = new ReservationFailedDataConverter();
+                }
+                reservationFailedConverter.Write(writer, value.Data as ReservationFailedData ?? new(), options);
                 break;
         }
 
@@ -305,7 +310,7 @@ public class IWebhookConverter : JsonConverter<IWebhook<WebhookData>>
             EventName.RefundInitiated => GetRefundInitiatedData(ref reader, options),
             EventName.ReservationCreatedV1 => GetReservationCreatedDataV1(ref reader, options),
             EventName.ReservationCreatedV2 => GetReservationCreatedDataV2(ref reader, options),
-            EventName.ReservationFailed => throw new NotImplementedException(),
+            EventName.ReservationFailed => GetReservationFailedData(ref reader, options),
             _ => throw new NotSupportedException("event not supported")
         };
     }
@@ -417,5 +422,15 @@ public class IWebhookConverter : JsonConverter<IWebhook<WebhookData>>
         }
 
         return converter.Read(ref reader, typeof(ReservationCreatedDataV2), options);
+    }
+
+    private static ReservationFailedData? GetReservationFailedData(ref Utf8JsonReader reader, JsonSerializerOptions options)
+    {
+        if (options.Converters.FirstOrDefault(x => x.CanConvert(typeof(ReservationFailedData))) is not JsonConverter<ReservationFailedData> converter)
+        {
+            converter = new ReservationFailedDataConverter();
+        }
+
+        return converter.Read(ref reader, typeof(ReservationFailedData), options);
     }
 }
