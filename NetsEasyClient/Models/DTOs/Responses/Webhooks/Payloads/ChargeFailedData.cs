@@ -32,7 +32,7 @@ public record ChargeFailedData : WebhookData
     /// </summary>
     [Required]
     [JsonPropertyName("orderItems")]
-    public IList<Item> OrderItems { get; init; } = new List<Item>();
+    public IList<Item> OrderItems { get; init; } = [];
 
     /// <summary>
     /// A unique identifier (UUID) for the reservation that can help in diagnostics.

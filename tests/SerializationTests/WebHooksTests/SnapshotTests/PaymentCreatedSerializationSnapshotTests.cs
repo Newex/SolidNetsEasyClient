@@ -49,7 +49,7 @@ public class PaymentCreatedSerializationSnapshotTests
     };
 
     [Fact]
-    public Task Deserialize_payment_created_json()
+    public Task Serialize_PaymentCreated()
     {
         // Arrange
         var options = new JsonSerializerOptions(JsonSerializerOptions.Default);

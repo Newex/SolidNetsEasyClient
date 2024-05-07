@@ -13,17 +13,23 @@ using static VerifyXunit.Verifier;
 namespace SolidNetsEasyClient.Tests.SerializationTests.WebHooksTests.SnapshotTests;
 
 [SnapshotTest]
-public class ChargeCreatedSerializationSnapshotTests
+public class ChargeFailedSerializationSnapshotTests
 {
-    private readonly ChargeCreated chargeCreated = new()
+    private readonly ChargeFailed chargeFailed = new()
     {
-        Id = new("01ee00006091b2196937598058c4e488"),
-        Timestamp = DateTimeOffset.Parse("2021-05-04T22:44:10.1185+02:00", CultureInfo.InvariantCulture),
-        MerchantNumber = 100017120,
-        Event = EventName.ChargeCreated,
+        Id = new("02a8000060923bcb6937598058c4e77a"),
+        MerchantId = 100017120,
+        Timestamp = DateTimeOffset.Parse("2021-05-05T08:31:39.2481+02:00", CultureInfo.InvariantCulture),
+        Event = EventName.ChargeFailed,
         Data = new()
         {
-            ChargeId = new("01ee00006091b2196937598058c4e488"),
+            Error = new()
+            {
+                Code = "99",
+                Message = "Auth Fin Failure",
+                Source = "Internal"
+            },
+            ChargeId = new("02a8000060923bcb6937598058c4e77a"),
             OrderItems =
                 [
                     new()
@@ -36,19 +42,18 @@ public class ChargeCreatedSerializationSnapshotTests
                         TaxRate = 1000,
                     }
                 ],
-            PaymentMethod = PaymentMethodEnum.Visa,
-            PaymentType = PaymentTypeEnum.PrepaidInvoice,
+            ReservationId = new("0527cb1dc5d14491824644a84d5ccf69"),
             Amount = new()
             {
                 Amount = 5500,
                 Currency = Currency.SEK
             },
-            PaymentId = new("025400006091b1ef6937598058c4e487")
-        },
+            PaymentId = new("029b000060923a766937598058c4e6fa")
+        }
     };
 
     [Fact]
-    public Task Serialize_ChargeCreated()
+    public Task Serialize_ChargeFailed()
     {
         // Arrange
         var options = new JsonSerializerOptions(JsonSerializerOptions.Default);
@@ -57,7 +62,7 @@ public class ChargeCreatedSerializationSnapshotTests
         var writer = new Utf8JsonWriter(memoryStream);
 
         // Act
-        JsonSerializer.Serialize<IWebhook<WebhookData>>(writer, chargeCreated, options);
+        JsonSerializer.Serialize<IWebhook<WebhookData>>(writer, chargeFailed, options);
 
         // Assert
         var bytes = memoryStream.ToArray();

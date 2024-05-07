@@ -46,7 +46,7 @@ public class PaymentCancelledSerializationSnapshotTests
     };
 
     [Fact]
-    public Task Deserialize_payment_created_json()
+    public Task Serialize_PaymentCancelled()
     {
         // Arrange
         var options = new JsonSerializerOptions(JsonSerializerOptions.Default);

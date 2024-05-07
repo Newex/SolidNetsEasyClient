@@ -70,7 +70,7 @@ public class IWebhookConverter : JsonConverter<IWebhook<WebhookData>>
                             EventName.PaymentCreated => GetPaymentCreatedData(ref reader, options),
                             EventName.PaymentCancelled => GetPaymentCancelledData(ref reader, options),
                             EventName.ChargeCreated => GetChargeData(ref reader, options),
-                            EventName.ChargeFailed => throw new NotImplementedException(),
+                            EventName.ChargeFailed => GetChargeFailedData(ref reader, options),
                             EventName.CheckoutCompleted => throw new NotImplementedException(),
                             EventName.PaymentCancellationFailed => throw new NotImplementedException(),
                             EventName.RefundCompleted => throw new NotImplementedException(),
@@ -231,6 +231,11 @@ public class IWebhookConverter : JsonConverter<IWebhook<WebhookData>>
                 chargeDataConverter.Write(writer, value.Data as ChargeData ?? new(), options);
                 break;
             case EventName.ChargeFailed:
+                if (options.Converters.FirstOrDefault(x => x.CanConvert(typeof(ChargeFailedData))) is not JsonConverter<ChargeFailedData> chargeFailedConverter)
+                {
+                    chargeFailedConverter = new ChargeFailedDataConverter();
+                }
+                chargeFailedConverter.Write(writer, value.Data as ChargeFailedData ?? new(), options);
                 break;
             case EventName.CheckoutCompleted:
                 break;
@@ -281,5 +286,15 @@ public class IWebhookConverter : JsonConverter<IWebhook<WebhookData>>
         }
 
         return chargeDataConverter.Read(ref reader, typeof(ChargeData), options);
+    }
+
+    private static ChargeFailedData? GetChargeFailedData(ref Utf8JsonReader reader, JsonSerializerOptions options)
+    {
+        if (options.Converters.FirstOrDefault(x => x.CanConvert(typeof(ChargeFailedData))) is not JsonConverter<ChargeFailedData> chargeFailedConverter)
+        {
+            chargeFailedConverter = new ChargeFailedDataConverter();
+        }
+
+        return chargeFailedConverter.Read(ref reader, typeof(ChargeFailedData), options);
     }
 }
