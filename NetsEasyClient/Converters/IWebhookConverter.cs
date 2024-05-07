@@ -71,7 +71,7 @@ public class IWebhookConverter : JsonConverter<IWebhook<WebhookData>>
                             EventName.PaymentCancelled => GetPaymentCancelledData(ref reader, options),
                             EventName.ChargeCreated => GetChargeData(ref reader, options),
                             EventName.ChargeFailed => GetChargeFailedData(ref reader, options),
-                            EventName.CheckoutCompleted => throw new NotImplementedException(),
+                            EventName.CheckoutCompleted => GetCheckoutCompletedData(ref reader, options),
                             EventName.PaymentCancellationFailed => throw new NotImplementedException(),
                             EventName.RefundCompleted => throw new NotImplementedException(),
                             EventName.RefundFailed => throw new NotImplementedException(),
@@ -238,6 +238,11 @@ public class IWebhookConverter : JsonConverter<IWebhook<WebhookData>>
                 chargeFailedConverter.Write(writer, value.Data as ChargeFailedData ?? new(), options);
                 break;
             case EventName.CheckoutCompleted:
+                if (options.Converters.FirstOrDefault(x => x.CanConvert(typeof(CheckoutCompletedData))) is not JsonConverter<CheckoutCompletedData> checkoutCompletedConverter)
+                {
+                    checkoutCompletedConverter = new CheckoutCompletedDataConverter();
+                }
+                checkoutCompletedConverter.Write(writer, value.Data as CheckoutCompletedData ?? new(), options);
                 break;
             case EventName.PaymentCancellationFailed:
                 break;
@@ -296,5 +301,15 @@ public class IWebhookConverter : JsonConverter<IWebhook<WebhookData>>
         }
 
         return chargeFailedConverter.Read(ref reader, typeof(ChargeFailedData), options);
+    }
+
+    private static CheckoutCompletedData? GetCheckoutCompletedData(ref Utf8JsonReader reader, JsonSerializerOptions options)
+    {
+        if (options.Converters.FirstOrDefault(x => x.CanConvert(typeof(CheckoutCompletedData))) is not JsonConverter<CheckoutCompletedData> checkoutCompletedConverter)
+        {
+            checkoutCompletedConverter = new CheckoutCompletedDataConverter();
+        }
+
+        return checkoutCompletedConverter.Read(ref reader, typeof(CheckoutCompletedData), options);
     }
 }
