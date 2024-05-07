@@ -47,6 +47,7 @@ public class ReservationCreatedSerializationTests
         }
     }
     """;
+
     private readonly ReservationCreatedV1 expected = new()
     {
         Id = new("6f081ae39b9846c4bacff88fa2cecc98"),
