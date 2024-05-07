@@ -1,0 +1,19 @@
+﻿{
+  id: Guid_1,
+  merchantId: 100017120,
+  timestamp: DateTimeOffset_1,
+  event: payment.refund.completed,
+  data: {
+    paymentId: Guid_2,
+    refundId: Guid_3,
+    amount: {
+      amount: 5500,
+      currency: SEK
+    },
+    invoiceDetails: {
+      distributionType: Email,
+      invoiceDueDate: DateTimeOffset_2,
+      invoiceNumber: 800328091K1
+    }
+  }
+}

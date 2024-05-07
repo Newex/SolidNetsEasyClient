@@ -15,7 +15,7 @@ namespace SolidNetsEasyClient.Tests.SerializationTests.WebHooksTests.SnapshotTes
 [SnapshotTest]
 public class PaymentCreatedSerializationSnapshotTests
 {
-    private static readonly PaymentCreated PaymentCreatedExpected = new()
+    private static readonly PaymentCreated paymentCreatedExpected = new()
     {
         Id = new Guid("458a4e068f454f768a40b9e576914820"),
         MerchantId = 100017120,
@@ -58,7 +58,7 @@ public class PaymentCreatedSerializationSnapshotTests
         var writer = new Utf8JsonWriter(memoryStream);
 
         // Act
-        JsonSerializer.Serialize<IWebhook<WebhookData>>(writer, PaymentCreatedExpected, options);
+        JsonSerializer.Serialize<IWebhook<WebhookData>>(writer, paymentCreatedExpected, options);
 
         // Assert
         var bytes = memoryStream.ToArray();
