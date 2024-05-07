@@ -270,6 +270,11 @@ public class IWebhookConverter : JsonConverter<IWebhook<WebhookData>>
                 refundInitiatedConverter.Write(writer, value.Data as RefundInitiatedData ?? new(), options);
                 break;
             case EventName.ReservationCreatedV1:
+                if (options.Converters.FirstOrDefault(x => x.CanConvert(typeof(ReservationCreatedDataV1))) is not JsonConverter<ReservationCreatedDataV1> reservationCreatedConverter)
+                {
+                    reservationCreatedConverter = new ReservationCreatedDataV1Converter();
+                }
+                reservationCreatedConverter.Write(writer, value.Data as ReservationCreatedDataV1 ?? new(), options);
                 break;
             case EventName.ReservationCreatedV2:
                 break;
@@ -293,7 +298,7 @@ public class IWebhookConverter : JsonConverter<IWebhook<WebhookData>>
             EventName.RefundCompleted => GetRefundCompletedData(ref reader, options),
             EventName.RefundFailed => GetRefundFailedData(ref reader, options),
             EventName.RefundInitiated => GetRefundInitiatedData(ref reader, options),
-            EventName.ReservationCreatedV1 => throw new NotImplementedException(),
+            EventName.ReservationCreatedV1 => GetReservationCreatedDataV1(ref reader, options),
             EventName.ReservationCreatedV2 => throw new NotImplementedException(),
             EventName.ReservationFailed => throw new NotImplementedException(),
             _ => throw new NotSupportedException("event not supported")
@@ -388,5 +393,15 @@ public class IWebhookConverter : JsonConverter<IWebhook<WebhookData>>
         }
 
         return converter.Read(ref reader, typeof(RefundInitiatedData), options);
+    }
+
+    private static ReservationCreatedDataV1? GetReservationCreatedDataV1(ref Utf8JsonReader reader, JsonSerializerOptions options)
+    {
+        if (options.Converters.FirstOrDefault(x => x.CanConvert(typeof(ReservationCreatedDataV1))) is not JsonConverter<ReservationCreatedDataV1> converter)
+        {
+            converter = new ReservationCreatedDataV1Converter();
+        }
+
+        return converter.Read(ref reader, typeof(ReservationCreatedDataV1), options);
     }
 }
