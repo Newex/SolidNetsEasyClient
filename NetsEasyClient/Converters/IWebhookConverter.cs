@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using SolidNetsEasyClient.Converters.WebhookPayloadConverters;
@@ -28,6 +29,7 @@ public class IWebhookConverter : JsonConverter<IWebhook<WebhookData>>
         DateTimeOffset? timestamp = null;
         EventName? eventName = null;
         WebhookData? data = null;
+        var dataBuilder = new StringBuilder();
 
         var propertyName = "";
         while (reader.Read())
@@ -58,32 +60,27 @@ public class IWebhookConverter : JsonConverter<IWebhook<WebhookData>>
                 case JsonTokenType.StartObject:
                     if (propertyName.Equals("data"))
                     {
-                        // Parse data depending on event name
-                        // Assumption: eventname is parsed before data!
                         if (eventName is null)
                         {
+                            var doc = JsonDocument.ParseValue(ref reader);
+                            dataBuilder.Append(doc.RootElement.GetRawText());
                             continue;
                         }
 
-                        data = eventName.GetValueOrDefault() switch
-                        {
-                            EventName.PaymentCreated => GetPaymentCreatedData(ref reader, options),
-                            EventName.PaymentCancelled => GetPaymentCancelledData(ref reader, options),
-                            EventName.ChargeCreated => GetChargeData(ref reader, options),
-                            EventName.ChargeFailed => GetChargeFailedData(ref reader, options),
-                            EventName.CheckoutCompleted => GetCheckoutCompletedData(ref reader, options),
-                            EventName.PaymentCancellationFailed => GetPaymentCancellationFailedData(ref reader, options),
-                            EventName.RefundCompleted => GetRefundCompletedData(ref reader, options),
-                            EventName.RefundFailed => GetRefundFailedData(ref reader, options),
-                            EventName.RefundInitiated => throw new NotImplementedException(),
-                            EventName.ReservationCreatedV1 => throw new NotImplementedException(),
-                            EventName.ReservationCreatedV2 => throw new NotImplementedException(),
-                            EventName.ReservationFailed => throw new NotImplementedException(),
-                            _ => throw new NotSupportedException("event not supported")
-                        };
+                        // Parse data depending on event name
+                        data = GetWebhookData(ref reader, eventName.GetValueOrDefault(), options);
                     }
                     break;
             }
+        }
+
+        if (data is null && dataBuilder.Length > 0 && eventName.HasValue)
+        {
+            var stringReader = new Utf8JsonReader(Encoding.UTF8.GetBytes(dataBuilder.ToString()));
+
+            // Advance once
+            stringReader.Read();
+            data = GetWebhookData(ref stringReader, eventName.GetValueOrDefault(), options);
         }
 
         // Done reading! All properties must have values
@@ -276,6 +273,26 @@ public class IWebhookConverter : JsonConverter<IWebhook<WebhookData>>
         }
 
         writer.WriteEndObject();
+    }
+
+    private static WebhookData? GetWebhookData(ref Utf8JsonReader reader, EventName eventName, JsonSerializerOptions options)
+    {
+        return eventName switch
+        {
+            EventName.PaymentCreated => GetPaymentCreatedData(ref reader, options),
+            EventName.PaymentCancelled => GetPaymentCancelledData(ref reader, options),
+            EventName.ChargeCreated => GetChargeData(ref reader, options),
+            EventName.ChargeFailed => GetChargeFailedData(ref reader, options),
+            EventName.CheckoutCompleted => GetCheckoutCompletedData(ref reader, options),
+            EventName.PaymentCancellationFailed => GetPaymentCancellationFailedData(ref reader, options),
+            EventName.RefundCompleted => GetRefundCompletedData(ref reader, options),
+            EventName.RefundFailed => GetRefundFailedData(ref reader, options),
+            EventName.RefundInitiated => throw new NotImplementedException(),
+            EventName.ReservationCreatedV1 => throw new NotImplementedException(),
+            EventName.ReservationCreatedV2 => throw new NotImplementedException(),
+            EventName.ReservationFailed => throw new NotImplementedException(),
+            _ => throw new NotSupportedException("event not supported")
+        };
     }
 
     private static PaymentCreatedData? GetPaymentCreatedData(ref Utf8JsonReader reader, JsonSerializerOptions options)
