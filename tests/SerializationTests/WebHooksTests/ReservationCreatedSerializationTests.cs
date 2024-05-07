@@ -48,6 +48,24 @@ public class ReservationCreatedSerializationTests
     }
     """;
 
+    const string Json2 = """
+    {
+    "id": "c25459e92ba54be1925493f987fb05a7",
+    "timestamp": "2021-05-04T22:09:08.4342+02:00",
+    "merchantNumber": 100017120,
+    "event": "payment.reservation.created.v2",
+    "data": {
+        "paymentMethod": "Visa",
+        "paymentType": "CARD",
+        "amount": {
+            "amount": 5500,
+            "currency": "SEK"
+        },
+        "paymentId": "02a900006091a9a96937598058c4e474"
+    }
+    }
+    """;
+
     private readonly ReservationCreatedV1 expected = new()
     {
         Id = new("6f081ae39b9846c4bacff88fa2cecc98"),
@@ -87,6 +105,25 @@ public class ReservationCreatedSerializationTests
         }
     };
 
+    private readonly ReservationCreatedV2 expected2 = new()
+    {
+        Id = new("c25459e92ba54be1925493f987fb05a7"),
+        Timestamp = DateTimeOffset.Parse("2021-05-04T22:09:08.4342+02:00", CultureInfo.InvariantCulture),
+        MerchantNumber = 100017120,
+        Event = EventName.ReservationCreatedV2,
+        Data = new()
+        {
+            PaymentMethod = PaymentMethodEnum.Visa,
+            PaymentType = PaymentTypeEnum.Card,
+            Amount = new()
+            {
+                Amount = 55_00,
+                Currency = Currency.SEK
+            },
+            PaymentId = new("02a900006091a9a96937598058c4e474")
+        }
+    };
+
     [Fact]
     public void Can_deserialize_expected_string_v1_to_ReservationCreated_object()
     {
@@ -104,46 +141,12 @@ public class ReservationCreatedSerializationTests
     public void Can_deserialize_expected_v2_string_to_ReservationCreated_object()
     {
         // Arrange
-        const string json = "{\n" +
-        "\"id\": \"c25459e92ba54be1925493f987fb05a7\",\n" +
-        "\"timestamp\": \"2021-05-04T22:09:08.4342+02:00\",\n" +
-        "\"merchantNumber\": 100017120,\n" +
-        "\"event\": \"payment.reservation.created.v2\",\n" +
-        "\"data\": {\n" +
-            "\"paymentMethod\": \"Visa\",\n" +
-            "\"paymentType\": \"CARD\",\n" +
-            "\"amount\": {\n" +
-                "\"amount\": 5500,\n" +
-                "\"currency\": \"SEK\"\n" +
-            "},\n" +
-            "\"paymentId\": \"02a900006091a9a96937598058c4e474\"\n" +
-        "}\n" +
-        "}";
-
-        var expected = new ReservationCreatedV2
-        {
-            Id = new("c25459e92ba54be1925493f987fb05a7"),
-            Timestamp = DateTimeOffset.Parse("2021-05-04T22:09:08.4342+02:00", CultureInfo.InvariantCulture),
-            MerchantNumber = 100017120,
-            Event = EventName.ReservationCreatedV2,
-            Data = new()
-            {
-                PaymentMethod = PaymentMethodEnum.Visa,
-                PaymentType = PaymentTypeEnum.Card,
-                Amount = new()
-                {
-                    Amount = 55_00,
-                    Currency = Currency.SEK
-                },
-                PaymentId = new("02a900006091a9a96937598058c4e474")
-            }
-        };
 
         // Act
-        var actual = JsonSerializer.Deserialize<ReservationCreatedV2>(json);
+        var actual = JsonSerializer.Deserialize<ReservationCreatedV2>(Json2);
 
         // Assert
-        actual.Should().BeEquivalentTo(expected);
+        actual.Should().BeEquivalentTo(expected2);
     }
 
     [Fact]
@@ -242,5 +245,21 @@ public class ReservationCreatedSerializationTests
 
         // Assert
         reservationCreated.Should().NotBeNull().And.BeEquivalentTo(expected);
+    }
+
+    [Fact]
+    public void Deserialize_reservation_created_v2_response_using_custom_converter()
+    {
+        // Arrange
+        var options = new JsonSerializerOptions(JsonSerializerOptions.Default);
+        options.Converters.Add(new IWebhookConverter());
+        var reader = new Utf8JsonReader(Encoding.UTF8.GetBytes(Json2));
+
+        // Act
+        var actual = JsonSerializer.Deserialize<IWebhook<WebhookData>>(ref reader, options);
+        var reservationCreated = actual as ReservationCreatedV2;
+
+        // Assert
+        reservationCreated.Should().NotBeNull().And.BeEquivalentTo(expected2);
     }
 }

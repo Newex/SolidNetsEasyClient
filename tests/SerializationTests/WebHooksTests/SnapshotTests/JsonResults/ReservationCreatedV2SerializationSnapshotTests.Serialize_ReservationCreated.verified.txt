@@ -1,0 +1,16 @@
+﻿{
+  id: Guid_1,
+  merchantId: 100017120,
+  timestamp: DateTimeOffset_1,
+  event: payment.reservation.created.v2,
+  data: {
+    paymentId: Guid_2,
+    paymentMethod: Visa,
+    paymentType: Card,
+    amount: {
+      amount: 5500,
+      currency: SEK
+    },
+    order: null
+  }
+}

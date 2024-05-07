@@ -277,6 +277,11 @@ public class IWebhookConverter : JsonConverter<IWebhook<WebhookData>>
                 reservationCreatedConverter.Write(writer, value.Data as ReservationCreatedDataV1 ?? new(), options);
                 break;
             case EventName.ReservationCreatedV2:
+                if (options.Converters.FirstOrDefault(x => x.CanConvert(typeof(ReservationCreatedDataV2))) is not JsonConverter<ReservationCreatedDataV2> reservationCreated2Converter)
+                {
+                    reservationCreated2Converter = new ReservationCreatedDataV2Converter();
+                }
+                reservationCreated2Converter.Write(writer, value.Data as ReservationCreatedDataV2 ?? new(), options);
                 break;
             case EventName.ReservationFailed:
                 break;
@@ -299,7 +304,7 @@ public class IWebhookConverter : JsonConverter<IWebhook<WebhookData>>
             EventName.RefundFailed => GetRefundFailedData(ref reader, options),
             EventName.RefundInitiated => GetRefundInitiatedData(ref reader, options),
             EventName.ReservationCreatedV1 => GetReservationCreatedDataV1(ref reader, options),
-            EventName.ReservationCreatedV2 => throw new NotImplementedException(),
+            EventName.ReservationCreatedV2 => GetReservationCreatedDataV2(ref reader, options),
             EventName.ReservationFailed => throw new NotImplementedException(),
             _ => throw new NotSupportedException("event not supported")
         };
@@ -394,7 +399,6 @@ public class IWebhookConverter : JsonConverter<IWebhook<WebhookData>>
 
         return converter.Read(ref reader, typeof(RefundInitiatedData), options);
     }
-
     private static ReservationCreatedDataV1? GetReservationCreatedDataV1(ref Utf8JsonReader reader, JsonSerializerOptions options)
     {
         if (options.Converters.FirstOrDefault(x => x.CanConvert(typeof(ReservationCreatedDataV1))) is not JsonConverter<ReservationCreatedDataV1> converter)
@@ -403,5 +407,15 @@ public class IWebhookConverter : JsonConverter<IWebhook<WebhookData>>
         }
 
         return converter.Read(ref reader, typeof(ReservationCreatedDataV1), options);
+    }
+
+    private static ReservationCreatedDataV2? GetReservationCreatedDataV2(ref Utf8JsonReader reader, JsonSerializerOptions options)
+    {
+        if (options.Converters.FirstOrDefault(x => x.CanConvert(typeof(ReservationCreatedDataV2))) is not JsonConverter<ReservationCreatedDataV2> converter)
+        {
+            converter = new ReservationCreatedDataV2Converter();
+        }
+
+        return converter.Read(ref reader, typeof(ReservationCreatedDataV2), options);
     }
 }

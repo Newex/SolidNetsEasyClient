@@ -1,6 +1,8 @@
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -13,44 +15,24 @@ using static VerifyXunit.Verifier;
 namespace SolidNetsEasyClient.Tests.SerializationTests.WebHooksTests.SnapshotTests;
 
 [SnapshotTest]
-public class ReservationCreatedV1SerializationSnapshotTests
+public class ReservationCreatedV2SerializationSnapshotTests
 {
-    private readonly ReservationCreatedV1 expected = new()
+    private readonly ReservationCreatedV2 expected2 = new()
     {
-        Id = new("6f081ae39b9846c4bacff88fa2cecc98"),
-        MerchantId = 100001234,
-        Timestamp = DateTimeOffset.Parse("2022-09-21T09:50:05.9440+00:00", CultureInfo.InvariantCulture),
-        Event = EventName.ReservationCreatedV1,
+        Id = new("c25459e92ba54be1925493f987fb05a7"),
+        Timestamp = DateTimeOffset.Parse("2021-05-04T22:09:08.4342+02:00", CultureInfo.InvariantCulture),
+        MerchantNumber = 100017120,
+        Event = EventName.ReservationCreatedV2,
         Data = new()
         {
-            CardDetails = new()
-            {
-                CreditDebitIndicator = "D",
-                ExpiryMonth = 1,
-                ExpiryYear = 24,
-                IssuerCountry = "NO",
-                TruncatedPan = "492500******0004",
-                ThreeDSecure = new()
-                {
-                    AuthenticationEnrollmentStatus = "Y",
-                    AuthenticationStatus = "Y",
-                    ECI = "05"
-                }
-            },
             PaymentMethod = PaymentMethodEnum.Visa,
             PaymentType = PaymentTypeEnum.Card,
-            Consumer = new()
-            {
-                IP = "10.230.197.32"
-            },
-            ReservationReference = "683884",
-            ReserveId = new("6f081ae39b9846c4bacff88fa2cecc98"),
             Amount = new()
             {
-                Amount = 10_00,
+                Amount = 55_00,
                 Currency = Currency.SEK
             },
-            PaymentId = new("01d40000632ade184172b85d8cc3f516")
+            PaymentId = new("02a900006091a9a96937598058c4e474")
         }
     };
 
@@ -64,7 +46,7 @@ public class ReservationCreatedV1SerializationSnapshotTests
         var writer = new Utf8JsonWriter(memoryStream);
 
         // Act
-        JsonSerializer.Serialize<IWebhook<WebhookData>>(writer, expected, options);
+        JsonSerializer.Serialize<IWebhook<WebhookData>>(writer, expected2, options);
 
         // Assert
         var bytes = memoryStream.ToArray();
