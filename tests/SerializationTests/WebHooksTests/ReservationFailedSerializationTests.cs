@@ -62,8 +62,8 @@ public class ReservationFailedSerializationTests
                 Message = "Direct charge failed for payment id: 020b000062bd64ae0a5e7c95f6055f66. ErrorMessage: Refused by issuer",
                 Source = "Issuer"
             },
-            OrderItems = new List<Item>
-                {
+            OrderItems =
+                [
                     new()
                     {
                         Name = "NameBulkCharge1",
@@ -73,7 +73,7 @@ public class ReservationFailedSerializationTests
                         Unit = "quantity",
                         UnitPrice = 133
                     }
-                },
+                ],
             Amount = new()
             {
                 Amount = 133,

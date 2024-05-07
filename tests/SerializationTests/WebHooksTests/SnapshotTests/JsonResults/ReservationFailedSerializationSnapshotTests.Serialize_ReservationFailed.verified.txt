@@ -1,0 +1,31 @@
+﻿{
+  id: Guid_1,
+  merchantId: 100008172,
+  timestamp: DateTimeOffset_1,
+  event: payment.reservation.failed,
+  data: {
+    paymentId: Guid_2,
+    amount: {
+      amount: 133,
+      currency: DKK
+    },
+    orderItems: [
+      {
+        reference: bulk123,
+        name: NameBulkCharge1,
+        quantity: 1,
+        unit: quantity,
+        unitPrice: 133,
+        taxRate: 0,
+        taxAmount: 0,
+        grossTotalAmount: 133,
+        netTotalAmount: 133
+      }
+    ],
+    error: {
+      message: Direct charge failed for payment id: 020b000062bd64ae0a5e7c95f6055f66. ErrorMessage: Refused by issuer,
+      code: 33,
+      source: Issuer
+    }
+  }
+}
