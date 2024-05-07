@@ -72,7 +72,7 @@ public class IWebhookConverter : JsonConverter<IWebhook<WebhookData>>
                             EventName.ChargeCreated => GetChargeData(ref reader, options),
                             EventName.ChargeFailed => GetChargeFailedData(ref reader, options),
                             EventName.CheckoutCompleted => GetCheckoutCompletedData(ref reader, options),
-                            EventName.PaymentCancellationFailed => throw new NotImplementedException(),
+                            EventName.PaymentCancellationFailed => GetPaymentCancellationFailedData(ref reader, options),
                             EventName.RefundCompleted => throw new NotImplementedException(),
                             EventName.RefundFailed => throw new NotImplementedException(),
                             EventName.RefundInitiated => throw new NotImplementedException(),
@@ -245,6 +245,11 @@ public class IWebhookConverter : JsonConverter<IWebhook<WebhookData>>
                 checkoutCompletedConverter.Write(writer, value.Data as CheckoutCompletedData ?? new(), options);
                 break;
             case EventName.PaymentCancellationFailed:
+                if (options.Converters.FirstOrDefault(x => x.CanConvert(typeof(PaymentCancellationFailedData))) is not JsonConverter<PaymentCancellationFailedData> paymentCancellationFailedConverter)
+                {
+                    paymentCancellationFailedConverter = new PaymentCancellationFailedDataConverter();
+                }
+                paymentCancellationFailedConverter.Write(writer, value.Data as PaymentCancellationFailedData ?? new(), options);
                 break;
             case EventName.RefundCompleted:
                 break;
@@ -311,5 +316,15 @@ public class IWebhookConverter : JsonConverter<IWebhook<WebhookData>>
         }
 
         return checkoutCompletedConverter.Read(ref reader, typeof(CheckoutCompletedData), options);
+    }
+
+    private static PaymentCancellationFailedData? GetPaymentCancellationFailedData(ref Utf8JsonReader reader, JsonSerializerOptions options)
+    {
+        if (options.Converters.FirstOrDefault(x => x.CanConvert(typeof(PaymentCancellationFailedData))) is not JsonConverter<PaymentCancellationFailedData> converter)
+        {
+            converter = new PaymentCancellationFailedDataConverter();
+        }
+
+        return converter.Read(ref reader, typeof(PaymentCancellationFailedData), options);
     }
 }
