@@ -62,10 +62,11 @@ public class WebhookOrderConverter : JsonConverter<WebhookOrder>
                     if (propertyName.Equals("orderItems"))
                     {
                         orderItems = orderItemsConverter.Read(ref reader, typeof(IList<Item>), options)?.ToList() ?? [];
-
-                        // Stop if amount and reference have been parsed
-                        parsing = !(amount is not null && reference is not null);
                     }
+                    break;
+                case JsonTokenType.EndObject:
+                    // Stop if amount and reference have been parsed
+                    parsing = !(amount is not null && reference is not null);
                     break;
             }
         }

@@ -43,7 +43,10 @@ public class CheckoutCompletedAddressConverter : JsonConverter<CheckoutCompleted
                     else if (propertyName.Equals("addressLine2")) addressLine2 = text;
                     else if (propertyName.Equals("city")) city = text;
                     else if (propertyName.Equals("country")) country = text;
-                    else if (propertyName.Equals("postCode")) postCode = text;
+
+                    // NOTE: In the NETS example they write lowercase, in documentation they write camelCase.
+                    // We compromise and accept any.
+                    else if (propertyName.Equals("postCode", StringComparison.OrdinalIgnoreCase)) postCode = text;
                     else if (propertyName.Equals("receiverLine")) receiverLine = text;
                     break;
                 case JsonTokenType.EndObject:

@@ -79,12 +79,23 @@ public class CheckoutCompletedConsumerConverter : JsonConverter<CheckoutComplete
             }
         }
 
-        throw new NotImplementedException();
+        return new()
+        {
+            FirstName = firstname,
+            LastName = lastname,
+            BillingAddress = billingAddress,
+            Country = country,
+            Email = email,
+            IP = ip,
+            PhoneNumber = phoneNumber,
+            ShippingAddress = shippingAddress,
+        };
     }
 
     /// <inheritdoc />
     public override void Write(Utf8JsonWriter writer, CheckoutCompletedConsumer value, JsonSerializerOptions options)
     {
+        var omitNull = options.DefaultIgnoreCondition.HasFlag(JsonIgnoreCondition.WhenWritingNull);
         if (options.Converters.FirstOrDefault(x => x.CanConvert(typeof(CheckoutCompletedAddress))) is not JsonConverter<CheckoutCompletedAddress> checkoutCompletedAddressConverter)
         {
             checkoutCompletedAddressConverter = new CheckoutCompletedAddressConverter();
@@ -98,18 +109,40 @@ public class CheckoutCompletedConsumerConverter : JsonConverter<CheckoutComplete
         writer.WriteString("firstName", value.FirstName);
         writer.WriteString("lastName", value.LastName);
 
-        writer.WritePropertyName("billingAddress");
-        checkoutCompletedAddressConverter.Write(writer, value.BillingAddress, options);
+        if (value.BillingAddress is not null)
+        {
+            writer.WritePropertyName("billingAddress");
+            checkoutCompletedAddressConverter.Write(writer, value.BillingAddress, options);
+        }
+        else if (!omitNull)
+        {
+            writer.WritePropertyName("billingAddress");
+            writer.WriteNullValue();
+        }
 
         writer.WriteString("country", value.Country);
         writer.WriteString("email", value.Email);
         writer.WriteString("ip", value.IP);
 
-        writer.WritePropertyName("phoneNumber");
-        phoneNumberConverter.Write(writer, value.PhoneNumber, options);
+        if (value.PhoneNumber is not null)
+        {
+            writer.WritePropertyName("phoneNumber");
+            phoneNumberConverter.Write(writer, value.PhoneNumber, options);
+        }
+        else if (!omitNull)
+        {
+            writer.WriteNull("phoneNumber");
+        }
 
-        writer.WritePropertyName("shippingAddress");
-        checkoutCompletedAddressConverter.Write(writer, value.ShippingAddress, options);
+        if (value.ShippingAddress is not null)
+        {
+            writer.WritePropertyName("shippingAddress");
+            checkoutCompletedAddressConverter.Write(writer, value.ShippingAddress, options);
+        }
+        else if (!omitNull)
+        {
+            writer.WriteNull("shippingAddress");
+        }
 
         writer.WriteEndObject();
     }

@@ -59,6 +59,12 @@ public class CheckoutCompletedDataConverter : JsonConverter<CheckoutCompletedDat
                     }
                     break;
                 case JsonTokenType.EndObject:
+                    if (!paymentId.HasValue)
+                    {
+                        // This is the {... data: { }} EndObject
+                        continue;
+                    }
+
                     parsing = false;
                     break;
             }

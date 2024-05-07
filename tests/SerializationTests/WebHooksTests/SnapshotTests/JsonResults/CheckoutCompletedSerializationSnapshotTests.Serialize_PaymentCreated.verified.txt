@@ -1,0 +1,56 @@
+﻿{
+  id: Guid_1,
+  merchantId: 100017120,
+  timestamp: DateTimeOffset_1,
+  event: payment.checkout.completed,
+  data: {
+    paymentId: Guid_2,
+    order: {
+      reference: Hosted Demo Order,
+      amount: {
+        amount: 5500,
+        currency: SEK
+      },
+      orderItems: [
+        {
+          reference: Sneaky NE2816-82,
+          name: Sneaky,
+          quantity: 2,
+          unit: pcs,
+          unitPrice: 2500,
+          taxRate: 1000,
+          taxAmount: 500,
+          grossTotalAmount: 5500,
+          netTotalAmount: 5000
+        }
+      ]
+    },
+    consumer: {
+      firstName: John,
+      lastName: Doe,
+      billingAddress: {
+        addressLine1: Solgatan 4,
+        addressLine2: ,
+        city: STOCKHOLM,
+        country: SWE,
+        postCode: 11522,
+        receiverLine: John doe
+      },
+      country: SWE,
+      email: john.doe@example.com,
+      ip: 192.230.114.3,
+      phoneNumber: {
+        prefix: +46,
+        number: 12345678
+      },
+      shippingAddress: {
+        addressLine1: Solgatan 4,
+        addressLine2: ,
+        city: STOCKHOLM,
+        country: SWE,
+        postCode: 11522,
+        receiverLine: John Doe
+      }
+    }
+  }
+}
