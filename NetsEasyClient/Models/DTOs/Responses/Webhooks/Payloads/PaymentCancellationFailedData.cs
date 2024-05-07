@@ -32,7 +32,7 @@ public record PaymentCancellationFailedData : WebhookData
     /// </summary>
     [Required]
     [JsonPropertyName("orderItems")]
-    public IList<Item> OrderItems { get; init; } = new List<Item>();
+    public IList<Item> OrderItems { get; init; } = [];
 
     /// <summary>
     /// The amount of the charge.
