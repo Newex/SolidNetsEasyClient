@@ -14,23 +14,35 @@ using static VerifyXunit.Verifier;
 namespace SolidNetsEasyClient.Tests.SerializationTests.WebHooksTests.SnapshotTests;
 
 [SnapshotTest]
-public class RefundFailedSerializationSnapshotTests
+public class RefundInitiatedSerializationSnapshotTests
 {
-    private readonly RefundFailed expected = new()
+    const string Json = """
     {
-        Id = new("458a4e068f454f768a40b9e576914820"),
-        MerchantId = 100017120,
-        Timestamp = DateTimeOffset.Parse("2021-05-04T22:08:16.6623+02:00", CultureInfo.InvariantCulture),
-        Event = EventName.RefundFailed,
+    "id": "00fb000060923e006937598058c4e7f3",
+    "timestamp": "2021-05-05T08:41:04.6081+02:00",
+    "merchantNumber": 100017120,
+    "event": "payment.refund.initiated.v2",
+    "data": {
+        "refundId": "00fb000060923e006937598058c4e7f3",
+        "chargeId": "0107000060923dde6937598058c4e7ee",
+        "amount": {
+            "amount": 5500,
+            "currency": "SEK"
+        },
+        "paymentId": "012b000060923cf26937598058c4e7e6"
+        }
+    }
+    """;
+    private readonly RefundInitiated expected = new()
+    {
+        Id = new("00fb000060923e006937598058c4e7f3"),
+        Timestamp = DateTimeOffset.Parse("2021-05-05T08:41:04.6081+02:00", CultureInfo.InvariantCulture),
+        MerchantNumber = 100017120,
+        Event = EventName.RefundInitiated,
         Data = new()
         {
-            Error = new()
-            {
-                Code = "25",
-                Message = "Some error message",
-                Source = "Internal"
-            },
             RefundId = new("00fb000060923e006937598058c4e7f3"),
+            ChargeId = new("0107000060923dde6937598058c4e7ee"),
             Amount = new()
             {
                 Amount = 5500,
@@ -41,7 +53,7 @@ public class RefundFailedSerializationSnapshotTests
     };
 
     [Fact]
-    public Task Serialize_RefundFailed()
+    public Task Serialize_RefundInitiated()
     {
         // Arrange
         var options = new JsonSerializerOptions(JsonSerializerOptions.Default)

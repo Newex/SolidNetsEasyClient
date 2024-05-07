@@ -263,6 +263,11 @@ public class IWebhookConverter : JsonConverter<IWebhook<WebhookData>>
                 refundFailedConverter.Write(writer, value.Data as RefundFailedData ?? new(), options);
                 break;
             case EventName.RefundInitiated:
+                if (options.Converters.FirstOrDefault(x => x.CanConvert(typeof(RefundInitiatedData))) is not JsonConverter<RefundInitiatedData> refundInitiatedConverter)
+                {
+                    refundInitiatedConverter = new RefundInitiatedDataConverter();
+                }
+                refundInitiatedConverter.Write(writer, value.Data as RefundInitiatedData ?? new(), options);
                 break;
             case EventName.ReservationCreatedV1:
                 break;
@@ -287,7 +292,7 @@ public class IWebhookConverter : JsonConverter<IWebhook<WebhookData>>
             EventName.PaymentCancellationFailed => GetPaymentCancellationFailedData(ref reader, options),
             EventName.RefundCompleted => GetRefundCompletedData(ref reader, options),
             EventName.RefundFailed => GetRefundFailedData(ref reader, options),
-            EventName.RefundInitiated => throw new NotImplementedException(),
+            EventName.RefundInitiated => GetRefundInitiatedData(ref reader, options),
             EventName.ReservationCreatedV1 => throw new NotImplementedException(),
             EventName.ReservationCreatedV2 => throw new NotImplementedException(),
             EventName.ReservationFailed => throw new NotImplementedException(),
@@ -373,5 +378,15 @@ public class IWebhookConverter : JsonConverter<IWebhook<WebhookData>>
         }
 
         return converter.Read(ref reader, typeof(RefundFailedData), options);
+    }
+
+    private static RefundInitiatedData? GetRefundInitiatedData(ref Utf8JsonReader reader, JsonSerializerOptions options)
+    {
+        if (options.Converters.FirstOrDefault(x => x.CanConvert(typeof(RefundInitiatedData))) is not JsonConverter<RefundInitiatedData> converter)
+        {
+            converter = new RefundInitiatedDataConverter();
+        }
+
+        return converter.Read(ref reader, typeof(RefundInitiatedData), options);
     }
 }
