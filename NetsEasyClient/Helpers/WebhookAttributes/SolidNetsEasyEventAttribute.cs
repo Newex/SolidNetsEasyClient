@@ -25,7 +25,7 @@ namespace SolidNetsEasyClient.Helpers.WebhookAttributes;
 [AttributeUsage(AttributeTargets.Method, AllowMultiple = true, Inherited = true)]
 public abstract class SolidNetsEasyEventAttribute<T, TData> : ActionFilterAttribute, IActionHttpMethodProvider, IRouteTemplateProvider
     where T : Webhook<TData>
-    where TData : IWebhookData, new()
+    where TData : WebhookData, new()
 {
     /// <summary>
     /// Instantiate a new event attribute

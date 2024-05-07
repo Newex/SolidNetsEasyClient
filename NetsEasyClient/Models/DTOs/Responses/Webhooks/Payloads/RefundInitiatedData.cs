@@ -9,30 +9,22 @@ namespace SolidNetsEasyClient.Models.DTOs.Responses.Webhooks.Payloads;
 /// <summary>
 /// The refund initiated payload
 /// </summary>
-public record RefundInitiatedData : IWebhookData
+public record RefundInitiatedData : WebhookData
 {
-    /// <summary>
-    /// The payment identifier
-    /// </summary>
-    [Required]
-    [JsonConverter(typeof(GuidTypeConverter))]
-    [JsonPropertyName("paymentId")]
-    public Guid PaymentId { get; init; }
-
     /// <summary>
     /// A unique identifier of this refund.
     /// </summary>
     [Required]
-    [JsonConverter(typeof(GuidTypeConverter))]
     [JsonPropertyName("refundId")]
+    [JsonConverter(typeof(GuidTypeConverter))]
     public Guid RefundId { get; init; }
 
     /// <summary>
     /// The charge identifier.
     /// </summary>
     [Required]
-    [JsonConverter(typeof(GuidTypeConverter))]
     [JsonPropertyName("chargeId")]
+    [JsonConverter(typeof(GuidTypeConverter))]
     public Guid ChargeId { get; init; }
 
     /// <summary>

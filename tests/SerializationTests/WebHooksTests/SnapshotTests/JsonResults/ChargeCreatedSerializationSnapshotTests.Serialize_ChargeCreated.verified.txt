@@ -1,0 +1,29 @@
+﻿{
+  id: Guid_1,
+  merchantId: 100017120,
+  timestamp: DateTimeOffset_1,
+  event: payment.charge.created.v2,
+  data: {
+    paymentId: Guid_2,
+    chargeId: Guid_1,
+    paymentMethod: Visa,
+    paymentType: PREPAIDINVOICE,
+    orderItems: [
+      {
+        reference: Sneaky NE2816-82,
+        name: Sneaky,
+        quantity: 2,
+        unit: pcs,
+        unitPrice: 2500,
+        taxRate: 1000,
+        taxAmount: 500,
+        grossTotalAmount: 5500,
+        netTotalAmount: 5000
+      }
+    ],
+    amount: {
+      amount: 5500,
+      currency: SEK
+    }
+  }
+}

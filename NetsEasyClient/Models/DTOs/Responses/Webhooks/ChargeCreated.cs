@@ -22,4 +22,11 @@ public record ChargeCreated : Webhook<ChargeData>
         get => MerchantId;
         init => MerchantId = value;
     }
+
+    /// <summary>
+    /// The data associated with this event
+    /// </summary>
+    [Required]
+    [JsonPropertyName("data")]
+    public override ChargeData Data { get; init; } = new();
 }

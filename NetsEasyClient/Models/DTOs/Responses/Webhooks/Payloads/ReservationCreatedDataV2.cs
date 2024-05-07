@@ -1,7 +1,4 @@
-using System;
-using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
-using SolidNetsEasyClient.Converters;
 using SolidNetsEasyClient.Models.DTOs.Enums;
 using SolidNetsEasyClient.Models.DTOs.Responses.Webhooks.Common;
 
@@ -10,16 +7,8 @@ namespace SolidNetsEasyClient.Models.DTOs.Responses.Webhooks.Payloads;
 /// <summary>
 /// The reservation payload
 /// </summary>
-public record ReservationCreatedDataV2 : IWebhookData
+public record ReservationCreatedDataV2 : WebhookData
 {
-    /// <summary>
-    /// The payment identifier
-    /// </summary>
-    [Required]
-    [JsonConverter(typeof(GuidTypeConverter))]
-    [JsonPropertyName("paymentId")]
-    public Guid PaymentId { get; init; }
-
     /// <summary>
     /// The payment method
     /// </summary>

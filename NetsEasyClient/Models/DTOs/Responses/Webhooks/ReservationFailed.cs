@@ -1,4 +1,6 @@
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 using SolidNetsEasyClient.Models.DTOs.Responses.Webhooks.Payloads;
 
 namespace SolidNetsEasyClient.Models.DTOs.Responses.Webhooks;
@@ -16,4 +18,11 @@ public record ReservationFailed : Webhook<ReservationFailedData>
         get => Data.OrderItems;
         init => Data.OrderItems = value;
     }
+
+    /// <summary>
+    /// The data associated with this event
+    /// </summary>
+    [Required]
+    [JsonPropertyName("data")]
+    public override ReservationFailedData Data { get; init; } = new();
 }

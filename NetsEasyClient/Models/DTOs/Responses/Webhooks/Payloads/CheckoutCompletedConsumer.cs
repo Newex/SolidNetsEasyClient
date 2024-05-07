@@ -12,47 +12,47 @@ public record CheckoutCompletedConsumer
     /// The first name of the customer
     /// </summary>
     [JsonPropertyName("firstName")]
-    public string FirstName { get; init; } = string.Empty;
+    public string? FirstName { get; init; }
 
     /// <summary>
     /// The last name of the customer
     /// </summary>
     [JsonPropertyName("lastName")]
-    public string LastName { get; init; } = string.Empty;
+    public string? LastName { get; init; }
 
     /// <summary>
     /// The billing address
     /// </summary>
     [JsonPropertyName("billingAddress")]
-    public CheckoutCompletedAddress BillingAddress { get; init; } = new();
+    public CheckoutCompletedAddress? BillingAddress { get; init; }
 
     /// <summary>
     /// The country
     /// </summary>
     [JsonPropertyName("country")]
-    public string Country { get; init; } = string.Empty;
+    public string? Country { get; init; }
 
     /// <summary>
     /// The email
     /// </summary>
     [JsonPropertyName("email")]
-    public string Email { get; init; } = string.Empty;
+    public string? Email { get; init; }
 
     /// <summary>
     /// The IP
     /// </summary>
     [JsonPropertyName("ip")]
-    public string IP { get; init; } = string.Empty;
+    public string? IP { get; init; }
 
     /// <summary>
     /// The phone number
     /// </summary>
     [JsonPropertyName("phoneNumber")]
-    public PhoneNumber PhoneNumber { get; init; } = new();
+    public PhoneNumber? PhoneNumber { get; init; }
 
     /// <summary>
     /// The shipping address
     /// </summary>
     [JsonPropertyName("shippingAddress")]
-    public CheckoutCompletedAddress ShippingAddress { get; init; } = new();
+    public CheckoutCompletedAddress? ShippingAddress { get; init; }
 }

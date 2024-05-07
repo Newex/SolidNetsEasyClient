@@ -5,6 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using SolidNetsEasyClient.Clients;
 using SolidNetsEasyClient.Constants;
+using SolidNetsEasyClient.Converters;
 using SolidNetsEasyClient.DelegatingHandlers;
 using SolidNetsEasyClient.Helpers.Encryption;
 using SolidNetsEasyClient.Models.Options;
@@ -93,6 +94,22 @@ public sealed class NetsConfigurationBuilder
     {
         // Add options
         _ = services.Configure<WebhookEncryptionOptions>(c => c.Hasher = new HmacSHA256Hasher());
+        services.ConfigureHttpJsonOptions(options =>
+        {
+            // Add all the converters for webhook
+            options.SerializerOptions.Converters.Add(new IWebhookConverter());
+            options.SerializerOptions.Converters.Add(new PaymentCreatedConverter());
+            options.SerializerOptions.Converters.Add(new PaymentCancelledConverter());
+            options.SerializerOptions.Converters.Add(new ChargeCreatedConverter());
+            options.SerializerOptions.Converters.Add(new CheckoutCompletedConverter());
+            options.SerializerOptions.Converters.Add(new PaymentCancellationFailedConverter());
+            options.SerializerOptions.Converters.Add(new RefundCompletedConverter());
+            options.SerializerOptions.Converters.Add(new RefundFailedConverter());
+            options.SerializerOptions.Converters.Add(new RefundInitiatedConverter());
+            options.SerializerOptions.Converters.Add(new ReservationCreatedV1Converter());
+            options.SerializerOptions.Converters.Add(new ReservationCreatedV2Converter());
+            options.SerializerOptions.Converters.Add(new ReservationFailedConverter());
+        });
 
         // Add factories
 

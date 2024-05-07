@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
 using System.Threading;
+using System.Threading.Tasks;
 using SolidNetsEasyClient.Constants;
 using SolidNetsEasyClient.Models.DTOs;
 using SolidNetsEasyClient.Models.DTOs.Requests.Orders;
@@ -16,7 +17,7 @@ namespace SolidNetsEasyClient.Tests.ClientTests.Unit;
 public class PaymentClientTests
 {
     [Fact]
-    public async void A_proper_payment_returns_payment_with_id()
+    public async Task A_proper_payment_returns_payment_with_id()
     {
         // Arrange
         const string responseJson = TestResponses.CreatePaymentResponse;
@@ -32,7 +33,7 @@ public class PaymentClientTests
     }
 
     [Fact]
-    public async void An_error_throws_exception()
+    public async Task An_error_throws_exception()
     {
         // Arrange
         var responseJson = string.Empty;
@@ -47,7 +48,7 @@ public class PaymentClientTests
     }
 
     [Fact]
-    public async void Can_get_the_status_of_an_existing_payment()
+    public async Task Can_get_the_status_of_an_existing_payment()
     {
         // Arrange
         const string responseJson = TestResponses.PaymentStatusResponseJson;
@@ -63,7 +64,7 @@ public class PaymentClientTests
     }
 
     [Fact]
-    public async void Can_update_order_if_it_uses_easy_invoice_method_and_have_proper_fees()
+    public async Task Can_update_order_if_it_uses_easy_invoice_method_and_have_proper_fees()
     {
         // Arrange
         var paymentID = Guid.NewGuid();
@@ -108,7 +109,7 @@ public class PaymentClientTests
     }
 
     [Fact]
-    public async void Can_update_order_without_any_payment_method()
+    public async Task Can_update_order_without_any_payment_method()
     {
         // Arrange
         var paymentID = Guid.NewGuid();

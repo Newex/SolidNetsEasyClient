@@ -1,0 +1,32 @@
+﻿{
+  id: Guid_1,
+  merchantId: 100001234,
+  timestamp: DateTimeOffset_1,
+  event: payment.reservation.created,
+  data: {
+    paymentId: Guid_2,
+    cardDetails: {
+      creditDebitIndicator: D,
+      expiryMonth: 1,
+      expiryYear: 24,
+      issuerCountry: NO,
+      truncatedPan: 492500******0004,
+      threeDSecure: {
+        authenticationEnrollmentStatus: Y,
+        authenticationStatus: Y,
+        eci: 05
+      }
+    },
+    paymentMethod: Visa,
+    paymentType: Card,
+    consumer: {
+      ip: 10.230.197.32
+    },
+    reservationReference: 683884,
+    reserveId: Guid_1,
+    amount: {
+      amount: 1000,
+      currency: SEK
+    }
+  }
+}

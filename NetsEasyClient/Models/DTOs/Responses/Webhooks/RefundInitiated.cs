@@ -19,4 +19,11 @@ public record RefundInitiated : Webhook<RefundInitiatedData>
         get => MerchantId;
         init => MerchantId = value;
     }
+
+    /// <summary>
+    /// The data associated with this event
+    /// </summary>
+    [Required]
+    [JsonPropertyName("data")]
+    public override RefundInitiatedData Data { get; init; } = new();
 }

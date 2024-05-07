@@ -10,9 +10,9 @@
             "request": "launch",
             "preLaunchTask": "build",
             // If you have changed target frameworks, make sure to update the program path.
-            "program": "${workspaceFolder}/example_site/bin/Debug/net7.0/ExampleSite.dll",
+            "program": "${workspaceFolder}/examples/mvc/bin/Debug/net8.0/ExampleSite.dll",
             "args": [],
-            "cwd": "${workspaceFolder}/example_site",
+            "cwd": "${workspaceFolder}/examples/mvc",
             "stopAtEntry": false,
             // Enable launching a web browser when ASP.NET Core starts. For more information: https://aka.ms/VSCode-CS-LaunchJson-WebBrowser
             "serverReadyAction": {
@@ -24,7 +24,7 @@
                 "ASPNETCORE_ENVIRONMENT": "Development"
             },
             "sourceFileMap": {
-                "/Views": "${workspaceFolder}/Views"
+                "/Views": "${workspaceFolder}/examples/mvc/Views"
             }
         }
     ]

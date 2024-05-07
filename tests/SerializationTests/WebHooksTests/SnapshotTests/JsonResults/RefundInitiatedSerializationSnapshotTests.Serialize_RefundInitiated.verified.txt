@@ -1,0 +1,15 @@
+﻿{
+  id: Guid_1,
+  merchantId: 100017120,
+  timestamp: DateTimeOffset_1,
+  event: payment.refund.initiated.v2,
+  data: {
+    paymentId: Guid_2,
+    refundId: Guid_1,
+    chargeId: Guid_3,
+    amount: {
+      amount: 5500,
+      currency: SEK
+    }
+  }
+}
