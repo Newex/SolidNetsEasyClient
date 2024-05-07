@@ -37,5 +37,5 @@ public record RefundFailedData : WebhookData
     /// The invoice details
     /// </summary>
     [JsonPropertyName("invoiceDetails")]
-    public WebhookInvoiceDetails InvoiceDetails { get; init; } = new();
+    public WebhookInvoiceDetails? InvoiceDetails { get; init; }
 }

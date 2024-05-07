@@ -74,7 +74,7 @@ public class IWebhookConverter : JsonConverter<IWebhook<WebhookData>>
                             EventName.CheckoutCompleted => GetCheckoutCompletedData(ref reader, options),
                             EventName.PaymentCancellationFailed => GetPaymentCancellationFailedData(ref reader, options),
                             EventName.RefundCompleted => GetRefundCompletedData(ref reader, options),
-                            EventName.RefundFailed => throw new NotImplementedException(),
+                            EventName.RefundFailed => GetRefundFailedData(ref reader, options),
                             EventName.RefundInitiated => throw new NotImplementedException(),
                             EventName.ReservationCreatedV1 => throw new NotImplementedException(),
                             EventName.ReservationCreatedV2 => throw new NotImplementedException(),
@@ -259,6 +259,11 @@ public class IWebhookConverter : JsonConverter<IWebhook<WebhookData>>
                 refundCompletedDataConverter.Write(writer, value.Data as RefundCompletedData ?? new(), options);
                 break;
             case EventName.RefundFailed:
+                if (options.Converters.FirstOrDefault(x => x.CanConvert(typeof(RefundFailedData))) is not JsonConverter<RefundFailedData> refundFailedConverter)
+                {
+                    refundFailedConverter = new RefundFailedDataConverter();
+                }
+                refundFailedConverter.Write(writer, value.Data as RefundFailedData ?? new(), options);
                 break;
             case EventName.RefundInitiated:
                 break;
@@ -341,5 +346,15 @@ public class IWebhookConverter : JsonConverter<IWebhook<WebhookData>>
         }
 
         return converter.Read(ref reader, typeof(RefundCompletedData), options);
+    }
+
+    private static RefundFailedData? GetRefundFailedData(ref Utf8JsonReader reader, JsonSerializerOptions options)
+    {
+        if (options.Converters.FirstOrDefault(x => x.CanConvert(typeof(RefundFailedData))) is not JsonConverter<RefundFailedData> converter)
+        {
+            converter = new RefundFailedDataConverter();
+        }
+
+        return converter.Read(ref reader, typeof(RefundFailedData), options);
     }
 }
