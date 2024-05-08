@@ -7,7 +7,6 @@ using SolidNetsEasyClient.Models.DTOs.Enums;
 using SolidNetsEasyClient.Models.DTOs.Requests.Orders;
 using SolidNetsEasyClient.Models.DTOs.Responses.Webhooks;
 using SolidNetsEasyClient.Models.DTOs.Responses.Webhooks.Payloads;
-using SolidNetsEasyClient.SerializationContexts;
 
 var builder = WebApplication.CreateBuilder(args);
 

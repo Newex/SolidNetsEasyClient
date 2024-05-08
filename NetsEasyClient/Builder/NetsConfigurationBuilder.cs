@@ -3,11 +3,11 @@ using System.Net.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Options;
 using SolidNetsEasyClient.Clients;
 using SolidNetsEasyClient.Constants;
 using SolidNetsEasyClient.Converters;
 using SolidNetsEasyClient.DelegatingHandlers;
-using SolidNetsEasyClient.Helpers.Encryption;
 using SolidNetsEasyClient.Models.Options;
 
 namespace SolidNetsEasyClient.Builder;
@@ -22,11 +22,13 @@ public sealed class NetsConfigurationBuilder
     /// </summary>
     private readonly IServiceCollection services;
     private readonly IHttpClientBuilder httpBuilder;
+    private readonly OptionsBuilder<NetsEasyOptions> optionsBuilder;
 
-    private NetsConfigurationBuilder(IServiceCollection services, IHttpClientBuilder httpBuilder)
+    private NetsConfigurationBuilder(IServiceCollection services, IHttpClientBuilder httpBuilder, OptionsBuilder<NetsEasyOptions> optionsBuilder)
     {
         this.services = services;
         this.httpBuilder = httpBuilder;
+        this.optionsBuilder = optionsBuilder;
     }
 
     /// <summary>
@@ -38,10 +40,7 @@ public sealed class NetsConfigurationBuilder
     public NetsConfigurationBuilder ConfigureFromConfiguration(IConfiguration configuration)
     {
         var section = configuration.GetSection(NetsEasyOptions.NetsEasyConfigurationSection);
-        _ = services.Configure<NetsEasyOptions>(section);
-
-        var webhookSection = configuration.GetSection(WebhookEncryptionOptions.WebhookEncryptionConfigurationSection);
-        _ = services.Configure<WebhookEncryptionOptions>(webhookSection);
+        optionsBuilder.Bind(section);
         return this;
     }
 
@@ -52,7 +51,7 @@ public sealed class NetsConfigurationBuilder
     /// <returns>A builder object</returns>
     public NetsConfigurationBuilder ConfigureNetsEasyOptions(Action<NetsEasyOptions> options)
     {
-        _ = services.Configure(options);
+        optionsBuilder.Configure(options);
         return this;
     }
 
@@ -78,22 +77,9 @@ public sealed class NetsConfigurationBuilder
         return this;
     }
 
-    /// <summary>
-    /// Configure the webhook encryption options from a configuration file
-    /// </summary>
-    /// <param name="configuration">The configuration properties</param>
-    /// <returns>A builder object</returns>
-    public NetsConfigurationBuilder ConfigureEncryptionOptions(IConfiguration configuration)
-    {
-        var section = configuration.GetSection(WebhookEncryptionOptions.WebhookEncryptionConfigurationSection);
-        _ = services.Configure<WebhookEncryptionOptions>(section);
-        return this;
-    }
-
     internal static NetsConfigurationBuilder Create(IServiceCollection services)
     {
         // Add options
-        _ = services.Configure<WebhookEncryptionOptions>(c => c.Hasher = new HmacSHA256Hasher());
         services.ConfigureHttpJsonOptions(options =>
         {
             // Add all the converters for webhook
@@ -109,6 +95,16 @@ public sealed class NetsConfigurationBuilder
             options.SerializerOptions.Converters.Add(new ReservationCreatedV1Converter());
             options.SerializerOptions.Converters.Add(new ReservationCreatedV2Converter());
             options.SerializerOptions.Converters.Add(new ReservationFailedConverter());
+        });
+        var optionsBuilder = services.AddOptions<NetsEasyOptions>().Validate(config =>
+        {
+            // TODO: Add ValidationOnStartup
+            if (string.IsNullOrWhiteSpace(config.ApiKey))
+            {
+                return false;
+            }
+
+            return true;
         });
 
         // Add factories
@@ -141,6 +137,6 @@ public sealed class NetsConfigurationBuilder
         services.TryAddScoped<IUnscheduledSubscriptionClient, UnscheduledSubscriptionClient>();
         services.TryAddScoped(typeof(UnscheduledSubscriptionClient));
 
-        return new NetsConfigurationBuilder(services, httpbuilder);
+        return new NetsConfigurationBuilder(services, httpbuilder, optionsBuilder);
     }
 }
