@@ -8,11 +8,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Mvc.Routing;
 using SolidNetsEasyClient.Extensions;
-using SolidNetsEasyClient.Helpers.Encryption;
 using SolidNetsEasyClient.Logging.SolidNetsEasyPaymentCreatedAttributeLogging;
 using SolidNetsEasyClient.Models.DTOs.Responses.Webhooks;
 using SolidNetsEasyClient.Models.DTOs.Responses.Webhooks.Payloads;
-using SolidNetsEasyClient.Models.Options;
 using static Microsoft.AspNetCore.Http.HttpMethods;
 
 namespace SolidNetsEasyClient.Helpers.WebhookAttributes;
@@ -74,22 +72,12 @@ public abstract class SolidNetsEasyEventAttribute<T, TData> : ActionFilterAttrib
     /// <inheritdoc />
     int? IRouteTemplateProvider.Order => Order;
 
-    /// <summary>
-    /// Validate authorization header using the built-in functions. Defaults to true.
-    /// </summary>
-    public bool ValidateAuthorizationHeader { get; set; } = true;
-
-    /// <summary>
-    /// Override the default <see cref="WebhookEncryptionOptions.UseSimpleAuthorization"/> setting
-    /// </summary>
-    public bool? UseSimpleAuthorization { get; set; }
-
     /// <inheritdoc />
     public override void OnActionExecuting(ActionExecutingContext context)
     {
         var request = context.HttpContext.Request;
         var logger = ServiceProviderExtensions.GetLogger<SolidNetsEasyEventAttribute<T, TData>>(request.HttpContext.RequestServices);
-        if (!IsPost(request.Method) || !ValidateAuthorizationHeader)
+        if (!IsPost(request.Method))
         {
             // Short-circuit pipeline must only handle POST request OR user does not want to validate
             logger.InfoNotPOSTRequest();
@@ -126,45 +114,6 @@ public abstract class SolidNetsEasyEventAttribute<T, TData> : ActionFilterAttrib
         }
 
         var http = context.HttpContext;
-        var encryptionOptions = ServiceProviderExtensions.GetOptions<WebhookEncryptionOptions>(http.RequestServices);
-        if (encryptionOptions is null)
-        {
-            logger.ErrorMissingEncryptionConfiguration();
-            context.Result = new StatusCodeResult(StatusCodes.Status500InternalServerError);
-            return;
-        }
-
-        var simple = UseSimpleAuthorization ?? encryptionOptions.Value.UseSimpleAuthorization;
-        if (simple)
-        {
-            var validAuthorization = request.Headers.Authorization.Equals(encryptionOptions.Value.AuthorizationKey);
-            if (!validAuthorization)
-            {
-                logger.ErrorInvalidBulkAuthorizationHeader(request.Headers.Authorization);
-                context.Result = new StatusCodeResult(StatusCodes.Status403Forbidden);
-                return;
-            }
-
-            // Valid authorization header
-            return;
-        }
-
-        var data = GetNonceAndComplement(request, encryptionOptions.Value.NonceName, encryptionOptions.Value.ComplementName);
-        if (data is null)
-        {
-            logger.ErrorMissingNonce();
-            context.Result = new StatusCodeResult(StatusCodes.Status400BadRequest);
-            return;
-        }
-
-        (var nonce, var complement) = data.Value;
-        var isValid = Validate(payload, encryptionOptions.Value.Hasher, encryptionOptions.Value.Key, authorization!, complement, nonce);
-        if (!isValid)
-        {
-            // 403 Forbidden
-            logger.ErrorInvalidAuthorizationHeader();
-            context.Result = new StatusCodeResult(StatusCodes.Status403Forbidden);
-        }
     }
 
     /// <summary>
@@ -192,18 +141,6 @@ public abstract class SolidNetsEasyEventAttribute<T, TData> : ActionFilterAttrib
             return Task.CompletedTask;
         }, context);
     }
-
-    /// <summary>
-    /// Validate the authorization header
-    /// </summary>
-    /// <param name="data">The data</param>
-    /// <param name="hasher">The hasher</param>
-    /// <param name="key">The encryption key</param>
-    /// <param name="authorization">The authorization header</param>
-    /// <param name="complement">The complement to the authorization header</param>
-    /// <param name="nonce">The nonce</param>
-    /// <returns>True if valid otherwise false</returns>
-    protected abstract bool Validate(T data, IHasher hasher, byte[] key, string authorization, string? complement, string? nonce);
 
     private static (string Nonce, string? Complement)? GetNonceAndComplement(HttpRequest request, string nonceName, string complementName)
     {
