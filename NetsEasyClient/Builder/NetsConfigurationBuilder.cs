@@ -8,6 +8,7 @@ using SolidNetsEasyClient.Clients;
 using SolidNetsEasyClient.Constants;
 using SolidNetsEasyClient.Converters;
 using SolidNetsEasyClient.DelegatingHandlers;
+using SolidNetsEasyClient.Models.DTOs.Requests.Payments;
 using SolidNetsEasyClient.Models.Options;
 
 namespace SolidNetsEasyClient.Builder;
@@ -98,14 +99,42 @@ public sealed class NetsConfigurationBuilder
         });
         var optionsBuilder = services.AddOptions<NetsEasyOptions>().Validate(config =>
         {
-            // TODO: Add ValidationOnStartup
             if (string.IsNullOrWhiteSpace(config.ApiKey))
             {
                 return false;
             }
 
-            return true;
-        });
+            // Conditions:
+            var isValid = true;
+            if (config.IntegrationType == Integration.EmbeddedCheckout)
+            {
+                // Embedded
+                // 1. CheckoutUrl
+                isValid &= !string.IsNullOrWhiteSpace(config.CheckoutUrl);
+
+                // 2. CheckoutKey
+                isValid &= !string.IsNullOrWhiteSpace(config.CheckoutKey);
+            }
+            else if (config.IntegrationType == Integration.HostedPaymentPage)
+            {
+                // Hosted
+                // 1. ReturnUrl
+                isValid &= !string.IsNullOrWhiteSpace(config.ReturnUrl);
+
+                // 2. CancelUrl
+                isValid &= !string.IsNullOrWhiteSpace(config.CancelUrl);
+            }
+
+            // Common
+            // 1. TermsUrl
+            isValid &= !string.IsNullOrWhiteSpace(config.TermsUrl);
+
+            // 2. PrivacyPolicyUrl
+            isValid &= !string.IsNullOrWhiteSpace(config.PrivacyPolicyUrl);
+
+            return isValid;
+        }, "NetsEasyOptions is not configured correctly. Either missing or misconfigured options.")
+        .ValidateOnStart();
 
         // Add factories
 

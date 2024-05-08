@@ -1,12 +1,9 @@
-using Microsoft.AspNetCore.Mvc;
 using SolidNetsEasyClient.Builder;
 using SolidNetsEasyClient.Clients;
+using SolidNetsEasyClient.Constants;
 using SolidNetsEasyClient.Converters;
 using SolidNetsEasyClient.Extensions;
-using SolidNetsEasyClient.Models.DTOs.Enums;
-using SolidNetsEasyClient.Models.DTOs.Requests.Orders;
-using SolidNetsEasyClient.Models.DTOs.Responses.Webhooks;
-using SolidNetsEasyClient.Models.DTOs.Responses.Webhooks.Payloads;
+using SolidNetsEasyClient.Models.DTOs.Requests.Payments;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,12 +11,15 @@ var builder = WebApplication.CreateBuilder(args);
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.AddNetsEasyEmbeddedCheckout(checkoutUrl: "https://localhost:8000/checkout",
-                                             termsUrl: "https://localhost:8000/terms",
-                                             privacyPolicyUrl: "https://localhost:8000/privacy")
-.ConfigureNetsEasyOptions(options =>
+builder.Services.AddNetsEasy(options =>
 {
     options.ApiKey = "my-api-key";
+    options.IntegrationType = Integration.EmbeddedCheckout;
+    options.CheckoutKey = "my-checkout-key";
+    options.CheckoutUrl = "https://localhost/checkout";
+    options.TermsUrl = "https://localhost/terms";
+    options.PrivacyPolicyUrl = "https://localhost/privacy";
+    options.ClientMode = ClientMode.Test;
 });
 
 builder.Services.ConfigureHttpJsonOptions(options =>
@@ -37,18 +37,19 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.MapPost("/checkout", async (NetsPaymentBuilder builder, NetsPaymentClient client, Order order, CancellationToken cancellationToken) =>
+app.MapPost("/checkout", (NetsPaymentBuilder builder, NetsPaymentClient client, CancellationToken cancellationToken) =>
 {
-    var paymentBuilder = builder.CreateSinglePayment(order, "my-order-id");
-    paymentBuilder.AddWebhook("https://localhost:8000/nets/webhook", EventName.PaymentCreated, "authHeaderVal123");
+    // var paymentBuilder = builder.CreateSinglePayment(order, "my-order-id");
+    // paymentBuilder.AddWebhook("https://localhost:8000/nets/webhook", EventName.PaymentCreated, "authHeaderVal123");
 
-    var paymentRequest = paymentBuilder.Build();
-    var paymentResult = await client.StartCheckoutPayment(paymentRequest, cancellationToken);
-    return TypedResults.Created("/payment/my-order-id", paymentResult);
+    // var paymentRequest = paymentBuilder.Build();
+    // var paymentResult = await client.StartCheckoutPayment(paymentRequest, cancellationToken);
+    // return TypedResults.Created("/payment/my-order-id", paymentResult);
+    throw new NotImplementedException();
 });
 
 // Must be POST
-app.MapPost("/nets/webhook", (HttpContext context, NetsPaymentClient client, [FromBody] IWebhook<WebhookData> webhook) =>
+app.MapPost("/nets/webhook", (HttpContext context, NetsPaymentClient client) =>
 {
     var authHeader = context.Request.Headers.Authorization;
     if (string.IsNullOrEmpty(authHeader))
