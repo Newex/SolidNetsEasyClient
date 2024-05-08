@@ -4,7 +4,7 @@ using SolidNetsEasyClient.Models.DTOs.Requests.Payments;
 namespace SolidNetsEasyClient.SerializationContexts;
 
 /// <summary>
-/// Serialization context for <see cref="SolidNetsEasyClient.Models.DTOs.Requests.Payments.PaymentRequest"/>
+/// Serialization context for <see cref="Models.DTOs.Requests.Payments.PaymentRequest"/>
 /// </summary>
 [JsonSerializable(typeof(PaymentRequest))]
 public partial class PaymentRequestSerializationContext : JsonSerializerContext
