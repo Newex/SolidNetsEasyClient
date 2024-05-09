@@ -7,6 +7,8 @@ using SolidNetsEasyClient.Extensions;
 using SolidNetsEasyClient.Models.DTOs.Enums;
 using SolidNetsEasyClient.Models.DTOs.Requests.Orders;
 using SolidNetsEasyClient.Models.DTOs.Requests.Payments;
+using SolidNetsEasyClient.Models.DTOs.Responses.Webhooks;
+using SolidNetsEasyClient.Models.DTOs.Responses.Webhooks.Payloads;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -51,7 +53,7 @@ app.MapPost("/checkout", async (NetsPaymentBuilder builder, NetsPaymentClient cl
     return TypedResults.Created("/payment/my-order-id", paymentResult);
 });
 
-app.MapNetsWebhook("/nets/webhook", (HttpContext context, NetsPaymentClient client) =>
+app.MapNetsWebhook("/nets/webhook", (HttpContext context, NetsPaymentClient client, IWebhook<WebhookData> payload) =>
 {
     var authHeader = context.Request.Headers.Authorization;
     if (string.IsNullOrEmpty(authHeader))

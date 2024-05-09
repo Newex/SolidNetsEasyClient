@@ -11,6 +11,7 @@ using SolidNetsEasyClient.DelegatingHandlers;
 using SolidNetsEasyClient.Extensions;
 using SolidNetsEasyClient.Models.DTOs.Requests.Payments;
 using SolidNetsEasyClient.Models.Options;
+using SolidNetsEasyClient.SerializationContexts;
 
 namespace SolidNetsEasyClient.Builder;
 
@@ -99,6 +100,8 @@ public sealed class NetsConfigurationBuilder
             options.SerializerOptions.Converters.Add(new ReservationCreatedV1Converter());
             options.SerializerOptions.Converters.Add(new ReservationCreatedV2Converter());
             options.SerializerOptions.Converters.Add(new ReservationFailedConverter());
+
+            options.SerializerOptions.TypeInfoResolverChain.Add(WebhookSerializationContext.Default);
         });
         var optionsBuilder = services.AddOptions<NetsEasyOptions>().Validate(config =>
         {
