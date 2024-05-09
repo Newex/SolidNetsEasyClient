@@ -31,6 +31,7 @@ POST {{minimalapi_HostAddress}}/nets/webhook
 Content-Type: application/json
 Authorization: authHeaderVal123
 
+# Source: https://developer.nexigroup.com/nexi-checkout/en-EU/api/webhooks/#created
 {
     "id": "458a4e068f454f768a40b9e576914820",
     "merchantId": 100017120,
