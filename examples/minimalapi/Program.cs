@@ -66,7 +66,7 @@ app.MapNetsWebhook("/nets/webhook", (HttpContext context, NetsPaymentClient clie
         return Results.Forbid();
     }
 
-    throw new NotImplementedException();
+    return Results.NoContent();
 });
 
 app.Run();

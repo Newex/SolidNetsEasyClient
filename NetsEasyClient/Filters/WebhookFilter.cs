@@ -89,7 +89,6 @@ public class WebhookFilter : IEndpointFilter
         {
             return await next(context);
         }
-
         var blackListed = denyRanges.Any(x => x.Contains(remoteIP));
         blackListed = blackListed || denySingleIPs.Any(x => x.Equals(remoteIP));
 
@@ -99,7 +98,7 @@ public class WebhookFilter : IEndpointFilter
         }
 
         // Allow by default?!
-        return options.DefaultDenyWebhook
+        return (options.DefaultDenyWebhook && !whiteListed)
             ? Results.Unauthorized()
             : await next(context);
     }

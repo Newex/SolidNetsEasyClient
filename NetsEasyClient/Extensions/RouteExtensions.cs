@@ -17,6 +17,9 @@ public static class RouteExtensions
     /// </summary>
     /// <remarks>
     /// To properly handle client IP's, remember to add ForwardedHeaders so ASP.NET Core can work with proxies and load balancers.
+    /// Response should not take more than 10 seconds.
+    /// Response should be 200 OK.
+    /// Response should not have any data in the body.
     /// </remarks>
     /// <param name="app">The web application</param>
     /// <param name="route">The route</param>
@@ -27,6 +30,7 @@ public static class RouteExtensions
     public static RouteHandlerBuilder MapNetsWebhook(this WebApplication app, [StringSyntax("Route")] string route, Delegate handler)
     {
         return app.MapPost(route, handler)
-                  .AddEndpointFilter<WebhookFilter>();
+                  .AddEndpointFilter<WebhookFilter>()
+                  .AddEndpointFilter<OkFilter>();
     }
 }
