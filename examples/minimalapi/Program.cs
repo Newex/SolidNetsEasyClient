@@ -1,8 +1,11 @@
+using Microsoft.AspNetCore.Mvc;
+using MinimalAPI.SerializationContexts;
 using SolidNetsEasyClient.Builder;
 using SolidNetsEasyClient.Clients;
 using SolidNetsEasyClient.Constants;
-using SolidNetsEasyClient.Converters;
 using SolidNetsEasyClient.Extensions;
+using SolidNetsEasyClient.Models.DTOs.Enums;
+using SolidNetsEasyClient.Models.DTOs.Requests.Orders;
 using SolidNetsEasyClient.Models.DTOs.Requests.Payments;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -20,12 +23,13 @@ builder.Services.AddNetsEasy(options =>
     options.TermsUrl = "https://localhost/terms";
     options.PrivacyPolicyUrl = "https://localhost/privacy";
     options.ClientMode = ClientMode.Test;
+    options.DefaultDenyWebhook = false;
+    options.WhitelistIPsForWebhook = "127.0.0.1";
 });
 
 builder.Services.ConfigureHttpJsonOptions(options =>
 {
-    // options.SerializerOptions.TypeInfoResolverChain.Add(WebhookSerializationContext.Default);
-    options.SerializerOptions.Converters.Add(new IWebhookConverter());
+    options.SerializerOptions.TypeInfoResolverChain.Add(OrderSerializationContext.Default);
 });
 
 var app = builder.Build();
@@ -37,19 +41,17 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.MapPost("/checkout", (NetsPaymentBuilder builder, NetsPaymentClient client, CancellationToken cancellationToken) =>
+app.MapPost("/checkout", async (NetsPaymentBuilder builder, NetsPaymentClient client, [FromBody] Order order, CancellationToken cancellationToken) =>
 {
-    // var paymentBuilder = builder.CreateSinglePayment(order, "my-order-id");
-    // paymentBuilder.AddWebhook("https://localhost:8000/nets/webhook", EventName.PaymentCreated, "authHeaderVal123");
+    var paymentBuilder = builder.CreateSinglePayment(order, "my-order-id");
+    paymentBuilder.AddWebhook("https://localhost:8000/nets/webhook", EventName.PaymentCreated, "authHeaderVal123");
 
-    // var paymentRequest = paymentBuilder.Build();
-    // var paymentResult = await client.StartCheckoutPayment(paymentRequest, cancellationToken);
-    // return TypedResults.Created("/payment/my-order-id", paymentResult);
-    throw new NotImplementedException();
+    var paymentRequest = paymentBuilder.Build();
+    var paymentResult = await client.StartCheckoutPayment(paymentRequest, cancellationToken);
+    return TypedResults.Created("/payment/my-order-id", paymentResult);
 });
 
-// Must be POST
-app.MapPost("/nets/webhook", (HttpContext context, NetsPaymentClient client) =>
+app.MapNetsWebhook("/nets/webhook", (HttpContext context, NetsPaymentClient client) =>
 {
     var authHeader = context.Request.Headers.Authorization;
     if (string.IsNullOrEmpty(authHeader))

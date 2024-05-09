@@ -1,13 +1,14 @@
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Net.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
 using SolidNetsEasyClient.Clients;
 using SolidNetsEasyClient.Constants;
 using SolidNetsEasyClient.Converters;
 using SolidNetsEasyClient.DelegatingHandlers;
+using SolidNetsEasyClient.Extensions;
 using SolidNetsEasyClient.Models.DTOs.Requests.Payments;
 using SolidNetsEasyClient.Models.Options;
 
@@ -38,6 +39,8 @@ public sealed class NetsConfigurationBuilder
     /// </summary>
     /// <param name="configuration">The configuration object</param>
     /// <returns>A builder object</returns>
+    [RequiresUnreferencedCode("Using member 'Microsoft.Extensions.DependencyInjection.OptionsBuilderConfigurationExtensions.Bind<TOptions>(OptionsBuilder<TOptions>, IConfiguration)' which has 'RequiresUnreferencedCodeAttribute' can break functionality when trimming application code. TOptions's dependent types may have their members trimmed. Ensure all required members are preserved.")]
+    [RequiresDynamicCode("Using member 'Microsoft.Extensions.DependencyInjection.OptionsBuilderConfigurationExtensions.Bind<TOptions>(OptionsBuilder<TOptions>, IConfiguration)' which has 'RequiresDynamicCodeAttribute' can break functionality when AOT compiling. Binding strongly typed objects to configuration values may require generating dynamic code at runtime.")]
     public NetsConfigurationBuilder ConfigureFromConfiguration(IConfiguration configuration)
     {
         var section = configuration.GetSection(NetsEasyOptions.NetsEasyConfigurationSection);
@@ -141,9 +144,9 @@ public sealed class NetsConfigurationBuilder
         // Add http clients
         var httpbuilder = services.AddHttpClient<NetsPaymentClient>((provider, client) =>
         {
-            var opt = provider.GetRequiredService<NetsEasyOptions>();
+            var opt = provider.GetOptions<NetsEasyOptions>()?.Value;
 
-            var baseUrl = opt.ClientMode switch
+            var baseUrl = opt?.ClientMode switch
             {
                 ClientMode.Test => NetsEndpoints.TestingBaseUri,
                 ClientMode.Live => NetsEndpoints.LiveBaseUri,
@@ -153,18 +156,9 @@ public sealed class NetsConfigurationBuilder
         }) // Pipeline
             .AddHttpMessageHandler<NetsAuthorizationHandler>();
 
-        // Add payment client
-        services.TryAddScoped<IPaymentClient, PaymentClient>();
-        services.TryAddScoped(typeof(PaymentClient));
-        services.TryAddScoped<NetsPaymentBuilder>();
-
-        // Add subscription client
-        services.TryAddScoped<ISubscriptionClient, SubscriptionClient>();
-        services.TryAddScoped(typeof(SubscriptionClient));
-
-        // Add unscheduled subscription client
-        services.TryAddScoped<IUnscheduledSubscriptionClient, UnscheduledSubscriptionClient>();
-        services.TryAddScoped(typeof(UnscheduledSubscriptionClient));
+        // Add dependencies
+        services.AddScoped<NetsPaymentBuilder>();
+        services.AddScoped<NetsAuthorizationHandler>();
 
         return new NetsConfigurationBuilder(services, httpbuilder, optionsBuilder);
     }

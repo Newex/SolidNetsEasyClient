@@ -4,3 +4,24 @@ GET {{minimalapi_HostAddress}}/weatherforecast/
 Accept: application/json
 
 ###
+
+POST {{minimalapi_HostAddress}}/checkout
+Content-Type: application/json
+Accept: application/json
+
+{
+    "items": [{
+        "reference": "Sneaky NE2816-82",
+        "name": "Sneaky",
+        "quantity": 2,
+        "unit": "pcs",
+        "unitPrice": 2500,
+        "taxRate": 1000,
+        "taxAmount": 500,
+        "grossTotalAmount": 5500,
+        "netTotalAmount": 5000
+    }],
+    "amount": 5500,
+    "currency": "USD",
+    "reference": "demo"
+}

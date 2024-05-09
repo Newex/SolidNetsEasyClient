@@ -4,7 +4,11 @@
     <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <RootNamespace>MinimalAPI</RootNamespace>
     <PublishAot>true</PublishAot>
+    <EnableTrimAnalyzer>false</EnableTrimAnalyzer>
+    <EnableSingleFileAnalyzer>false</EnableSingleFileAnalyzer>
+    <EnableAotAnalyzer>false</EnableAotAnalyzer>
   </PropertyGroup>
 
   <ItemGroup>

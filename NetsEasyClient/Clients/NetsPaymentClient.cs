@@ -26,11 +26,11 @@ namespace SolidNetsEasyClient.Clients;
 public sealed class NetsPaymentClient(
     HttpClient client,
     IOptions<NetsEasyOptions> options,
-    ILogger? logger
+    ILogger<NetsPaymentClient>? logger
 ) : IDisposable
 {
     private readonly HttpClient client = client;
-    private readonly ILogger logger = logger ?? NullLogger.Instance;
+    private readonly ILogger<NetsPaymentClient> logger = logger ?? NullLogger<NetsPaymentClient>.Instance;
     private readonly NetsEasyOptions options = options.Value;
 
     /// <summary>
