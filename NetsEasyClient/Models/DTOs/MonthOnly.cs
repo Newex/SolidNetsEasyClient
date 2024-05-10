@@ -18,7 +18,7 @@ public record struct MonthOnly
     /// <summary>
     /// Split between 2000's and 1900's, e.g. lower than this is the 2000's and higher (up to 100) is the 1900's
     /// </summary>
-    private const int split = 60;
+    private const int Split = 60;
     private readonly int? year;
     private readonly int? month;
 
@@ -52,11 +52,11 @@ public record struct MonthOnly
             throw new ArgumentOutOfRangeException(nameof(month), "Month must be between 1 through 12");
         }
 
-        if (year < split)
+        if (year < Split)
         {
             year += 2000;
         }
-        else if (year is >= split and <= 99)
+        else if (year is >= Split and <= 99)
         {
             year += 1900;
         }
@@ -68,12 +68,12 @@ public record struct MonthOnly
     /// <summary>
     /// The year from 1 through 9999
     /// </summary>
-    public int Year => year ?? 1;
+    public readonly int Year => year ?? 1;
 
     /// <summary>
     /// The month
     /// </summary>
-    public int Month => month ?? 1;
+    public readonly int Month => month ?? 1;
 
     /// <summary>
     /// Convert this month only to a date time
@@ -110,7 +110,7 @@ public record struct MonthOnly
     /// The string representation of month only
     /// </summary>
     /// <returns>A string of the YYMM format</returns>
-    public override string ToString()
+    public override readonly string ToString()
     {
         var yearText = (Year % 100).ToString("D2", CultureInfo.InvariantCulture);
         var monthText = Month.ToString("D2", CultureInfo.InvariantCulture);

@@ -16,6 +16,7 @@ public record PaymentResult
     /// The payment ID
     /// </summary>
     [JsonPropertyName("paymentId")]
+    [JsonConverter(typeof(GuidTypeConverter))]
     public Guid PaymentId { get; init; }
 
     /// <summary>

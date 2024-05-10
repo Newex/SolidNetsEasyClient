@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
+using SolidNetsEasyClient.Converters;
 using SolidNetsEasyClient.Models.DTOs.Requests.Customers;
 using SolidNetsEasyClient.Models.DTOs.Requests.Customers.Addresses;
 using SolidNetsEasyClient.Models.DTOs.Requests.Styles;
@@ -28,6 +29,7 @@ public record Checkout
     /// </remarks>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("integrationType")]
+    [JsonConverter(typeof(IntegrationEnumConverter))]
     public Integration? IntegrationType { get; init; }
 
     /// <summary>

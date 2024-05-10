@@ -87,20 +87,10 @@ public sealed class NetsConfigurationBuilder
         // Add options
         services.ConfigureHttpJsonOptions(options =>
         {
-            // Add all the converters for webhook
-            options.SerializerOptions.Converters.Add(new IWebhookConverter());
-            options.SerializerOptions.Converters.Add(new PaymentCreatedConverter());
-            options.SerializerOptions.Converters.Add(new PaymentCancelledConverter());
-            options.SerializerOptions.Converters.Add(new ChargeCreatedConverter());
-            options.SerializerOptions.Converters.Add(new CheckoutCompletedConverter());
-            options.SerializerOptions.Converters.Add(new PaymentCancellationFailedConverter());
-            options.SerializerOptions.Converters.Add(new RefundCompletedConverter());
-            options.SerializerOptions.Converters.Add(new RefundFailedConverter());
-            options.SerializerOptions.Converters.Add(new RefundInitiatedConverter());
-            options.SerializerOptions.Converters.Add(new ReservationCreatedV1Converter());
-            options.SerializerOptions.Converters.Add(new ReservationCreatedV2Converter());
-            options.SerializerOptions.Converters.Add(new ReservationFailedConverter());
+            // Add all the converters
+            options.SerializerOptions.Converters.AddAll();
 
+            // Serialization contexts
             options.SerializerOptions.TypeInfoResolverChain.Add(WebhookSerializationContext.Default);
             options.SerializerOptions.TypeInfoResolverChain.Add(PaymentResultSerializationContext.Default);
         });
@@ -158,10 +148,12 @@ public sealed class NetsConfigurationBuilder
             };
             client.BaseAddress = baseUrl;
         }) // Pipeline
+            .AddHttpMessageHandler<CommercePlatformTagHandler>()
             .AddHttpMessageHandler<NetsAuthorizationHandler>();
 
         // Add dependencies
         services.AddScoped<NetsPaymentBuilder>();
+        services.AddScoped<CommercePlatformTagHandler>();
         services.AddScoped<NetsAuthorizationHandler>();
 
         return new NetsConfigurationBuilder(services, httpbuilder, optionsBuilder);

@@ -22,7 +22,7 @@ public class MonthOnlyConverter : JsonConverter<MonthOnly>
 
         if (json.Length != 4)
         {
-            throw new FormatException("The json month only format must be in yyMM");
+            throw new FormatException("The json month only format must be in MMYY");
         }
 
         var value = json.AsSpan();

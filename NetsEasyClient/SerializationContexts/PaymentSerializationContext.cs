@@ -5,9 +5,10 @@ using SolidNetsEasyClient.Models.DTOs.Responses.Payments;
 namespace SolidNetsEasyClient.SerializationContexts;
 
 /// <summary>
-/// Serializer context for <see cref="Models.DTOs.Responses.Payments.PaymentResult"/>
+/// Payment serializer context
 /// </summary>
-[JsonSourceGenerationOptions(AllowTrailingCommas = true, Converters = [
+[JsonSourceGenerationOptions(AllowTrailingCommas = true, Converters =
+[
     typeof(GuidTypeConverter),
     typeof(NullableGuidTypeConverter),
     typeof(ConsumerTypeEnumConverter),
@@ -17,7 +18,7 @@ namespace SolidNetsEasyClient.SerializationContexts;
     typeof(InvoiceDateConverter),
     typeof(MonthOnlyConverter),
 ])]
-[JsonSerializable(typeof(PaymentResult))]
-public partial class PaymentResultSerializationContext : JsonSerializerContext
+[JsonSerializable(typeof(Payment))]
+public partial class PaymentSerializationContext : JsonSerializerContext
 {
 }
