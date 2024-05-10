@@ -5,10 +5,12 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <RootNamespace>MinimalAPI</RootNamespace>
-    <PublishAot>true</PublishAot>
+    <PublishAot>false</PublishAot>
+    <AssemblyName>MinimalAPI</AssemblyName>
     <EnableTrimAnalyzer>false</EnableTrimAnalyzer>
     <EnableSingleFileAnalyzer>false</EnableSingleFileAnalyzer>
     <EnableAotAnalyzer>false</EnableAotAnalyzer>
+    <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
   </PropertyGroup>
 
   <ItemGroup>

@@ -6,7 +6,7 @@
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "build",
-            "program": "${workspaceFolder}/examples/minimalapi/bin/Debug/net8.0/minimalapi.dll",
+            "program": "${workspaceFolder}/examples/minimalapi/bin/Debug/net8.0/MinimalAPI.dll",
             "args": [],
             "cwd": "${workspaceFolder}/examples/minimalapi",
             "stopAtEntry": false,
