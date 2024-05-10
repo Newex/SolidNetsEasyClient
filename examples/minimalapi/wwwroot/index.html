@@ -1,0 +1,59 @@
+<div>
+    <h1>Shop</h1>
+
+    <h2>Product</h2>
+
+    <form id="myForm" action="/checkout" method="post">
+        <div>
+            <div>Nuka-Cola</div>
+            <input type="hidden" name="ID" value="f32be43c-19f8-4546-bb8b-5fcd273d19a1">
+            <input type="hidden" name="Name" value="Nuka-Cola">
+            <input type="hidden" name="Description" value="The unique taste of Nuka-Cola is the result of a combination of 17 fruit essences, balanced to enhance the classic cola flavor.">
+            <input type="hidden" name="Price" value="4000">
+            <input type="hidden" name="Unit" value="ea">
+            <input type="hidden" name="Currency" value="DKK">
+            <div>
+                <button type="submit">Buy one</button>
+            </div>
+        </div>
+    </form>
+</div>
+
+<script>
+    var form = document.getElementById("myForm");
+    // form.onsubmit = function(event) {
+    //     var xhr = new XMLHttpRequest();
+    //     var formData = new FormData(form);
+
+    //     xhr.open('POST', '/checkout');
+    //     xhr.setRequestHeader('Content-Type', 'application/json');
+    //     xhr.send(JSON.stringify(Object.fromEntries(formData)));
+
+    //     xhr.onreadystatechange = function() {
+    //         if (xhr.readyState == XMLHttpRequest.DONE) {
+
+    //         }
+    //     }
+
+    //     return false;
+    // }
+    form.addEventListener('sumbit', (event) => {
+        event.preventDefault();
+        var formData = new FormData(form);
+        fetch(event.target.action, {
+            method: 'POST',
+            body: JSON.stringify(Object.fromEntries(formData))
+        }).then((response) => {
+            if (!response.ok) {
+                throw new Error('HTTP error');
+            }
+
+            // actual response here -->
+            return response.json();
+        }).then((body) => {
+            // TODO: handle body
+        }).catch((error) => {
+            // TODO: handle error
+        })
+    })
+</script>
