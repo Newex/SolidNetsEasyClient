@@ -1,14 +1,17 @@
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Net.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Options;
 using SolidNetsEasyClient.Clients;
 using SolidNetsEasyClient.Constants;
 using SolidNetsEasyClient.Converters;
 using SolidNetsEasyClient.DelegatingHandlers;
-using SolidNetsEasyClient.Helpers.Encryption;
+using SolidNetsEasyClient.Extensions;
+using SolidNetsEasyClient.Models.DTOs.Requests.Payments;
 using SolidNetsEasyClient.Models.Options;
+using SolidNetsEasyClient.SerializationContexts;
 
 namespace SolidNetsEasyClient.Builder;
 
@@ -22,11 +25,13 @@ public sealed class NetsConfigurationBuilder
     /// </summary>
     private readonly IServiceCollection services;
     private readonly IHttpClientBuilder httpBuilder;
+    private readonly OptionsBuilder<NetsEasyOptions> optionsBuilder;
 
-    private NetsConfigurationBuilder(IServiceCollection services, IHttpClientBuilder httpBuilder)
+    private NetsConfigurationBuilder(IServiceCollection services, IHttpClientBuilder httpBuilder, OptionsBuilder<NetsEasyOptions> optionsBuilder)
     {
         this.services = services;
         this.httpBuilder = httpBuilder;
+        this.optionsBuilder = optionsBuilder;
     }
 
     /// <summary>
@@ -35,13 +40,12 @@ public sealed class NetsConfigurationBuilder
     /// </summary>
     /// <param name="configuration">The configuration object</param>
     /// <returns>A builder object</returns>
+    [RequiresUnreferencedCode("Using member 'Microsoft.Extensions.DependencyInjection.OptionsBuilderConfigurationExtensions.Bind<TOptions>(OptionsBuilder<TOptions>, IConfiguration)' which has 'RequiresUnreferencedCodeAttribute' can break functionality when trimming application code. TOptions's dependent types may have their members trimmed. Ensure all required members are preserved.")]
+    [RequiresDynamicCode("Using member 'Microsoft.Extensions.DependencyInjection.OptionsBuilderConfigurationExtensions.Bind<TOptions>(OptionsBuilder<TOptions>, IConfiguration)' which has 'RequiresDynamicCodeAttribute' can break functionality when AOT compiling. Binding strongly typed objects to configuration values may require generating dynamic code at runtime.")]
     public NetsConfigurationBuilder ConfigureFromConfiguration(IConfiguration configuration)
     {
         var section = configuration.GetSection(NetsEasyOptions.NetsEasyConfigurationSection);
-        _ = services.Configure<NetsEasyOptions>(section);
-
-        var webhookSection = configuration.GetSection(WebhookEncryptionOptions.WebhookEncryptionConfigurationSection);
-        _ = services.Configure<WebhookEncryptionOptions>(webhookSection);
+        optionsBuilder.Bind(section);
         return this;
     }
 
@@ -52,7 +56,7 @@ public sealed class NetsConfigurationBuilder
     /// <returns>A builder object</returns>
     public NetsConfigurationBuilder ConfigureNetsEasyOptions(Action<NetsEasyOptions> options)
     {
-        _ = services.Configure(options);
+        optionsBuilder.Configure(options);
         return this;
     }
 
@@ -78,22 +82,9 @@ public sealed class NetsConfigurationBuilder
         return this;
     }
 
-    /// <summary>
-    /// Configure the webhook encryption options from a configuration file
-    /// </summary>
-    /// <param name="configuration">The configuration properties</param>
-    /// <returns>A builder object</returns>
-    public NetsConfigurationBuilder ConfigureEncryptionOptions(IConfiguration configuration)
-    {
-        var section = configuration.GetSection(WebhookEncryptionOptions.WebhookEncryptionConfigurationSection);
-        _ = services.Configure<WebhookEncryptionOptions>(section);
-        return this;
-    }
-
     internal static NetsConfigurationBuilder Create(IServiceCollection services)
     {
         // Add options
-        _ = services.Configure<WebhookEncryptionOptions>(c => c.Hasher = new HmacSHA256Hasher());
         services.ConfigureHttpJsonOptions(options =>
         {
             // Add all the converters for webhook
@@ -109,16 +100,57 @@ public sealed class NetsConfigurationBuilder
             options.SerializerOptions.Converters.Add(new ReservationCreatedV1Converter());
             options.SerializerOptions.Converters.Add(new ReservationCreatedV2Converter());
             options.SerializerOptions.Converters.Add(new ReservationFailedConverter());
+
+            options.SerializerOptions.TypeInfoResolverChain.Add(WebhookSerializationContext.Default);
+            options.SerializerOptions.TypeInfoResolverChain.Add(PaymentResultSerializationContext.Default);
         });
+        var optionsBuilder = services.AddOptions<NetsEasyOptions>().Validate(config =>
+        {
+            if (string.IsNullOrWhiteSpace(config.ApiKey))
+            {
+                return false;
+            }
+
+            // Conditions:
+            var isValid = true;
+            if (config.IntegrationType == Integration.EmbeddedCheckout)
+            {
+                // Embedded
+                // 1. CheckoutUrl
+                isValid &= !string.IsNullOrWhiteSpace(config.CheckoutUrl);
+
+                // 2. CheckoutKey
+                isValid &= !string.IsNullOrWhiteSpace(config.CheckoutKey);
+            }
+            else if (config.IntegrationType == Integration.HostedPaymentPage)
+            {
+                // Hosted
+                // 1. ReturnUrl
+                isValid &= !string.IsNullOrWhiteSpace(config.ReturnUrl);
+
+                // 2. CancelUrl
+                isValid &= !string.IsNullOrWhiteSpace(config.CancelUrl);
+            }
+
+            // Common
+            // 1. TermsUrl
+            isValid &= !string.IsNullOrWhiteSpace(config.TermsUrl);
+
+            // 2. PrivacyPolicyUrl
+            isValid &= !string.IsNullOrWhiteSpace(config.PrivacyPolicyUrl);
+
+            return isValid;
+        }, "NetsEasyOptions is not configured correctly. Either missing or misconfigured options.")
+        .ValidateOnStart();
 
         // Add factories
 
         // Add http clients
         var httpbuilder = services.AddHttpClient<NetsPaymentClient>((provider, client) =>
         {
-            var opt = provider.GetRequiredService<NetsEasyOptions>();
+            var opt = provider.GetOptions<NetsEasyOptions>()?.Value;
 
-            var baseUrl = opt.ClientMode switch
+            var baseUrl = opt?.ClientMode switch
             {
                 ClientMode.Test => NetsEndpoints.TestingBaseUri,
                 ClientMode.Live => NetsEndpoints.LiveBaseUri,
@@ -128,19 +160,10 @@ public sealed class NetsConfigurationBuilder
         }) // Pipeline
             .AddHttpMessageHandler<NetsAuthorizationHandler>();
 
-        // Add payment client
-        services.TryAddScoped<IPaymentClient, PaymentClient>();
-        services.TryAddScoped(typeof(PaymentClient));
-        services.TryAddScoped<NetsPaymentBuilder>();
+        // Add dependencies
+        services.AddScoped<NetsPaymentBuilder>();
+        services.AddScoped<NetsAuthorizationHandler>();
 
-        // Add subscription client
-        services.TryAddScoped<ISubscriptionClient, SubscriptionClient>();
-        services.TryAddScoped(typeof(SubscriptionClient));
-
-        // Add unscheduled subscription client
-        services.TryAddScoped<IUnscheduledSubscriptionClient, UnscheduledSubscriptionClient>();
-        services.TryAddScoped(typeof(UnscheduledSubscriptionClient));
-
-        return new NetsConfigurationBuilder(services, httpbuilder);
+        return new NetsConfigurationBuilder(services, httpbuilder, optionsBuilder);
     }
 }

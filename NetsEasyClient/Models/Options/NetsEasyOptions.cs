@@ -14,8 +14,7 @@ public record NetsEasyOptions
     /// <summary>
     /// The http client mode, which can be either in test mode or in live mode
     /// </summary>
-    [Required]
-    public required ClientMode ClientMode { get; set; }
+    public ClientMode ClientMode { get; set; }
 
     /// <summary>
     /// The secret API key
@@ -23,8 +22,7 @@ public record NetsEasyOptions
     /// <remarks>
     /// Do not expose this key to your end users. Only use back channels to directly communicate with nets easy api using this key.
     /// </remarks>
-    [Required]
-    public required string ApiKey { get; set; } = string.Empty;
+    public string ApiKey { get; set; } = string.Empty;
 
     /// <summary>
     /// The checkout key
@@ -85,6 +83,22 @@ public record NetsEasyOptions
     /// Each IP should be separated by a semi-colon (;)
     /// </remarks>
     public string? BlacklistIPsForWebhook { get; set; }
+
+    /// <summary>
+    /// Whitelist IPs requests sent to the webhook endpoint
+    /// </summary>
+    /// <remarks>
+    /// Each IP should be separated by a semi-colon (;)
+    /// </remarks>
+    public string? WhitelistIPsForWebhook { get; set; }
+
+    /// <summary>
+    /// If IP is in neither whitelist or blacklist, should the IP to the webhook be denied?
+    /// </summary>
+    /// <remarks>
+    /// The default value true. Denies request if found in neither white-/blacklist.
+    /// </remarks>
+    public bool DefaultDenyWebhook { get; set; } = true;
 
     /// <summary>
     /// The integration type, to be used in the checkout page.

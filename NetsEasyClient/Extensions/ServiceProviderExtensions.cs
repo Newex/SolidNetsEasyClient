@@ -28,8 +28,8 @@ public static class ServiceProviderExtensions
     /// <typeparam name="T">The option type</typeparam>
     /// <param name="services">The context services provider</param>
     /// <returns>An option of T</returns>
-    public static IOptions<T>? GetOptions<T>(IServiceProvider services)
-        where T : class
+    public static IOptions<T>? GetOptions<T>(this IServiceProvider services)
+        where T : class, new()
     {
         return services.GetService(typeof(IOptions<T>)) as IOptions<T>;
     }

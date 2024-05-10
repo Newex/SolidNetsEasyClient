@@ -21,9 +21,10 @@ builder.Services.AddHealthChecks();
 builder.Services.AddControllersWithViews();
 
 // Nets Easy
-builder.Services.AddNetsEasyEmbeddedCheckout(checkoutUrl: "https://localhost/checkout",
-                                             termsUrl: "https://localhost/terms",
-                                             privacyPolicyUrl: "https://localhost/privacy");
+builder.Services.AddNetsEasy(options =>
+{
+
+});
 
 var app = builder.Build();
 

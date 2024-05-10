@@ -1,6 +1,10 @@
+using System;
 using System.Text.Json;
+using SolidNetsEasyClient.Converters;
 using SolidNetsEasyClient.Models.DTOs;
 using SolidNetsEasyClient.Models.DTOs.Requests.Orders;
+using SolidNetsEasyClient.Models.DTOs.Responses.Payments;
+using SolidNetsEasyClient.SerializationContexts;
 
 namespace SolidNetsEasyClient.Tests.SerializationTests;
 
@@ -58,5 +62,27 @@ public class PaymentSerializationTests
 
         // Assert
         Assert.Equal(800, order!.Amount);
+    }
+
+    [Fact]
+    public void PaymentResult_deserialization()
+    {
+        // Arrange
+        var responseJson = """
+        {
+            "paymentId": "458a4e068f454f768a40b9e576914820",
+        }
+        """;
+        var options = new JsonSerializerOptions();
+        options.Converters.Add(new GuidTypeConverter());
+
+        // Act
+        var result = JsonSerializer.Deserialize(responseJson, PaymentResultSerializationContext.Default.PaymentResult);
+
+        // Assert
+        result.Should().NotBeNull().And.BeEquivalentTo(new PaymentResult
+        {
+            PaymentId = new Guid("458a4e068f454f768a40b9e576914820")
+        });
     }
 }
