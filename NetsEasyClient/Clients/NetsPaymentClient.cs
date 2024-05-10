@@ -45,6 +45,7 @@ public sealed class NetsPaymentClient(
     /// <param name="paymentRequest">The payment request</param>
     /// <param name="cancellationToken">The cancellation token</param>
     /// <returns>The payment result</returns>
+    /// <exception cref="InvalidOperationException">Thrown if invalid payment request.</exception>
     public async ValueTask<PaymentResult?> StartCheckoutPayment(PaymentRequest paymentRequest, CancellationToken cancellationToken = default)
     {
         // Validate the payment request
@@ -56,6 +57,8 @@ public sealed class NetsPaymentClient(
 
         cancellationToken.ThrowIfCancellationRequested();
         var result = await client.PostAsJsonAsync(NetsEndpoints.Relative.Payment, paymentRequest, PaymentRequestSerializationContext.Default.PaymentRequest, cancellationToken);
+
+        // Documentation says, it returns 201.
         if (result.IsSuccessStatusCode)
         {
             var response = await result.Content.ReadFromJsonAsync(PaymentResultSerializationContext.Default.PaymentResult, cancellationToken);
