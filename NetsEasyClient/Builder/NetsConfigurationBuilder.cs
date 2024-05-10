@@ -102,6 +102,7 @@ public sealed class NetsConfigurationBuilder
             options.SerializerOptions.Converters.Add(new ReservationFailedConverter());
 
             options.SerializerOptions.TypeInfoResolverChain.Add(WebhookSerializationContext.Default);
+            options.SerializerOptions.TypeInfoResolverChain.Add(PaymentResultSerializationContext.Default);
         });
         var optionsBuilder = services.AddOptions<NetsEasyOptions>().Validate(config =>
         {
