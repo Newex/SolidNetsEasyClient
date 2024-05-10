@@ -79,6 +79,40 @@ public sealed class NetsPaymentClient(
     }
 
     /// <summary>
+    /// Retrieve payment details for a payment.
+    /// </summary>
+    /// <param name="paymentId">The payment id</param>
+    /// <param name="cancellationToken">The optional cancellation token</param>
+    /// <returns>Payment detail or null</returns>
+    public async ValueTask<Payment?> RetrievePaymentDetails(Guid paymentId, CancellationToken cancellationToken = default)
+    {
+        if (paymentId == Guid.Empty)
+        {
+            return null;
+        }
+
+        cancellationToken.ThrowIfCancellationRequested();
+        var url = NetsEndpoints.Relative.Payment + "/" + paymentId.ToString("N");
+        var response = await client.GetAsync(url, cancellationToken);
+
+        if (response.IsSuccessStatusCode)
+        {
+            var result = await response.Content.ReadFromJsonAsync(PaymentSerializationContext.Default.Payment, cancellationToken);
+            if (result is null)
+            {
+                logger.LogUnexpectedResponse(await response.Content.ReadAsStringAsync(cancellationToken));
+                return null;
+            }
+
+            logger.LogInfoPaymentDetails(paymentId, result);
+            return result;
+        }
+
+        logger.LogUnexpectedResponse(await response.Content.ReadAsStringAsync(cancellationToken));
+        return null;
+    }
+
+    /// <summary>
     /// Relinquishes the internal http client back to the pool.
     /// </summary>
     public void Dispose()

@@ -1,3 +1,4 @@
+using System;
 using Microsoft.Extensions.Logging;
 using SolidNetsEasyClient.Models.DTOs.Requests.Payments;
 using SolidNetsEasyClient.Models.DTOs.Responses.Payments;
@@ -13,9 +14,9 @@ internal static partial class NetsPaymentClientLogging
     public static partial void LogPaymentRequestSuccess(this ILogger logger, PaymentRequest request, PaymentResult response);
 
     [LoggerMessage(
-        EventId = LogEventIDs.Errors.Error,
+        EventId = LogEventIDs.Errors.Invalid,
         Level = LogLevel.Error,
-        Message = "Could not deserialize success response: {Response}"
+        Message = "Unexpected response: {Response}"
     )
     ]
     public static partial void LogUnexpectedResponse(this ILogger logger, string response);
@@ -27,4 +28,12 @@ internal static partial class NetsPaymentClientLogging
     )
     ]
     public static partial void LogPaymentRequestError(this ILogger logger, PaymentRequest request, string response);
+
+    [LoggerMessage(
+        EventId = LogEventIDs.Success.Correct,
+        Level = LogLevel.Information,
+        Message = "Got response for {PaymentId} with {PaymentDetails}."
+    )
+    ]
+    public static partial void LogInfoPaymentDetails(this ILogger logger, Guid paymentId, Payment paymentDetails);
 }
