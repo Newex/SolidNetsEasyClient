@@ -86,6 +86,7 @@ public sealed class NetsPaymentBuilder(
     /// <remarks>
     /// Recommended to add webhooks to each payment request.
     /// NETS will then call the endpoint.
+    /// Use <see cref="Extensions.RouteExtensions.MapNetsWebhook(Microsoft.AspNetCore.Builder.WebApplication, string, Delegate)"/>.
     /// </remarks>
     /// <param name="webHookUrl">The callback url. Must be https.</param>
     /// <param name="notification">The event to subscribe to.</param>
