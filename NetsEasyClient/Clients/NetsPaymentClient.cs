@@ -1,6 +1,7 @@
 using System;
 using System.Net.Http;
 using System.Net.Http.Json;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
@@ -26,17 +27,16 @@ namespace SolidNetsEasyClient.Clients;
 public sealed class NetsPaymentClient(
     HttpClient client,
     IOptions<NetsEasyOptions> options,
-    ILogger<NetsPaymentClient>? logger
+    ILogger<NetsPaymentClient>? logger = null
 ) : IDisposable
 {
     private readonly HttpClient client = client;
     private readonly ILogger<NetsPaymentClient> logger = logger ?? NullLogger<NetsPaymentClient>.Instance;
-    private readonly NetsEasyOptions options = options.Value;
 
     /// <summary>
     /// The checkout key
     /// </summary>
-    public string? CheckoutKey => options.CheckoutKey;
+    public string? CheckoutKey => options.Value.CheckoutKey;
 
     /// <summary>
     /// Send the payment request to NETS to initiate a checkout process.
@@ -84,7 +84,7 @@ public sealed class NetsPaymentClient(
     /// <param name="paymentId">The payment id</param>
     /// <param name="cancellationToken">The optional cancellation token</param>
     /// <returns>Payment detail or null</returns>
-    public async ValueTask<Payment?> RetrievePaymentDetails(Guid paymentId, CancellationToken cancellationToken = default)
+    public async ValueTask<PaymentStatus?> RetrievePaymentDetails(Guid paymentId, CancellationToken cancellationToken = default)
     {
         if (paymentId == Guid.Empty)
         {
@@ -95,9 +95,10 @@ public sealed class NetsPaymentClient(
         var url = NetsEndpoints.Relative.Payment + "/" + paymentId.ToString("N");
         var response = await client.GetAsync(url, cancellationToken);
 
+        var body = await response.Content.ReadAsStringAsync(cancellationToken);
         if (response.IsSuccessStatusCode)
         {
-            var result = await response.Content.ReadFromJsonAsync(PaymentSerializationContext.Default.Payment, cancellationToken);
+            var result = JsonSerializer.Deserialize(body, PaymentSerializationContext.Default.PaymentStatus);
             if (result is null)
             {
                 logger.LogUnexpectedResponse(await response.Content.ReadAsStringAsync(cancellationToken));

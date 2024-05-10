@@ -32,8 +32,8 @@ internal static partial class NetsPaymentClientLogging
     [LoggerMessage(
         EventId = LogEventIDs.Success.Correct,
         Level = LogLevel.Information,
-        Message = "Got response for {PaymentId} with {PaymentDetails}."
+        Message = "Got response for {PaymentId} with {PaymentStatus}."
     )
     ]
-    public static partial void LogInfoPaymentDetails(this ILogger logger, Guid paymentId, Payment paymentDetails);
+    public static partial void LogInfoPaymentDetails(this ILogger logger, Guid paymentId, PaymentStatus paymentStatus);
 }

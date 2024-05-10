@@ -18,7 +18,7 @@ namespace SolidNetsEasyClient.SerializationContexts;
     typeof(InvoiceDateConverter),
     typeof(MonthOnlyConverter),
 ])]
-[JsonSerializable(typeof(Payment))]
+[JsonSerializable(typeof(PaymentStatus))]
 public partial class PaymentSerializationContext : JsonSerializerContext
 {
 }
