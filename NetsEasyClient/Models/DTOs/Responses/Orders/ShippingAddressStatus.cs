@@ -14,4 +14,11 @@ public record ShippingAddressStatus : ShippingAddress
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("receiverLine")]
     public string? ReceiverLine { get; init; }
+
+    /// <summary>
+    /// The phone number
+    /// </summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    [JsonPropertyName("phoneNumber")]
+    public PhoneNumber? PhoneNumber { get; init; }
 }
