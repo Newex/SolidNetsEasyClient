@@ -9,6 +9,7 @@ using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 using SolidNetsEasyClient.Constants;
 using SolidNetsEasyClient.Logging.PaymentClientLogging;
+using SolidNetsEasyClient.Models.DTOs.Requests.Orders;
 using SolidNetsEasyClient.Models.DTOs.Requests.Payments;
 using SolidNetsEasyClient.Models.DTOs.Responses.Payments;
 using SolidNetsEasyClient.Models.Options;
@@ -111,6 +112,36 @@ public sealed class NetsPaymentClient(
 
         logger.LogUnexpectedResponse(await response.Content.ReadAsStringAsync(cancellationToken));
         return null;
+    }
+
+    /// <summary>
+    /// Update order, before final payment. Updates the order for the specified
+    /// payment. This endpoint makes it possible to change the order on the
+    /// checkout page after the payment object has been created. This is
+    /// typically used when managing destination-based shipping costs at the
+    /// checkout. This endpoint can only be used as long as the checkout has not
+    /// yet been completed by the customer. (See the payment.checkout.completed
+    /// event.)
+    /// </summary>
+    /// <param name="paymentId">The payment id</param>
+    /// <param name="update">The order updates</param>
+    /// <param name="cancellationToken">The cancellation token</param>
+    /// <returns>True if updated otherwise false</returns>
+    public async ValueTask<bool> UpdateOrderBeforePayment(Guid paymentId,
+                                                          OrderUpdate update,
+                                                          CancellationToken cancellationToken = default)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        var url = NetsEndpoints.Relative.Payment + "/" + paymentId.ToString("N") + "/orderItems";
+        var response = await client.PutAsJsonAsync(url, update, OrderUpdateSerializationContext.Default.OrderUpdate, cancellationToken);
+        if (response.IsSuccessStatusCode)
+        {
+            logger.LogInfoOrderUpdated(paymentId, update);
+            return true;
+        }
+
+        logger.LogErrorOrderUpdate(paymentId, update, await response.Content.ReadAsStringAsync(cancellationToken));
+        return false;
     }
 
     /// <summary>

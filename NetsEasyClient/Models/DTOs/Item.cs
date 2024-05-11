@@ -97,6 +97,7 @@ public record Item
     /// between 100 pixels and 1280 pixels. Supported formats: gif, jpeg(jpg),
     /// png, webp.
     /// </summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("imageUrl")]
     public string? ImageUrl { get; init; }
 }

@@ -1,5 +1,6 @@
 using System;
 using Microsoft.Extensions.Logging;
+using SolidNetsEasyClient.Models.DTOs.Requests.Orders;
 using SolidNetsEasyClient.Models.DTOs.Requests.Payments;
 using SolidNetsEasyClient.Models.DTOs.Responses.Payments;
 
@@ -36,4 +37,20 @@ internal static partial class NetsPaymentClientLogging
     )
     ]
     public static partial void LogInfoPaymentDetails(this ILogger logger, Guid paymentId, PaymentStatus paymentStatus);
+
+    [LoggerMessage(
+        EventId = LogEventIDs.Success.Correct,
+        Level = LogLevel.Information,
+        Message = "Updated {PaymentId} with order {OrderUpdates}."
+    )
+    ]
+    public static partial void LogInfoOrderUpdated(this ILogger logger, Guid paymentId, OrderUpdate orderUpdates);
+
+    [LoggerMessage(
+        EventId = LogEventIDs.Errors.Error,
+        Level = LogLevel.Error,
+        Message = "Could not update {PaymentId} with {OrderUpdates}. Response reason: {Response}"
+    )
+    ]
+    public static partial void LogErrorOrderUpdate(this ILogger logger, Guid paymentId, OrderUpdate orderUpdates, string response);
 }
