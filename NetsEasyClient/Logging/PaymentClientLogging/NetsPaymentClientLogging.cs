@@ -173,4 +173,20 @@ internal static partial class NetsPaymentClientLogging
     )
     ]
     public static partial void LogErrorRetrieveRefund(this ILogger logger, Guid refundId, int statusCode, string response);
+
+    [LoggerMessage(
+        EventId = LogEventIDs.Errors.Error,
+        Level = LogLevel.Error,
+        Message = "Could not cancel pending refund {RefundId}. Got response: {Response}"
+    )
+    ]
+    public static partial void LogErrorCancelPendingRefund(this ILogger logger, Guid refundId, string response);
+
+    [LoggerMessage(
+        EventId = LogEventIDs.Success.Correct,
+        Level = LogLevel.Information,
+        Message = "Canceled pending refund: {RefundId}"
+    )
+    ]
+    public static partial void LogInfoCanceledPendingRefund(this ILogger logger, Guid refundId);
 }

@@ -157,4 +157,31 @@ public sealed partial class NetsPaymentClient : IChargeClient
         logger.LogErrorRetrieveRefund(refundId, (int)response.StatusCode, body);
         return null;
     }
+
+    /// <summary>
+    /// Cancels a pending refund. A refund can be in a pending state when there 
+    /// are not enough funds in the merchant's account to make the refund. 
+    /// The refundId is returned when creating a new refund.
+    /// </summary>
+    /// <param name="refundId">The refund id</param>
+    /// <param name="cancellationToken">The cancellation token</param>
+    /// <returns>True if refund has been canceled, otherwise false</returns>
+    public async ValueTask<bool> CancelPendingRefund(Guid refundId, CancellationToken cancellationToken = default)
+    {
+        if (refundId == Guid.Empty)
+        {
+            return false;
+        }
+
+        var url = NetsEndpoints.Relative.PendingRefunds + "/" + refundId.ToString("N") + "/cancel";
+        var response = await client.PostAsync(url, null, cancellationToken);
+        if (response.IsSuccessStatusCode)
+        {
+            logger.LogInfoCanceledPendingRefund(refundId);
+            return true;
+        }
+
+        logger.LogErrorCancelPendingRefund(refundId, await response.Content.ReadAsStringAsync(cancellationToken));
+        return false;
+    }
 }
