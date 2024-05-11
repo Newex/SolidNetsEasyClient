@@ -1,9 +1,9 @@
 using System;
-using System.Net.Http.Json;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using SolidNetsEasyClient.Constants;
+using SolidNetsEasyClient.Extensions;
 using SolidNetsEasyClient.Logging.PaymentClientLogging;
 using SolidNetsEasyClient.Models.DTOs.Requests.Orders;
 using SolidNetsEasyClient.Models.DTOs.Requests.Payments;
@@ -17,14 +17,15 @@ public sealed partial class NetsPaymentClient : IChargeClient
     /// <inheritdoc />
     public async ValueTask<ChargeResult?> ChargePayment(Guid paymentId, Charge charge, string? idempotencyKey = null, CancellationToken cancellationToken = default)
     {
-        var isValid = paymentId != Guid.Empty && charge.Amount > 0;
+        var isValid = paymentId != Guid.Empty
+                      && charge.Amount > 0;
         if (!isValid)
         {
             return null;
         }
 
         var url = NetsEndpoints.Relative.Payment + "/" + paymentId.ToString("N") + "/charges";
-        var response = await client.PostAsJsonAsync(url, charge, ChargeSerializationContext.Default.Charge, cancellationToken);
+        var response = await client.PostAsJsonWithHeadersAsync(url, charge, ChargeSerializationContext.Default.Charge, ("Idempotency-Key", idempotencyKey), cancellationToken);
         var body = await response.Content.ReadAsStringAsync(cancellationToken);
         if (response.IsSuccessStatusCode)
         {
@@ -73,7 +74,7 @@ public sealed partial class NetsPaymentClient : IChargeClient
     }
 
     /// <inheritdoc />
-    public async ValueTask<RefundResult?> RefundCharge(Guid chargeId, CancelOrder charge, string idempotencyKey, CancellationToken cancellationToken = default)
+    public async ValueTask<RefundResult?> RefundCharge(Guid chargeId, CancelOrder charge, string? idempotencyKey = null, CancellationToken cancellationToken = default)
     {
         if (chargeId == Guid.Empty && charge.Amount == 0)
         {
@@ -81,7 +82,7 @@ public sealed partial class NetsPaymentClient : IChargeClient
         }
 
         var url = NetsEndpoints.Relative.Charge + "/" + chargeId.ToString("N") + "/refunds";
-        var response = await client.PostAsJsonAsync(url, charge, CancelOrderSerializationContext.Default.CancelOrder, cancellationToken);
+        var response = await client.PostAsJsonWithHeadersAsync(url, charge, CancelOrderSerializationContext.Default.CancelOrder, ("Idempotency-Key", idempotencyKey), cancellationToken);
         var body = await response.Content.ReadAsStringAsync(cancellationToken);
         if (response.IsSuccessStatusCode)
         {

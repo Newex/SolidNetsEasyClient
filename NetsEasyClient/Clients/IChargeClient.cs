@@ -61,5 +61,5 @@ public interface IChargeClient : IDisposable
     /// between 1 and 64 characters.</param>
     /// <param name="cancellationToken">The cancellation token</param>
     /// <returns>A refund result</returns>
-    ValueTask<RefundResult?> RefundCharge(Guid chargeId, CancelOrder charge, string idempotencyKey, CancellationToken cancellationToken = default);
+    ValueTask<RefundResult?> RefundCharge(Guid chargeId, CancelOrder charge, string? idempotencyKey = null, CancellationToken cancellationToken = default);
 }
