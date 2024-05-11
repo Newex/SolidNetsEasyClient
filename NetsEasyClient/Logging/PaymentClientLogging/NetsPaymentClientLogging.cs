@@ -69,4 +69,20 @@ internal static partial class NetsPaymentClientLogging
     )
     ]
     public static partial void LogErrorReferenceInformation(this ILogger logger, Guid paymentId, ReferenceInformation references, string response);
+
+    [LoggerMessage(
+        EventId = LogEventIDs.Success.Correct,
+        Level = LogLevel.Information,
+        Message = "Payment {PaymentId} terminated before checkout completed."
+    )
+    ]
+    public static partial void LogInfoTerminatePayment(this ILogger logger, Guid paymentId);
+
+    [LoggerMessage(
+        EventId = LogEventIDs.Errors.Error,
+        Level = LogLevel.Error,
+        Message = "Could not terminate {PaymentId} due to {Response}."
+    )
+    ]
+    public static partial void LogErrorTerminatePayment(this ILogger logger, Guid paymentId, string response);
 }

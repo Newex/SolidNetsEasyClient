@@ -178,6 +178,36 @@ public sealed class NetsPaymentClient(
     }
 
     /// <summary>
+    /// Terminate payment before checkout is completed.
+    /// Terminates an ongoing checkout session. A payment can only be terminated
+    /// before the checkout has completed (see the payment.checkout event). Use
+    /// this method to prevent a customer from having multiple open payment
+    /// sessions simultaneously.
+    /// </summary>
+    /// <param name="paymentId">The payment id</param>
+    /// <param name="cancellationToken">The cancellation token</param>
+    /// <returns>True if payment has been terminated otherwise false</returns>
+    public async ValueTask<bool> TerminatePaymentBeforePayment(Guid paymentId, CancellationToken cancellationToken = default)
+    {
+        if (paymentId == Guid.Empty)
+        {
+            return false;
+        }
+
+        cancellationToken.ThrowIfCancellationRequested();
+        var url = NetsEndpoints.Relative.Payment + "/" + paymentId.ToString("N") + "/terminate";
+        var response = await client.PutAsync(url, null, cancellationToken);
+        if (response.IsSuccessStatusCode)
+        {
+            logger.LogInfoTerminatePayment(paymentId);
+            return true;
+        }
+
+        logger.LogErrorTerminatePayment(paymentId, await response.Content.ReadAsStringAsync(cancellationToken));
+        return false;
+    }
+
+    /// <summary>
     /// Relinquishes the internal http client back to the pool.
     /// </summary>
     public void Dispose()
