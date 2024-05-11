@@ -117,13 +117,13 @@ public sealed class NetsPaymentClient(
     /// <summary>
     /// Updates the specified payment object with a new reference string and a
     /// checkoutUrl. If you instead want to update the order of a payment
-    /// object, use the <see cref="UpdateOrderBeforePayment(Guid, OrderUpdate, CancellationToken)"/>
+    /// object, use the <see cref="UpdateOrderBeforeCheckout(Guid, OrderUpdate, CancellationToken)"/>
     /// </summary>
     /// <param name="paymentId">The payment id</param>
     /// <param name="references">The new updated reference information</param>
     /// <param name="cancellationToken">The cancellation token</param>
     /// <returns>True if updated references otherwise false</returns>
-    public async ValueTask<bool> UpdateReferenceInformationBeforePayment(Guid paymentId, ReferenceInformation references, CancellationToken cancellationToken = default)
+    public async ValueTask<bool> UpdateReferenceInformationBeforeCheckout(Guid paymentId, ReferenceInformation references, CancellationToken cancellationToken = default)
     {
         if (paymentId == Guid.Empty)
         {
@@ -160,7 +160,7 @@ public sealed class NetsPaymentClient(
     /// <param name="update">The order updates</param>
     /// <param name="cancellationToken">The cancellation token</param>
     /// <returns>True if updated otherwise false</returns>
-    public async ValueTask<bool> UpdateOrderBeforePayment(Guid paymentId,
+    public async ValueTask<bool> UpdateOrderBeforeCheckout(Guid paymentId,
                                                           OrderUpdate update,
                                                           CancellationToken cancellationToken = default)
     {
@@ -187,7 +187,7 @@ public sealed class NetsPaymentClient(
     /// <param name="paymentId">The payment id</param>
     /// <param name="cancellationToken">The cancellation token</param>
     /// <returns>True if payment has been terminated otherwise false</returns>
-    public async ValueTask<bool> TerminatePaymentBeforePayment(Guid paymentId, CancellationToken cancellationToken = default)
+    public async ValueTask<bool> TerminatePaymentBeforeCheckout(Guid paymentId, CancellationToken cancellationToken = default)
     {
         if (paymentId == Guid.Empty)
         {
