@@ -53,4 +53,20 @@ internal static partial class NetsPaymentClientLogging
     )
     ]
     public static partial void LogErrorOrderUpdate(this ILogger logger, Guid paymentId, OrderUpdate orderUpdates, string response);
+
+    [LoggerMessage(
+        EventId = LogEventIDs.Success.Correct,
+        Level = LogLevel.Information,
+        Message = "Updated {PaymentId} with new references, {ReferenceInformation}."
+    )
+    ]
+    public static partial void LogInfoReferenceInformation(this ILogger logger, Guid paymentId, ReferenceInformation referenceInformation);
+
+    [LoggerMessage(
+        EventId = LogEventIDs.Errors.Error,
+        Level = LogLevel.Error,
+        Message = "Could not update {PaymentId} with {References}. Response reason: {Response}"
+    )
+    ]
+    public static partial void LogErrorReferenceInformation(this ILogger logger, Guid paymentId, ReferenceInformation references, string response);
 }

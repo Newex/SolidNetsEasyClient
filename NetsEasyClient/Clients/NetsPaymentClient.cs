@@ -115,6 +115,39 @@ public sealed class NetsPaymentClient(
     }
 
     /// <summary>
+    /// Updates the specified payment object with a new reference string and a
+    /// checkoutUrl. If you instead want to update the order of a payment
+    /// object, use the <see cref="UpdateOrderBeforePayment(Guid, OrderUpdate, CancellationToken)"/>
+    /// </summary>
+    /// <param name="paymentId">The payment id</param>
+    /// <param name="references">The new updated reference information</param>
+    /// <param name="cancellationToken">The cancellation token</param>
+    /// <returns>True if updated references otherwise false</returns>
+    public async ValueTask<bool> UpdateReferenceInformationBeforePayment(Guid paymentId, ReferenceInformation references, CancellationToken cancellationToken = default)
+    {
+        if (paymentId == Guid.Empty)
+        {
+            return false;
+        }
+
+        cancellationToken.ThrowIfCancellationRequested();
+        var url = NetsEndpoints.Relative.Payment + "/" + paymentId.ToString("N") + "/referenceinformation";
+        var response = await client.PutAsJsonAsync(url,
+                                                   references,
+                                                   ReferenceInformationSerializationContext.Default.ReferenceInformation,
+                                                   cancellationToken);
+        if (response.IsSuccessStatusCode)
+        {
+            logger.LogInfoReferenceInformation(paymentId, references);
+            return true;
+        }
+
+        var body = await response.Content.ReadAsStringAsync(cancellationToken);
+        logger.LogErrorReferenceInformation(paymentId, references, body);
+        return false;
+    }
+
+    /// <summary>
     /// Update order, before final payment. Updates the order for the specified
     /// payment. This endpoint makes it possible to change the order on the
     /// checkout page after the payment object has been created. This is
