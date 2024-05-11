@@ -1,6 +1,7 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using SolidNetsEasyClient.Models.DTOs.Requests.Orders;
 using SolidNetsEasyClient.Models.DTOs.Requests.Payments;
 using SolidNetsEasyClient.Models.DTOs.Responses.Payments;
 
@@ -44,4 +45,21 @@ public interface IChargeClient : IDisposable
     /// <param name="cancellationToken">The cancellation token</param>
     /// <returns>Details about a charge or null</returns>
     ValueTask<ChargeDetailsInfo?> RetrieveCharge(Guid chargeId, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Refunds a previously settled transaction (a charged payment). The 
+    /// refunded amount will be transferred back to the customer's account. The 
+    /// required chargeId is returned from the Charge payment method. 
+    /// A settled transaction can be fully or partially refunded: 
+    /// Full refund requires only the amount to be specified in the request body. 
+    /// Partial refund requires the amount and the orderItems to be refunded.
+    /// </summary>
+    /// <param name="chargeId">The charge id</param>
+    /// <param name="charge">The charge to refund</param>
+    /// <param name="idempotencyKey">To ensure you only call the charge once. A 
+    /// string that uniquely identifies the charge you are attempting. Must be 
+    /// between 1 and 64 characters.</param>
+    /// <param name="cancellationToken">The cancellation token</param>
+    /// <returns>A refund result</returns>
+    ValueTask<RefundResult?> RefundCharge(Guid chargeId, CancelOrder charge, string idempotencyKey, CancellationToken cancellationToken = default);
 }

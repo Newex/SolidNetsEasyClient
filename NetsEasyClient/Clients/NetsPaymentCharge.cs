@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using SolidNetsEasyClient.Constants;
 using SolidNetsEasyClient.Logging.PaymentClientLogging;
+using SolidNetsEasyClient.Models.DTOs.Requests.Orders;
 using SolidNetsEasyClient.Models.DTOs.Requests.Payments;
 using SolidNetsEasyClient.Models.DTOs.Responses.Payments;
 using SolidNetsEasyClient.SerializationContexts;
@@ -68,6 +69,34 @@ public sealed partial class NetsPaymentClient : IChargeClient
         }
 
         logger.LogErrorChargeRetrieval(chargeId, body);
+        return null;
+    }
+
+    /// <inheritdoc />
+    public async ValueTask<RefundResult?> RefundCharge(Guid chargeId, CancelOrder charge, string idempotencyKey, CancellationToken cancellationToken = default)
+    {
+        if (chargeId == Guid.Empty && charge.Amount == 0)
+        {
+            return null;
+        }
+
+        var url = NetsEndpoints.Relative.Charge + "/" + chargeId.ToString("N") + "/refunds";
+        var response = await client.PostAsJsonAsync(url, charge, CancelOrderSerializationContext.Default.CancelOrder, cancellationToken);
+        var body = await response.Content.ReadAsStringAsync(cancellationToken);
+        if (response.IsSuccessStatusCode)
+        {
+            var result = JsonSerializer.Deserialize(body, RefundSerializationContext.Default.RefundResult);
+            if (result is not null)
+            {
+                logger.LogInfoRefundResult(chargeId, charge, result);
+                return result;
+            }
+
+            logger.LogUnexpectedResponse(body);
+            return null;
+        }
+
+        logger.LogErrorRefundCharge(chargeId, charge, body);
         return null;
     }
 }
