@@ -25,28 +25,19 @@ namespace SolidNetsEasyClient.Clients;
 /// <![CDATA[ NETS Easy Payment API (2024): https://developer.nexigroup.com/nexi-checkout/en-EU/api/payment-v1/ ]]> <br />
 /// <![CDATA[ Do not use this in a singleton class. See https://learn.microsoft.com/en-us/dotnet/core/extensions/httpclient-factory#avoid-typed-clients-in-singleton-services ]]>
 /// </remarks>
-public sealed class NetsPaymentClient(
+public sealed partial class NetsPaymentClient(
     HttpClient client,
     IOptions<NetsEasyOptions> options,
     ILogger<NetsPaymentClient>? logger = null
-) : IDisposable
+) : IDisposable, ICheckoutClient
 {
     private readonly HttpClient client = client;
     private readonly ILogger<NetsPaymentClient> logger = logger ?? NullLogger<NetsPaymentClient>.Instance;
 
-    /// <summary>
-    /// The checkout key
-    /// </summary>
+    /// <inheritdoc />
     public string? CheckoutKey => options.Value.CheckoutKey;
 
-    /// <summary>
-    /// Send the payment request to NETS to initiate a checkout process.
-    /// This should be called before showing the payment page, since the response info should be used on the payment page.
-    /// </summary>
-    /// <param name="paymentRequest">The payment request</param>
-    /// <param name="cancellationToken">The cancellation token</param>
-    /// <returns>The payment result</returns>
-    /// <exception cref="InvalidOperationException">Thrown if invalid payment request.</exception>
+    /// <inheritdoc />
     public async ValueTask<PaymentResult?> StartCheckoutPayment(PaymentRequest paymentRequest, CancellationToken cancellationToken = default)
     {
         // Validate the payment request
@@ -79,12 +70,7 @@ public sealed class NetsPaymentClient(
         return null;
     }
 
-    /// <summary>
-    /// Retrieve payment details for a payment.
-    /// </summary>
-    /// <param name="paymentId">The payment id</param>
-    /// <param name="cancellationToken">The optional cancellation token</param>
-    /// <returns>Payment detail or null</returns>
+    /// <inheritdoc />
     public async ValueTask<PaymentStatus?> RetrievePaymentDetails(Guid paymentId, CancellationToken cancellationToken = default)
     {
         if (paymentId == Guid.Empty)
@@ -114,15 +100,7 @@ public sealed class NetsPaymentClient(
         return null;
     }
 
-    /// <summary>
-    /// Updates the specified payment object with a new reference string and a
-    /// checkoutUrl. If you instead want to update the order of a payment
-    /// object, use the <see cref="UpdateOrderBeforeCheckout(Guid, OrderUpdate, CancellationToken)"/>
-    /// </summary>
-    /// <param name="paymentId">The payment id</param>
-    /// <param name="references">The new updated reference information</param>
-    /// <param name="cancellationToken">The cancellation token</param>
-    /// <returns>True if updated references otherwise false</returns>
+    /// <inheritdoc />
     public async ValueTask<bool> UpdateReferenceInformationBeforeCheckout(Guid paymentId, ReferenceInformation references, CancellationToken cancellationToken = default)
     {
         if (paymentId == Guid.Empty)
@@ -147,19 +125,7 @@ public sealed class NetsPaymentClient(
         return false;
     }
 
-    /// <summary>
-    /// Update order, before final payment. Updates the order for the specified
-    /// payment. This endpoint makes it possible to change the order on the
-    /// checkout page after the payment object has been created. This is
-    /// typically used when managing destination-based shipping costs at the
-    /// checkout. This endpoint can only be used as long as the checkout has not
-    /// yet been completed by the customer. (See the payment.checkout.completed
-    /// event.)
-    /// </summary>
-    /// <param name="paymentId">The payment id</param>
-    /// <param name="update">The order updates</param>
-    /// <param name="cancellationToken">The cancellation token</param>
-    /// <returns>True if updated otherwise false</returns>
+    /// <inheritdoc />
     public async ValueTask<bool> UpdateOrderBeforeCheckout(Guid paymentId,
                                                           OrderUpdate update,
                                                           CancellationToken cancellationToken = default)
@@ -177,16 +143,7 @@ public sealed class NetsPaymentClient(
         return false;
     }
 
-    /// <summary>
-    /// Terminate payment before checkout is completed.
-    /// Terminates an ongoing checkout session. A payment can only be terminated
-    /// before the checkout has completed (see the payment.checkout event). Use
-    /// this method to prevent a customer from having multiple open payment
-    /// sessions simultaneously.
-    /// </summary>
-    /// <param name="paymentId">The payment id</param>
-    /// <param name="cancellationToken">The cancellation token</param>
-    /// <returns>True if payment has been terminated otherwise false</returns>
+    /// <inheritdoc />
     public async ValueTask<bool> TerminatePaymentBeforeCheckout(Guid paymentId, CancellationToken cancellationToken = default)
     {
         if (paymentId == Guid.Empty)
@@ -207,23 +164,7 @@ public sealed class NetsPaymentClient(
         return false;
     }
 
-    /// <summary>
-    /// Cancels the specified payment. When a payment is canceled, the reserved
-    /// amount of the payment will be released to the customer's payment card.
-    /// </summary>
-    /// <remarks>
-    /// Only full cancels are allowed. The amount must always match the total
-    /// amount of the order.
-    /// Once a payment has been charged (fully or partially), the payment cannot
-    /// be canceled.
-    /// It is not possible to change the status of a payment once it has been
-    /// canceled.
-    /// Nexi Group will not charge a fee for a canceled payment.
-    /// </remarks>
-    /// <param name="paymentId">The payment id</param>
-    /// <param name="order">The order cancellation</param>
-    /// <param name="cancellationToken">The cancellation token</param>
-    /// <returns>True if order has been canceled otherwise false</returns>
+    /// <inheritdoc />
     public async ValueTask<bool> CancelPaymentBeforeCharge(Guid paymentId,
                                                            CancelOrder order,
                                                            CancellationToken cancellationToken = default)

@@ -47,7 +47,7 @@ if (app.Environment.IsDevelopment())
 
 app.MapFallbackToFile("index.html");
 
-app.MapPost("/checkout", async (NetsPaymentBuilder builder, NetsPaymentClient client, Product product, CancellationToken cancellationToken) =>
+app.MapPost("/checkout", async (NetsPaymentBuilder builder, ICheckoutClient client, Product product, CancellationToken cancellationToken) =>
 {
     var order = new Order
     {
@@ -78,7 +78,7 @@ app.MapPost("/checkout", async (NetsPaymentBuilder builder, NetsPaymentClient cl
     });
 });
 
-app.MapNetsWebhook("/nets/webhook", (HttpContext context, NetsPaymentClient client, IWebhook<WebhookData> payload) =>
+app.MapNetsWebhook("/nets/webhook", (HttpContext context, IWebhook<WebhookData> payload) =>
 {
     var authHeader = context.Request.Headers.Authorization;
     if (string.IsNullOrEmpty(authHeader))

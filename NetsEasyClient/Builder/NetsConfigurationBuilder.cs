@@ -135,8 +135,8 @@ public sealed class NetsConfigurationBuilder
 
         // Add factories
 
-        // Add http clients
-        var httpbuilder = services.AddHttpClient<NetsPaymentClient>((provider, client) =>
+        // Http configuration
+        static void HttpConfiguration(IServiceProvider provider, HttpClient client)
         {
             var opt = provider.GetOptions<NetsEasyOptions>()?.Value;
 
@@ -147,7 +147,11 @@ public sealed class NetsConfigurationBuilder
                 _ => throw new InvalidOperationException("Mode not supported")
             };
             client.BaseAddress = baseUrl;
-        }) // Pipeline
+        }
+
+        // Add http clients
+        var httpbuilder = services.AddHttpClient<NetsPaymentClient>(HttpConfiguration)
+            .AddTypedClient<ICheckoutClient>()
             .AddHttpMessageHandler<CommercePlatformTagHandler>()
             .AddHttpMessageHandler<NetsAuthorizationHandler>();
 
