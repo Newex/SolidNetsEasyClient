@@ -17,6 +17,14 @@ internal static partial class NetsPaymentClientLogging
     [LoggerMessage(
         EventId = LogEventIDs.Errors.Invalid,
         Level = LogLevel.Error,
+        Message = "Unexpected response"
+    )
+    ]
+    public static partial void LogUnexpectedResponse(this ILogger logger);
+
+    [LoggerMessage(
+        EventId = LogEventIDs.Errors.Invalid,
+        Level = LogLevel.Error,
         Message = "Unexpected response: {Response}"
     )
     ]
@@ -149,4 +157,20 @@ internal static partial class NetsPaymentClientLogging
     )
     ]
     public static partial void LogErrorRefund(this ILogger logger, Guid id, CancelOrder order, string response);
+
+    [LoggerMessage(
+        EventId = LogEventIDs.Success.Correct,
+        Level = LogLevel.Information,
+        Message = "Retrieved refund details for {RefundId} and got {Response}"
+    )
+    ]
+    public static partial void LogInfoRefundDetails(this ILogger logger, Guid refundId, RetrieveRefund response);
+
+    [LoggerMessage(
+        EventId = LogEventIDs.Errors.Error,
+        Level = LogLevel.Error,
+        Message = "Could not retrieve info about {RefundId}, got {StatusCode} {Response}"
+    )
+    ]
+    public static partial void LogErrorRetrieveRefund(this ILogger logger, Guid refundId, int statusCode, string response);
 }

@@ -76,4 +76,14 @@ public interface IChargeClient : IDisposable
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A refund result</returns>
     ValueTask<RefundResult?> RefundPayment(Guid paymentId, CancelOrder order, string? idempotencyKey = null, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Retrieves the details of an existing refund. The refundId is obtained 
+    /// from Nexi Group when creating a new refund. The primary usage of this 
+    /// method is to retrieve invoice details of a refund.
+    /// </summary>
+    /// <param name="refundId">The refund id</param>
+    /// <param name="cancellationToken">The cancellation token</param>
+    /// <returns>Refund details or null</returns>
+    ValueTask<RetrieveRefund?> RetrieveRefund(Guid refundId, CancellationToken cancellationToken = default);
 }

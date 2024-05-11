@@ -1,4 +1,5 @@
 using System;
+using System.Net.Http.Json;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
@@ -126,6 +127,34 @@ public sealed partial class NetsPaymentClient : IChargeClient
         }
 
         logger.LogErrorRefund(paymentId, order, body);
+        return null;
+    }
+
+    /// <inheritdoc />
+    public async ValueTask<RetrieveRefund?> RetrieveRefund(Guid refundId, CancellationToken cancellationToken = default)
+    {
+        if (refundId == Guid.Empty)
+        {
+            return null;
+        }
+
+        var url = NetsEndpoints.Relative.Refund + "/" + refundId.ToString("N");
+        var response = await client.GetAsync(url, cancellationToken);
+        if (response.IsSuccessStatusCode)
+        {
+            var result = await response.Content.ReadFromJsonAsync(RefundSerializationContext.Default.RetrieveRefund, cancellationToken);
+            if (result is not null)
+            {
+                logger.LogInfoRefundDetails(refundId, result);
+                return result;
+            }
+
+            logger.LogUnexpectedResponse();
+            return null;
+        }
+
+        var body = await response.Content.ReadAsStringAsync(cancellationToken);
+        logger.LogErrorRetrieveRefund(refundId, (int)response.StatusCode, body);
         return null;
     }
 }

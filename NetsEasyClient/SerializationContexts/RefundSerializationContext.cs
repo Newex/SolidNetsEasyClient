@@ -19,6 +19,7 @@ namespace SolidNetsEasyClient.SerializationContexts;
     typeof(MonthOnlyConverter),
 ])]
 [JsonSerializable(typeof(RefundResult))]
+[JsonSerializable(typeof(RetrieveRefund))]
 public partial class RefundSerializationContext : JsonSerializerContext
 {
 }
