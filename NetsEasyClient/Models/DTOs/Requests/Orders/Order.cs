@@ -16,7 +16,7 @@ public record Order
     /// </summary>
     [Required]
     [JsonPropertyName("items")]
-    public IEnumerable<Item> Items { get; init; } = Enumerable.Empty<Item>();
+    public IEnumerable<Item> Items { get; init; } = [];
 
     /// <summary>
     /// The total amount of the order including VAT, if any.

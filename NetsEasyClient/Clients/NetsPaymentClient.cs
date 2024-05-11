@@ -208,6 +208,45 @@ public sealed class NetsPaymentClient(
     }
 
     /// <summary>
+    /// Cancels the specified payment. When a payment is canceled, the reserved
+    /// amount of the payment will be released to the customer's payment card.
+    /// </summary>
+    /// <remarks>
+    /// Only full cancels are allowed. The amount must always match the total
+    /// amount of the order.
+    /// Once a payment has been charged (fully or partially), the payment cannot
+    /// be canceled.
+    /// It is not possible to change the status of a payment once it has been
+    /// canceled.
+    /// Nexi Group will not charge a fee for a canceled payment.
+    /// </remarks>
+    /// <param name="paymentId">The payment id</param>
+    /// <param name="order">The order cancellation</param>
+    /// <param name="cancellationToken">The cancellation token</param>
+    /// <returns>True if order has been canceled otherwise false</returns>
+    public async ValueTask<bool> CancelPaymentBeforeCharge(Guid paymentId,
+                                                           CancelOrder order,
+                                                           CancellationToken cancellationToken = default)
+    {
+        if (paymentId == Guid.Empty)
+        {
+            return false;
+        }
+
+        cancellationToken.ThrowIfCancellationRequested();
+        var url = NetsEndpoints.Relative.Payment + "/" + paymentId.ToString("N") + "/cancels";
+        var response = await client.PostAsJsonAsync(url, order, CancelOrderSerializationContext.Default.CancelOrder, cancellationToken);
+        if (response.IsSuccessStatusCode)
+        {
+            logger.LogInfoOrderCanceled(paymentId, order);
+            return true;
+        }
+
+        logger.LogErrorOrderCanceled(paymentId, order, await response.Content.ReadAsStringAsync(cancellationToken));
+        return false;
+    }
+
+    /// <summary>
     /// Relinquishes the internal http client back to the pool.
     /// </summary>
     public void Dispose()

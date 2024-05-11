@@ -85,4 +85,20 @@ internal static partial class NetsPaymentClientLogging
     )
     ]
     public static partial void LogErrorTerminatePayment(this ILogger logger, Guid paymentId, string response);
+
+    [LoggerMessage(
+        EventId = LogEventIDs.Success.Correct,
+        Level = LogLevel.Information,
+        Message = "Order with {PaymentId} and {OrderDetails} has been canceled."
+    )
+    ]
+    public static partial void LogInfoOrderCanceled(this ILogger logger, Guid paymentId, CancelOrder orderDetails);
+
+    [LoggerMessage(
+        EventId = LogEventIDs.Errors.Error,
+        Level = LogLevel.Error,
+        Message = "Could not cancel {PaymentId} with {OrderDetails} due to {Response}."
+    )
+    ]
+    public static partial void LogErrorOrderCanceled(this ILogger logger, Guid paymentId, CancelOrder orderDetails, string response);
 }
