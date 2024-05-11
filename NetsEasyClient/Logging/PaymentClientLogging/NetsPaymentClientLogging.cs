@@ -101,4 +101,20 @@ internal static partial class NetsPaymentClientLogging
     )
     ]
     public static partial void LogErrorOrderCanceled(this ILogger logger, Guid paymentId, CancelOrder orderDetails, string response);
+
+    [LoggerMessage(
+        EventId = LogEventIDs.Success.Correct,
+        Level = LogLevel.Information,
+        Message = "Payment {PaymentId} charged with {Charge} and got {Result}."
+    )
+    ]
+    public static partial void LogInfoCharge(this ILogger logger, Guid paymentId, Charge charge, ChargeResult result);
+
+    [LoggerMessage(
+        EventId = LogEventIDs.Errors.Error,
+        Level = LogLevel.Error,
+        Message = "Could not charge {PaymentId} with {Charge}, got {Response}."
+    )
+    ]
+    public static partial void LogErrorCharge(this ILogger logger, Guid paymentId, Charge charge, string response);
 }

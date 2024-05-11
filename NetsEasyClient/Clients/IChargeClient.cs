@@ -1,0 +1,37 @@
+using System;
+using System.Threading;
+using System.Threading.Tasks;
+using SolidNetsEasyClient.Models.DTOs.Requests.Payments;
+using SolidNetsEasyClient.Models.DTOs.Responses.Payments;
+
+namespace SolidNetsEasyClient.Clients;
+
+/// <summary>
+/// Client for NETS, when you are about to charge the payment
+/// </summary>
+/// <remarks>
+/// <![CDATA[ NETS Easy Payment API (2024): https://developer.nexigroup.com/nexi-checkout/en-EU/api/payment-v1/ ]]> <br />
+/// <![CDATA[ Do not use this in a singleton class. See https://learn.microsoft.com/en-us/dotnet/core/extensions/httpclient-factory#avoid-typed-clients-in-singleton-services ]]>
+/// </remarks>
+public interface IChargeClient : IDisposable
+{
+    /// <summary>
+    /// Charges the specified payment. Charge a payment on the same day as you 
+    /// ship the matching order.A payment can be fully charged or partially 
+    /// charged. 
+    /// Full charge: Your customer will be charged the total amount of the 
+    /// payment. The amount must be specified in the request body and is 
+    /// required to match the total amount of the payment. 
+    /// Partial charge: Only charge for a subset of the order items. In this 
+    /// case you have to provide the amount and the orderItems you want to 
+    /// charge in the request body.
+    /// </summary>
+    /// <param name="paymentId">The payment id</param>
+    /// <param name="charge">The payment to charge</param>
+    /// <param name="idempotencyKey">To ensure you only call the charge once. A 
+    /// string that uniquely identifies the charge you are attempting. Must be 
+    /// between 1 and 64 characters.</param>
+    /// <param name="cancellationToken">The cancellation token</param>
+    /// <returns>The result of the charge or null</returns>
+    ValueTask<ChargeResult?> ChargePayment(Guid paymentId, Charge charge, string? idempotencyKey = null, CancellationToken cancellationToken = default);
+}
