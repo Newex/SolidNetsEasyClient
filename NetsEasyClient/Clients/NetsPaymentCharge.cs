@@ -97,7 +97,35 @@ public sealed partial class NetsPaymentClient : IChargeClient
             return null;
         }
 
-        logger.LogErrorRefundCharge(chargeId, charge, body);
+        logger.LogErrorRefund(chargeId, charge, body);
+        return null;
+    }
+
+    /// <inheritdoc />
+    public async ValueTask<RefundResult?> RefundPayment(Guid paymentId, CancelOrder order, string? idempotencyKey = null, CancellationToken cancellationToken = default)
+    {
+        if (paymentId == Guid.Empty || order.Amount == 0)
+        {
+            return null;
+        }
+
+        var url = NetsEndpoints.Relative.Payment + "/" + paymentId.ToString("N") + "/refunds";
+        var response = await client.PostAsJsonWithHeadersAsync(url, order, CancelOrderSerializationContext.Default.CancelOrder, ("Idempotency-Key", idempotencyKey), cancellationToken);
+        var body = await response.Content.ReadAsStringAsync(cancellationToken);
+        if (response.IsSuccessStatusCode)
+        {
+            var result = JsonSerializer.Deserialize(body, RefundSerializationContext.Default.RefundResult);
+            if (result is not null)
+            {
+                logger.LogInfoRefundResult(paymentId, order, result);
+                return result;
+            }
+
+            logger.LogUnexpectedResponse(body);
+            return null;
+        }
+
+        logger.LogErrorRefund(paymentId, order, body);
         return null;
     }
 }

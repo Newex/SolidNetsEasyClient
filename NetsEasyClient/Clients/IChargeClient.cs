@@ -62,4 +62,18 @@ public interface IChargeClient : IDisposable
     /// <param name="cancellationToken">The cancellation token</param>
     /// <returns>A refund result</returns>
     ValueTask<RefundResult?> RefundCharge(Guid chargeId, CancelOrder charge, string? idempotencyKey = null, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Refunds a previously settled payment. The refunded amount will be transferred back to the customer's account. 
+    /// A settled payment can be fully or partially refunded, this end-point is not supported for these payment methods: 
+    /// Arvato, PayPal, RatePayInvoice, RatePaySepa, RatePayInstallment, EasyInvoice, EasyCampaign, EasyInstallment.
+    /// </summary>
+    /// <param name="paymentId">The payment id.</param>
+    /// <param name="order">The order to refund.</param>
+    /// <param name="idempotencyKey">To ensure you only call the charge once. A 
+    /// string that uniquely identifies the charge you are attempting. Must be 
+    /// between 1 and 64 characters.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A refund result</returns>
+    ValueTask<RefundResult?> RefundPayment(Guid paymentId, CancelOrder order, string? idempotencyKey = null, CancellationToken cancellationToken = default);
 }

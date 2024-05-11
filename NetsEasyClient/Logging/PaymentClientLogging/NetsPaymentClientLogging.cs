@@ -137,16 +137,16 @@ internal static partial class NetsPaymentClientLogging
     [LoggerMessage(
         EventId = LogEventIDs.Success.Correct,
         Level = LogLevel.Information,
-        Message = "Refunded id: {ChargeId} containing: {Charge}, refund result is: {RefundResult}"
+        Message = "Refunded id: {Id} containing: {Order}, refund result is: {RefundResult}"
     )
     ]
-    public static partial void LogInfoRefundResult(this ILogger logger, Guid chargeId, CancelOrder charge, RefundResult refundResult);
+    public static partial void LogInfoRefundResult(this ILogger logger, Guid id, CancelOrder order, RefundResult refundResult);
 
     [LoggerMessage(
         EventId = LogEventIDs.Errors.Error,
         Level = LogLevel.Error,
-        Message = "Could not refund {ChargeId} containing {Charge}. Get response: {Response}"
+        Message = "Could not refund {Id} containing {Order}. Get response: {Response}"
     )
     ]
-    public static partial void LogErrorRefundCharge(this ILogger logger, Guid chargeId, CancelOrder charge, string response);
+    public static partial void LogErrorRefund(this ILogger logger, Guid id, CancelOrder order, string response);
 }
