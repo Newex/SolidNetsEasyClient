@@ -29,6 +29,7 @@ public class OrderItemsConverter : JsonConverter<IList<Item>>
         string? unit = null;
         int? unitPrice = null;
         int? taxRate = null;
+        string? imageUrl = null;
 
         // calculated properties
         int? taxAmount = null;
@@ -66,6 +67,7 @@ public class OrderItemsConverter : JsonConverter<IList<Item>>
                         Unit = unit,
                         UnitPrice = unitPrice.GetValueOrDefault(),
                         TaxRate = taxRate.GetValueOrDefault(),
+                        ImageUrl = imageUrl
                     };
                     var isValid = item.TaxAmount == taxAmount
                                   && item.GrossTotalAmount == grossTotalAmount.GetValueOrDefault()
@@ -83,6 +85,7 @@ public class OrderItemsConverter : JsonConverter<IList<Item>>
                     if (propertyName.Equals("reference")) reference = text;
                     else if (propertyName.Equals("name")) name = text;
                     else if (propertyName.Equals("unit")) unit = text;
+                    else if (propertyName.Equals("imageUrl")) imageUrl = text;
                     break;
                 case JsonTokenType.Number:
                     if (propertyName.Equals("quantity"))
@@ -108,6 +111,7 @@ public class OrderItemsConverter : JsonConverter<IList<Item>>
     /// <inheritdoc />
     public override void Write(Utf8JsonWriter writer, IList<Item> value, JsonSerializerOptions options)
     {
+        var omitNull = options.DefaultIgnoreCondition.HasFlag(JsonIgnoreCondition.WhenWritingNull);
         writer.WriteStartArray();
 
         foreach (var item in value)
@@ -122,7 +126,7 @@ public class OrderItemsConverter : JsonConverter<IList<Item>>
 
             if (item.TaxRate.HasValue)
                 writer.WriteNumber("taxRate", item.TaxRate.GetValueOrDefault());
-            else if (!options.DefaultIgnoreCondition.HasFlag(JsonIgnoreCondition.WhenWritingNull))
+            else if (!omitNull)
             {
                 writer.WriteNull("taxRate");
             }
@@ -131,13 +135,21 @@ public class OrderItemsConverter : JsonConverter<IList<Item>>
             {
                 writer.WriteNumber("taxAmount", item.TaxAmount.GetValueOrDefault());
             }
-            else if (!options.DefaultIgnoreCondition.HasFlag(JsonIgnoreCondition.WhenWritingNull))
+            else if (!omitNull)
             {
                 writer.WriteNull("taxAmount");
             }
 
             writer.WriteNumber("grossTotalAmount", item.GrossTotalAmount);
             writer.WriteNumber("netTotalAmount", item.NetTotalAmount);
+            if (!string.IsNullOrWhiteSpace(item.ImageUrl))
+            {
+                writer.WriteString("imageUrl", item.ImageUrl);
+            }
+            else if (!omitNull)
+            {
+                writer.WriteNull("imageUrl");
+            }
 
             writer.WriteEndObject();
         }

@@ -89,4 +89,14 @@ public record Item
     [Required]
     [JsonPropertyName("netTotalAmount")]
     public int NetTotalAmount => Convert.ToInt32(Math.Ceiling(UnitPrice * Quantity));
+
+    /// <summary>
+    /// Url to image of the product. Meant to be configured before checkout is
+    /// completed. Ignored on later operations like charging, refunding etc.
+    /// Currently affecting: Riverty Invoice. Supported size: width and height
+    /// between 100 pixels and 1280 pixels. Supported formats: gif, jpeg(jpg),
+    /// png, webp.
+    /// </summary>
+    [JsonPropertyName("imageUrl")]
+    public string? ImageUrl { get; init; }
 }
