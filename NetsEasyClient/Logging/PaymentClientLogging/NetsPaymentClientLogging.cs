@@ -117,4 +117,20 @@ internal static partial class NetsPaymentClientLogging
     )
     ]
     public static partial void LogErrorCharge(this ILogger logger, Guid paymentId, Charge charge, string response);
+
+    [LoggerMessage(
+        EventId = LogEventIDs.Success.Correct,
+        Level = LogLevel.Information,
+        Message = "Charge retrieved {Charge}"
+    )
+    ]
+    public static partial void LogInfoChargeRetrieved(this ILogger logger, ChargeDetailsInfo charge);
+
+    [LoggerMessage(
+        EventId = LogEventIDs.Errors.Error,
+        Level = LogLevel.Error,
+        Message = "Could not retrieve charge {ChargeId} response: {Response}."
+    )
+    ]
+    public static partial void LogErrorChargeRetrieval(this ILogger logger, Guid chargeId, string response);
 }

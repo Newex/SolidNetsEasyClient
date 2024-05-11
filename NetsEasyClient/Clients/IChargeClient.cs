@@ -34,4 +34,14 @@ public interface IChargeClient : IDisposable
     /// <param name="cancellationToken">The cancellation token</param>
     /// <returns>The result of the charge or null</returns>
     ValueTask<ChargeResult?> ChargePayment(Guid paymentId, Charge charge, string? idempotencyKey = null, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Retrieves the details of an existing charge operation. The chargeId is
+    /// obtained from Nexi Group when creating a new charge. The primary usage
+    /// of this method is to retrieve invoice details of a charge.
+    /// </summary>
+    /// <param name="chargeId">The charge id</param>
+    /// <param name="cancellationToken">The cancellation token</param>
+    /// <returns>Details about a charge or null</returns>
+    ValueTask<ChargeDetailsInfo?> RetrieveCharge(Guid chargeId, CancellationToken cancellationToken = default);
 }

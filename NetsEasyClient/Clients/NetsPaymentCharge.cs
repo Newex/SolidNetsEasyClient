@@ -35,9 +35,39 @@ public sealed partial class NetsPaymentClient : IChargeClient
             }
 
             logger.LogUnexpectedResponse(body);
+            return null;
         }
 
         logger.LogErrorCharge(paymentId, charge, body);
+        return null;
+    }
+
+    /// <inheritdoc />
+    public async ValueTask<ChargeDetailsInfo?> RetrieveCharge(Guid chargeId, CancellationToken cancellationToken = default)
+    {
+        if (chargeId == Guid.Empty)
+        {
+            return null;
+        }
+
+        var url = NetsEndpoints.Relative.Charge + "/" + chargeId.ToString("N");
+        var response = await client.GetAsync(url, cancellationToken);
+        var body = await response.Content.ReadAsStringAsync(cancellationToken);
+
+        if (response.IsSuccessStatusCode)
+        {
+            var result = JsonSerializer.Deserialize(body, ChargeSerializationContext.Default.ChargeDetailsInfo);
+            if (result is not null)
+            {
+                logger.LogInfoChargeRetrieved(result);
+                return result;
+            }
+
+            logger.LogUnexpectedResponse(body);
+            return null;
+        }
+
+        logger.LogErrorChargeRetrieval(chargeId, body);
         return null;
     }
 }

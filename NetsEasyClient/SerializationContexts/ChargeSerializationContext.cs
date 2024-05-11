@@ -21,6 +21,7 @@ namespace SolidNetsEasyClient.SerializationContexts;
 ])]
 [JsonSerializable(typeof(Charge))]
 [JsonSerializable(typeof(ChargeResult))]
+[JsonSerializable(typeof(ChargeDetailsInfo))]
 public partial class ChargeSerializationContext : JsonSerializerContext
 {
 }
