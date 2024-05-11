@@ -1,5 +1,6 @@
 using System.Text.Json.Serialization;
 using SolidNetsEasyClient.Converters;
+using SolidNetsEasyClient.Models.DTOs.Requests.Payments;
 using SolidNetsEasyClient.Models.DTOs.Responses.Payments;
 
 namespace SolidNetsEasyClient.SerializationContexts;
@@ -19,6 +20,7 @@ namespace SolidNetsEasyClient.SerializationContexts;
     typeof(MonthOnlyConverter),
 ])]
 [JsonSerializable(typeof(PaymentStatus))]
+[JsonSerializable(typeof(PaymentReference))]
 public partial class PaymentSerializationContext : JsonSerializerContext
 {
 }

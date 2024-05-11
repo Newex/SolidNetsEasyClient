@@ -95,4 +95,15 @@ public interface ICheckoutClient : IDisposable
     /// <param name="cancellationToken">The cancellation token</param>
     /// <returns>True if order has been canceled otherwise false</returns>
     ValueTask<bool> CancelPaymentBeforeCharge(Guid paymentId, CancelOrder order, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Updates myReference field on payment. The myReference can be used if you 
+    /// want to create a myReference ID that can be used in your own accounting 
+    /// system to keep track of the actions connected to the payment.
+    /// </summary>
+    /// <param name="paymentId">The payment id.</param>
+    /// <param name="myReference">The updated reference for the payment.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>True if reference has been updated otherwise false.</returns>
+    ValueTask<bool> UpdateMyReference(Guid paymentId, PaymentReference myReference, CancellationToken cancellationToken = default);
 }

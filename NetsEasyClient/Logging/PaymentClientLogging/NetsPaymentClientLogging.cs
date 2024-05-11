@@ -189,4 +189,20 @@ internal static partial class NetsPaymentClientLogging
     )
     ]
     public static partial void LogInfoCanceledPendingRefund(this ILogger logger, Guid refundId);
+
+    [LoggerMessage(
+        EventId = LogEventIDs.Errors.Error,
+        Level = LogLevel.Error,
+        Message = "Could not update MyReference {MyReference} for payment id: {PaymentId}. Got response: {Response}."
+    )
+    ]
+    public static partial void LogErrorUpdateMyReference(this ILogger logger, string myReference, Guid paymentId, string response);
+
+    [LoggerMessage(
+        EventId = LogEventIDs.Success.Correct,
+        Level = LogLevel.Information,
+        Message = "Updated {PaymentId} with {MyReference}."
+    )
+    ]
+    public static partial void LogInfoUpdatedMyReference(this ILogger logger, Guid paymentId, PaymentReference myReference);
 }

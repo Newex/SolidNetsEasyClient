@@ -187,6 +187,26 @@ public sealed partial class NetsPaymentClient(
         return false;
     }
 
+    /// <inheritdoc />
+    public async ValueTask<bool> UpdateMyReference(Guid paymentId, PaymentReference myReference, CancellationToken cancellationToken = default)
+    {
+        if (paymentId == Guid.Empty && string.IsNullOrWhiteSpace(myReference.MyReference))
+        {
+            return false;
+        }
+
+        var url = NetsEndpoints.Relative.Payment + "/" + paymentId.ToString("N") + "/myreference";
+        var response = await client.PutAsJsonAsync(url, myReference, PaymentSerializationContext.Default.PaymentReference, cancellationToken);
+        if (response.IsSuccessStatusCode)
+        {
+            logger.LogInfoUpdatedMyReference(paymentId, myReference);
+            return true;
+        }
+
+        logger.LogErrorUpdateMyReference(myReference.MyReference!, paymentId, await response.Content.ReadAsStringAsync(cancellationToken));
+        return false;
+    }
+
     /// <summary>
     /// Relinquishes the internal http client back to the pool.
     /// </summary>
