@@ -22,8 +22,9 @@ public interface ICheckoutClient : IDisposable
     string? CheckoutKey { get; }
 
     /// <summary>
-    /// Send the payment request to NETS to initiate a checkout process.
-    /// This should be called before showing the payment page, since the response info should be used on the payment page.
+    /// Send the payment request to NETS to initiate a checkout process. 
+    /// This should be called before showing the payment page, since the response info should be used on the payment page. 
+    /// The checkout can either be a one-time payment, or a subscription.
     /// </summary>
     /// <param name="paymentRequest">The payment request</param>
     /// <param name="cancellationToken">The cancellation token</param>
