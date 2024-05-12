@@ -51,7 +51,8 @@ public record Item
     public int UnitPrice { get; init; }
 
     /// <summary>
-    /// The tax/VAT rate in percentage times 100
+    /// The tax/VAT rate in percentage times 100. 
+    /// Must be between 0 and 99999.
     /// </summary>
     /// <remarks>
     /// Example the value 2500 corresponds to 25%
