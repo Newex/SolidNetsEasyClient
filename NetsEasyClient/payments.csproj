@@ -11,11 +11,16 @@
     <NoWarn>$(NoWarn);NU1803;SYSLIB1006</NoWarn>
     <Description>A client for the Nets Easy API</Description>
     <RepositoryUrl>https://github.com/Newex/SolidNetsEasyClient</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/Newex/SolidNetsEasyClient</PackageProjectUrl>
+    <PackageTags>nets easy api payment client typed</PackageTags>
 
     <!-- <IsTrimmable>true</IsTrimmable> -->
     <EnableTrimAnalyzer>true</EnableTrimAnalyzer>
     <EnableSingleFileAnalyzer>true</EnableSingleFileAnalyzer>
     <EnableAotAnalyzer>true</EnableAotAnalyzer>
+
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
 
   </PropertyGroup>
 
@@ -32,5 +37,10 @@
   <ItemGroup>
     <InternalsVisibleTo Include="SolidNetsEasyClient.Tests" />
   </ItemGroup>
+
+  <ItemGroup>
+      <None Include="..\README.md" Pack="true" PackagePath="\" />
+      <None Include="..\LICENSE" Pack="true" PackagePath="\"/>
+    </ItemGroup>
 
 </Project>
