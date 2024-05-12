@@ -8,7 +8,7 @@ using SolidNetsEasyClient.Models.DTOs.Responses.Payments;
 namespace SolidNetsEasyClient.Clients;
 
 /// <summary>
-/// Client for NETS, when you are about to charge the payment
+/// Client for NETS, when you have charged the payment or need to refund the charge.
 /// </summary>
 /// <remarks>
 /// <![CDATA[ NETS Easy Payment API (2024): https://developer.nexigroup.com/nexi-checkout/en-EU/api/payment-v1/ ]]> <br />
