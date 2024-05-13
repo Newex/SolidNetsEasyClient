@@ -29,6 +29,9 @@ public sealed class NetsPaymentBuilder(
     /// </summary>
     /// <param name="order">The order</param>
     /// <param name="myReference">Merchants (your) own reference identifier for the order.</param>
+    /// <param name="handleCustomerData">Merchant (you) handle the customer data 
+    /// info. Such that the customer does not have to reenter info on 
+    /// Nets.</param>
     /// <param name="customer">The customer</param>
     /// <param name="customerType">The customer type</param>
     /// <param name="shippingDetails">The shipping details</param>
@@ -39,6 +42,7 @@ public sealed class NetsPaymentBuilder(
     /// <returns>The builder</returns>
     public NetsPaymentBuilder CreateSinglePayment(Order order,
                                               string? myReference = null,
+                                              bool? handleCustomerData = null,
                                               Consumer? customer = null,
                                               ConsumerTypeEnum? customerType = null,
                                               Shipping? shippingDetails = null,
@@ -54,10 +58,10 @@ public sealed class NetsPaymentBuilder(
             CancelUrl = options.CancelUrl,
             Charge = chargeImmidiately,
             Consumer = customer,
-            ConsumerType = CalculateCustomerType(customer, customerType),
+            ConsumerType = CalculateCustomerType(customer, customerType, handleCustomerData),
             CountryCode = options.CountryCode,
             IntegrationType = options.IntegrationType,
-            MerchantHandlesConsumerData = options.MerchantHandlesConsumerData,
+            MerchantHandlesConsumerData = handleCustomerData ?? options.MerchantHandlesConsumerData,
             MerchantTermsUrl = options.PrivacyPolicyUrl,
             PublicDevice = rememberCustomer.HasValue && !rememberCustomer.GetValueOrDefault(),
             ReturnUrl = options.ReturnUrl,
@@ -129,9 +133,9 @@ public sealed class NetsPaymentBuilder(
         return paymentRequest;
     }
 
-    private ConsumerType? CalculateCustomerType(Consumer? customer, ConsumerTypeEnum? customerType)
+    private ConsumerType? CalculateCustomerType(Consumer? customer, ConsumerTypeEnum? customerType, bool? handleCustomerData)
     {
-        if (options.MerchantHandlesConsumerData.GetValueOrDefault())
+        if (handleCustomerData ?? options.MerchantHandlesConsumerData.GetValueOrDefault())
         {
             // Should not handle customer on NETS, merchant handles data
             return null;
