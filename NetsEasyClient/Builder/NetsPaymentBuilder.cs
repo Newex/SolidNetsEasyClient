@@ -415,7 +415,10 @@ public sealed class NetsPaymentBuilder(
         /// calculate the actual shipping cost depending on the shipping address
         /// provided by the customer.
         /// </summary>
-        /// <returns></returns>
+        /// <remarks>
+        /// Sets the 'checkout.shipping.merchantHandlesShippingCost' to true.
+        /// </remarks>
+        /// <returns>A shipping builder</returns>
         public ShippingBuilder IncludeShippingCostInPayment()
         {
             merchantHandlesShippingCost = true;
