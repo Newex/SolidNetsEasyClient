@@ -84,7 +84,7 @@ public sealed class NetsPaymentBuilder(
         /// customer info. Otherwise false. If false, the customer must repeat
         /// their information, on the checkout page.</param>
         /// <returns>A payment builder</returns>
-        public ConsumerBuilder SetCustomerId(string customerId, bool prefillCustomerData = false)
+        public ConsumerBuilder WithCustomer(string customerId, bool prefillCustomerData = false)
         {
             merchantHandlesConsumerData = prefillCustomerData;
             return ConsumerBuilder.Create(this, customerId);
