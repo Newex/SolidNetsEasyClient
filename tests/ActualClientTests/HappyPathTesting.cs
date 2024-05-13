@@ -42,7 +42,7 @@ public class HappyPathTesting
     public async Task Test_scenario()
     {
         // 1. Create payment
-        var payment = builder.CreateSinglePayment(new Order()
+        var payment = builder.CreatePayment(new Order()
         {
             Currency = Currency.DKK,
             Items = [

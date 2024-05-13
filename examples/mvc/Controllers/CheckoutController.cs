@@ -32,7 +32,7 @@ public class CheckoutController : Controller
     {
         var order = PaymentRequestHelper.MinimalOrderExample(basket.Item, basket.Quantity);
 
-        var paymentRequest = paymentBuilder.CreateSinglePayment(order)
+        var paymentRequest = paymentBuilder.CreatePayment(order)
                                     .AddWebhook("https://localhost/webhook/callback", EventName.PaymentCreated, "randomAuth123")
                                     .AddWebhook("https://localhost/webhook/callback", EventName.PaymentCancelled, "randomAuth123")
                                     .Build();

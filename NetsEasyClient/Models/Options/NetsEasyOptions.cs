@@ -139,15 +139,6 @@ public record NetsEasyOptions
     public string? CountryCode { get; set; }
 
     /// <summary>
-    /// The list of countries the merchant ships to. If null, all countries supported by NETS will be accepted.
-    /// The format is a 3 letter country code (ISO 3166-1).
-    /// </summary>
-    /// <remarks>
-    /// <![CDATA[ Supported countries: https://developer.nexigroup.com/nexi-checkout/en-EU/api/#country-codes-and-phone-prefixes ]]>
-    /// </remarks>
-    public IEnumerable<string>? SupportedShippingCountries { get; set; }
-
-    /// <summary>
     /// The merchant number. Use this only if you are a Nexi Group
     /// partner and initiating the checkout with your partner keys. If you are
     /// using the integration keys for your webshop, there is no need to specify

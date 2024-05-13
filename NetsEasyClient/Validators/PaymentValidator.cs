@@ -21,6 +21,18 @@ internal static class PaymentValidator
     internal static bool IsValidPaymentObject(PaymentRequest payment, ILogger logger)
     {
         // Checkout URL must not be empty
+        // TODO: Add checking for illegal characters in
+        // MyReference,
+        // consumer.shippingAddress.Country,
+        // billingAddress.Country,
+        // orderDetails.Currency,
+        // orderItems.Reference,
+        // orderItems.Name,
+        // orderItems.Unit,
+        // checkoutUrl,
+        // webhooks.eventName,
+        // webhooks.Url,
+        // merchantNumber
         if (!EmbeddedCheckoutHasCheckoutUrl(payment))
         {
             logger.ErrorEmbeddedCheckoutMissingUrl(payment);
