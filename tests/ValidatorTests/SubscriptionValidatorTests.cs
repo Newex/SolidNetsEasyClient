@@ -12,12 +12,12 @@ namespace SolidNetsEasyClient.Tests.ValidatorTests;
 [UnitTest]
 public class SubscriptionValidatorTests
 {
-    private static readonly Order SingleOrder = new()
+    private static readonly Order singleOrder = new()
     {
-        Items = new List<Item>
-        {
+        Items =
+        [
             Fakes.RandomItem()
-        }
+        ]
     };
 
     [Fact]
@@ -26,7 +26,7 @@ public class SubscriptionValidatorTests
         // Arrange
         var subscription = new SubscriptionCharge
         {
-            Order = SingleOrder,
+            Order = singleOrder,
         };
 
         // Act
