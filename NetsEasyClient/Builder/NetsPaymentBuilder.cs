@@ -23,8 +23,6 @@ public sealed class NetsPaymentBuilder(
 {
     private readonly NetsEasyOptions options = options.Value;
 
-    // TODO: Add builder for subscriptions...
-
     /// <summary>
     /// Construct a payment request builder.
     /// </summary>
@@ -55,6 +53,7 @@ public sealed class NetsPaymentBuilder(
         private Shipping? shipping;
         private List<PaymentMethod>? paymentMethods = null;
         private Subscription? subscription;
+        private bool unscheduledSubscription;
 
         private PaymentRequestBuilder(NetsEasyOptions options, Order order, string? myReference)
         {
@@ -75,12 +74,38 @@ public sealed class NetsPaymentBuilder(
         /// <returns>A subscription builder</returns>
         public SubscriptionBuilder AsNewSubscription(DateTimeOffset endDate)
         {
+            unscheduledSubscription = false;
             return SubscriptionBuilder.Create(this, endDate);
         }
 
         internal PaymentRequestBuilder AddSubscription(Subscription subscription)
         {
             this.subscription = subscription;
+            return this;
+        }
+
+        /// <summary>
+        /// Make this payment request an unscheduled subscription. 
+        /// An unscheduled subscription, can have variable charge amount, and
+        /// have variable interval between charges. 
+        /// This is also know an 'card-on-file' which means that you must get 
+        /// permission from the customer to have Nets store their (customer's) payment info. 
+        ///  Common scenarios for the use of unscheduled subscriptions are 
+        ///  pay-per-use services such as car sharing, electric scooters, top up 
+        ///  for internally used payment cards (canteen), payments for meal 
+        ///  delivery and so on. 
+        /// </summary>
+        /// <remarks>
+        /// Since each charging of an unscheduled subscription will create a new
+        /// payment object with an individual chargeID and paymentID, you can
+        /// refund individual charges from an unscheduled subscription, as you
+        /// would do with regular payments.
+        /// </remarks>
+        /// <returns></returns>
+        public PaymentRequestBuilder AsUnscheduledSubscription()
+        {
+            unscheduledSubscription = true;
+            subscription = null;
             return this;
         }
 
@@ -283,8 +308,13 @@ public sealed class NetsPaymentBuilder(
                 {
                     WebHooks = webHooks
                 };
+            UnscheduledSubscription? unscheduledSubscription = !this.unscheduledSubscription
+                ? null
+                : new()
+                {
+                    Create = true
+                };
 
-            // Note: Subscriptions not included...
             return new PaymentRequest()
             {
                 Order = order,
@@ -294,7 +324,8 @@ public sealed class NetsPaymentBuilder(
                 MyReference = myReference,
                 PaymentMethods = paymentMethods,
                 PaymentMethodsConfiguration = options.PaymentMethodsConfiguration,
-                Subscription = subscription
+                Subscription = subscription,
+                UnscheduledSubscription = unscheduledSubscription
             };
         }
 
