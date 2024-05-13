@@ -1,4 +1,5 @@
 using System;
+using System.Buffers;
 using System.Linq;
 using ISO3166;
 using Microsoft.Extensions.Logging;
@@ -12,6 +13,8 @@ namespace SolidNetsEasyClient.Validators;
 /// </summary>
 internal static class PaymentValidator
 {
+    private static readonly SearchValues<char> searchValues = SearchValues.Create("<>'\"&\\");
+
     /// <summary>
     /// Checks if a payment is valid
     /// </summary>
@@ -22,7 +25,6 @@ internal static class PaymentValidator
     {
         // Checkout URL must not be empty
         // TODO: Add checking for illegal characters in
-        // MyReference,
         // consumer.shippingAddress.Country,
         // billingAddress.Country,
         // orderDetails.Currency,
@@ -96,6 +98,12 @@ internal static class PaymentValidator
         if (!NonSubscriptionMustHaveNonNegativeAmount(payment))
         {
             logger.ErrorInvalidPaymentAmount(payment);
+            return false;
+        }
+
+        // MyReference,
+        if (!MerchantReferenceIsProper(payment))
+        {
             return false;
         }
 
@@ -264,6 +272,29 @@ internal static class PaymentValidator
         }
 
         return payment.Order.Amount > 0;
+    }
+
+    internal static bool MerchantReferenceIsProper(PaymentRequest payment)
+    {
+        if (payment.MyReference is null)
+        {
+            return true;
+        }
+
+        if (NoSpecialCharacters(payment.MyReference)
+            && payment.MyReference.Length <= 36)
+        {
+            return true;
+        }
+
+        return false;
+    }
+
+    private static bool NoSpecialCharacters(string? input)
+    {
+        if (input is not null)
+            return input.AsSpan().IndexOfAny(searchValues) == -1;
+        return true;
     }
 
     private static bool ProperWebHookUrl(string? url)
