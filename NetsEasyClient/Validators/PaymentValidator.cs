@@ -25,7 +25,6 @@ internal static class PaymentValidator
     {
         // Checkout URL must not be empty
         // TODO: Add checking for illegal characters in
-        // consumer.shippingAddress.Country,
         // billingAddress.Country,
         // orderDetails.Currency,
         // orderItems.Reference,
@@ -59,7 +58,7 @@ internal static class PaymentValidator
             return false;
         }
 
-        if (!ShippingCountryCodeMustBeISO3166(payment))
+        if (!ShippingCountryCodesMustBeISO3166(payment))
         {
             logger.ErrorInvalidShippingCountryFormat(payment);
             return false;
@@ -103,6 +102,12 @@ internal static class PaymentValidator
 
         // MyReference,
         if (!MerchantReferenceIsProper(payment))
+        {
+            return false;
+        }
+
+        // consumer.shippingAddress.Country,
+        if (!HasProperShippingAddress(payment))
         {
             return false;
         }
@@ -158,18 +163,8 @@ internal static class PaymentValidator
         };
     }
 
-    internal static bool ShippingCountryCodeMustBeISO3166(PaymentRequest payment)
+    internal static bool ShippingCountryCodesMustBeISO3166(PaymentRequest payment)
     {
-        var shippingCountry = payment.Checkout.Consumer?.ShippingAddress?.Country;
-        if (shippingCountry is not null)
-        {
-            var isValid = CountryCodeExists(shippingCountry);
-            if (!isValid)
-            {
-                return false;
-            }
-        }
-
         var shippingCountries = payment.Checkout.ShippingCountries;
         if (shippingCountries?.Any() == true)
         {
@@ -288,6 +283,44 @@ internal static class PaymentValidator
         }
 
         return false;
+    }
+
+    internal static bool HasProperShippingAddress(PaymentRequest payment)
+    {
+        if (payment.Checkout?.Consumer?.ShippingAddress is null)
+        {
+            return true;
+        }
+
+        var result = true;
+        var address = payment.Checkout.Consumer.ShippingAddress;
+        if (address.AddressLine1 is not null)
+        {
+            result = NoSpecialCharacters(address.AddressLine1)
+                    && address.AddressLine1.Length <= 128;
+        }
+        if (result && address.AddressLine2 is not null)
+        {
+            result = NoSpecialCharacters(address.AddressLine2)
+                    && address.AddressLine2.Length <= 128;
+        }
+        if (result && address.PostalCode is not null)
+        {
+            result = NoSpecialCharacters(address.PostalCode)
+                    && address.PostalCode.Length <= 12;
+        }
+        if (result && address.City is not null)
+        {
+            result = NoSpecialCharacters(address.City)
+                    && address.City.Length <= 128;
+        }
+        if (result && address.Country is not null)
+        {
+            result = NoSpecialCharacters(address.Country)
+                     && CountryCodeExists(address.Country);
+        }
+
+        return result;
     }
 
     private static bool NoSpecialCharacters(string? input)

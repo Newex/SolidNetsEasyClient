@@ -94,7 +94,7 @@ public class PaymentModelTests
             });
 
         // Act
-        var result = PaymentValidator.ShippingCountryCodeMustBeISO3166(payment);
+        var result = PaymentValidator.HasProperShippingAddress(payment);
 
         // Assert
         Assert.False(result);
@@ -112,7 +112,7 @@ public class PaymentModelTests
             });
 
         // Act
-        var result = PaymentValidator.ShippingCountryCodeMustBeISO3166(payment);
+        var result = PaymentValidator.ShippingCountryCodesMustBeISO3166(payment);
 
         // Assert
         Assert.True(result);
@@ -130,7 +130,7 @@ public class PaymentModelTests
             });
 
         // Act
-        var result = PaymentValidator.ShippingCountryCodeMustBeISO3166(payment);
+        var result = PaymentValidator.ShippingCountryCodesMustBeISO3166(payment);
 
         // Assert
         Assert.True(result);
@@ -538,5 +538,23 @@ public class PaymentModelTests
 
         // Assert
         result.Should().BeTrue();
+    }
+
+    [Fact]
+    public void Payment_with_shipping_to_non_country_is_invalid()
+    {
+        // Arrange
+        var payment = Setup.DefaultPayment()
+            .WithConsumer(c => c)
+            .WithShippingAddress(a => new()
+            {
+                Country = "THI"
+            });
+
+        // Act
+        var result = PaymentValidator.HasProperShippingAddress(payment);
+
+        // Assert
+        result.Should().BeFalse();
     }
 }
