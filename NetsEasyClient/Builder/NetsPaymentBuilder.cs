@@ -23,8 +23,6 @@ public sealed class NetsPaymentBuilder(
 {
     private readonly NetsEasyOptions options = options.Value;
 
-    // TODO: Add builder for subscriptions...
-
     /// <summary>
     /// Construct a payment request builder.
     /// </summary>
@@ -33,7 +31,7 @@ public sealed class NetsPaymentBuilder(
     /// <returns>The builder</returns>
     public PaymentRequestBuilder CreatePayment(Order order, string? myReference = null)
     {
-        return PaymentRequestBuilder.Create(options, order).SetMyPaymentReference(myReference);
+        return PaymentRequestBuilder.Create(options, order, myReference);
     }
 
     /// <summary>
@@ -54,11 +52,61 @@ public sealed class NetsPaymentBuilder(
         private CheckoutAppearance? appearance;
         private Shipping? shipping;
         private List<PaymentMethod>? paymentMethods = null;
+        private Subscription? subscription;
+        private bool unscheduledSubscription;
 
-        private PaymentRequestBuilder(NetsEasyOptions options, Order order)
+        private PaymentRequestBuilder(NetsEasyOptions options, Order order, string? myReference)
         {
             this.options = options;
             this.order = order;
+            this.myReference = myReference;
+        }
+
+        /// <summary>
+        /// Make this payment request a subscription. 
+        /// To get the details about an existing subscription, first retrieve
+        /// the payment details and readout the subscription id.
+        /// </summary>
+        /// <remarks>
+        /// A subscription, can be charged on regular intervals, with a constant amount.
+        /// </remarks>
+        /// <param name="endDate">The end date</param>
+        /// <returns>A subscription builder</returns>
+        public SubscriptionBuilder AsNewSubscription(DateTimeOffset endDate)
+        {
+            unscheduledSubscription = false;
+            return SubscriptionBuilder.Create(this, endDate);
+        }
+
+        internal PaymentRequestBuilder AddSubscription(Subscription subscription)
+        {
+            this.subscription = subscription;
+            return this;
+        }
+
+        /// <summary>
+        /// Make this payment request an unscheduled subscription. 
+        /// An unscheduled subscription, can have variable charge amount, and
+        /// have variable interval between charges. 
+        /// This is also know an 'card-on-file' which means that you must get 
+        /// permission from the customer to have Nets store their (customer's) payment info. 
+        ///  Common scenarios for the use of unscheduled subscriptions are 
+        ///  pay-per-use services such as car sharing, electric scooters, top up 
+        ///  for internally used payment cards (canteen), payments for meal 
+        ///  delivery and so on. 
+        /// </summary>
+        /// <remarks>
+        /// Since each charging of an unscheduled subscription will create a new
+        /// payment object with an individual chargeID and paymentID, you can
+        /// refund individual charges from an unscheduled subscription, as you
+        /// would do with regular payments.
+        /// </remarks>
+        /// <returns></returns>
+        public PaymentRequestBuilder AsUnscheduledSubscription()
+        {
+            unscheduledSubscription = true;
+            subscription = null;
+            return this;
         }
 
         /// <summary>
@@ -84,7 +132,7 @@ public sealed class NetsPaymentBuilder(
         /// customer info. Otherwise false. If false, the customer must repeat
         /// their information, on the checkout page.</param>
         /// <returns>A payment builder</returns>
-        public ConsumerBuilder SetCustomerId(string customerId, bool prefillCustomerData = false)
+        public ConsumerBuilder WithCustomer(string customerId, bool prefillCustomerData = false)
         {
             merchantHandlesConsumerData = prefillCustomerData;
             return ConsumerBuilder.Create(this, customerId);
@@ -125,6 +173,10 @@ public sealed class NetsPaymentBuilder(
         /// If the payment request should be charged immidiately, upon reservation.
         /// Normally the merchant (you) must send a charge request to cash in the payment request.
         /// </summary>
+        /// <remarks>
+        /// To charge immidiately the order must contain an amount greater than zero.
+        /// Sets the 'checkout.charge' property to true.
+        /// </remarks>
         /// <returns>A payment builder</returns>
         public PaymentRequestBuilder ChargeImmidiately()
         {
@@ -256,8 +308,13 @@ public sealed class NetsPaymentBuilder(
                 {
                     WebHooks = webHooks
                 };
+            UnscheduledSubscription? unscheduledSubscription = !this.unscheduledSubscription
+                ? null
+                : new()
+                {
+                    Create = true
+                };
 
-            // Note: Subscriptions not included...
             return new PaymentRequest()
             {
                 Order = order,
@@ -267,12 +324,14 @@ public sealed class NetsPaymentBuilder(
                 MyReference = myReference,
                 PaymentMethods = paymentMethods,
                 PaymentMethodsConfiguration = options.PaymentMethodsConfiguration,
+                Subscription = subscription,
+                UnscheduledSubscription = unscheduledSubscription
             };
         }
 
-        internal static PaymentRequestBuilder Create(NetsEasyOptions options, Order order)
+        internal static PaymentRequestBuilder Create(NetsEasyOptions options, Order order, string? myReference)
         {
-            return new(options, order);
+            return new(options, order, myReference);
         }
     }
 
@@ -456,6 +515,55 @@ public sealed class NetsPaymentBuilder(
         internal static ShippingBuilder Create(PaymentRequestBuilder paymentRequestBuilder)
         {
             return new(paymentRequestBuilder);
+        }
+    }
+
+    /// <summary>
+    /// A subscription builder
+    /// </summary>
+    public class SubscriptionBuilder
+    {
+        private readonly PaymentRequestBuilder paymentRequestBuilder;
+        private readonly DateTimeOffset endDate;
+        private int interval = 0;
+
+        private SubscriptionBuilder(PaymentRequestBuilder paymentRequestBuilder, DateTimeOffset endDate)
+        {
+            this.endDate = endDate;
+            this.paymentRequestBuilder = paymentRequestBuilder;
+        }
+
+        /// <summary>
+        /// Set the day interval between recurring charges. 
+        /// This interval commences from either the day the subscription was 
+        /// created or the most recent subscription charge, whichever is later. 
+        /// An interval value of 0 means that there are no payment interval 
+        /// restrictions.
+        /// </summary>
+        /// <param name="interval">The interval in days</param>
+        /// <returns></returns>
+        public SubscriptionBuilder SetIntervalBetweenRecurringCharges(int interval)
+        {
+            this.interval = interval;
+            return this;
+        }
+
+        /// <summary>
+        /// Add and finish the subscription details to the payment request.
+        /// </summary>
+        /// <returns>A payment request builder</returns>
+        public PaymentRequestBuilder FinishSubscription()
+        {
+            return paymentRequestBuilder.AddSubscription(new()
+            {
+                EndDate = endDate,
+                Interval = interval,
+            });
+        }
+
+        internal static SubscriptionBuilder Create(PaymentRequestBuilder paymentRequestBuilder, DateTimeOffset endDate)
+        {
+            return new(paymentRequestBuilder, endDate);
         }
     }
 }
