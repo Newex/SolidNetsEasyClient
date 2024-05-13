@@ -27,9 +27,6 @@ internal static class PaymentValidator
         // TODO: Add checking for illegal characters in
         // billingAddress.Country,
         // orderDetails.Currency,
-        // orderItems.Reference,
-        // orderItems.Name,
-        // orderItems.Unit,
         // checkoutUrl,
         // webhooks.eventName,
         // webhooks.Url,
@@ -108,6 +105,14 @@ internal static class PaymentValidator
 
         // consumer.shippingAddress.Country,
         if (!HasProperShippingAddress(payment))
+        {
+            return false;
+        }
+
+        // orderItems.Reference,
+        // orderItems.Name,
+        // orderItems.Unit,
+        if (!HasProperOrderItems(payment))
         {
             return false;
         }
@@ -267,6 +272,28 @@ internal static class PaymentValidator
         }
 
         return payment.Order.Amount > 0;
+    }
+
+    internal static bool HasProperOrderItems(PaymentRequest payment)
+    {
+        var result = true;
+        foreach (var item in payment.Order.Items)
+        {
+            result = result
+                && NoSpecialCharacters(item.Reference)
+                && item.Reference.Length <= 128
+                && NoSpecialCharacters(item.Name)
+                && item.Name.Length <= 128
+                && NoSpecialCharacters(item.Unit)
+                && item.Unit.Length <= 128;
+
+            if (!result)
+            {
+                break;
+            }
+        }
+
+        return result;
     }
 
     internal static bool MerchantReferenceIsProper(PaymentRequest payment)
