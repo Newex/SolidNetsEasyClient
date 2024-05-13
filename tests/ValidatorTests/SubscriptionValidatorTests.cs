@@ -1,6 +1,4 @@
 using System;
-using System.Collections.Generic;
-using SolidNetsEasyClient.Models.DTOs;
 using SolidNetsEasyClient.Models.DTOs.Requests.Orders;
 using SolidNetsEasyClient.Models.DTOs.Requests.Payments.Subscriptions;
 using SolidNetsEasyClient.Models.DTOs.Responses.Payments;
