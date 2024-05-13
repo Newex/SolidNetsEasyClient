@@ -56,7 +56,8 @@ public class HappyPathTesting
                 }
             ],
             Reference = "my-order-id-reference"
-        }, "my-payment-reference").Build();
+        }, "my-payment-reference")
+        .Build();
 
         // 2. Start checkout
         var paymentResult = await client.StartCheckoutPayment(payment);

@@ -139,6 +139,9 @@ public sealed class NetsPaymentBuilder(
         /// will display the customer info, so that the customer does not have
         /// to reenter their details.
         /// </summary>
+        /// <remarks>
+        /// Sets the 'checkout.publicDevice' to true.
+        /// </remarks>
         /// <returns>A payment builder</returns>
         public PaymentRequestBuilder DoNotSaveAnyCustomerDataOnDevice()
         {
@@ -147,7 +150,7 @@ public sealed class NetsPaymentBuilder(
         }
 
         /// <summary>
-        /// Include shipping for the customer.
+        /// Include shipping to the customer.
         /// </summary>
         /// <returns></returns>
         public ShippingBuilder WithShipping()
@@ -440,7 +443,7 @@ public sealed class NetsPaymentBuilder(
         /// Add shipment configuration to payment checkout.
         /// </summary>
         /// <returns>A payment request builder</returns>
-        public PaymentRequestBuilder AddShipmentConfiguration()
+        public PaymentRequestBuilder FinishShippingDetails()
         {
             return paymentRequestBuilder.AddShipping(new()
             {
