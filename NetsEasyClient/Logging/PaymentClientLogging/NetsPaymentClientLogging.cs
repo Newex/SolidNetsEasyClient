@@ -2,6 +2,7 @@ using System;
 using Microsoft.Extensions.Logging;
 using SolidNetsEasyClient.Models.DTOs.Requests.Orders;
 using SolidNetsEasyClient.Models.DTOs.Requests.Payments;
+using SolidNetsEasyClient.Models.DTOs.Requests.Payments.Subscriptions;
 using SolidNetsEasyClient.Models.DTOs.Responses.Payments;
 
 namespace SolidNetsEasyClient.Logging.PaymentClientLogging;
@@ -205,4 +206,52 @@ internal static partial class NetsPaymentClientLogging
     )
     ]
     public static partial void LogInfoUpdatedMyReference(this ILogger logger, Guid paymentId, PaymentReference myReference);
+
+    [LoggerMessage(
+        EventId = LogEventIDs.Errors.Error,
+        Level = LogLevel.Error,
+        Message = "Could not retrieve subscription {SubscriptionId}."
+    )
+    ]
+    public static partial void LogErrorRetrieveSubscription(this ILogger logger, Guid subscriptionId);
+
+    [LoggerMessage(
+        EventId = LogEventIDs.Success.Correct,
+        Level = LogLevel.Information,
+        Message = "Retrieved {SubscriptionId} with {Subscription}"
+    )
+    ]
+    public static partial void LogInfoRetrieveSubscription(this ILogger logger, Guid subscriptionId, SubscriptionDetails subscription);
+
+    [LoggerMessage(
+        EventId = LogEventIDs.Success.Correct,
+        Level = LogLevel.Information,
+        Message = "Retrieved by external reference id: {ExternalReference} and got {Subscription}"
+    )
+    ]
+    public static partial void LogInfoRetrieveSubscription(this ILogger logger, string externalReference, SubscriptionDetails subscription);
+
+    [LoggerMessage(
+        EventId = LogEventIDs.Errors.Error,
+        Level = LogLevel.Error,
+        Message = "Could not retrieve subscription by external reference {ExternalReference}."
+    )
+    ]
+    public static partial void LogErrorRetrieveSubscription(this ILogger logger, string externalReference);
+
+    [LoggerMessage(
+        EventId = LogEventIDs.Success.Correct,
+        Level = LogLevel.Information,
+        Message = "Charged subscriptions {BulkCharges} and got succes {BulkResult}"
+    )
+    ]
+    public static partial void LogInfoBulkCharge(this ILogger logger, BulkCharge bulkCharges, BulkSubscriptionResult bulkResult);
+
+    [LoggerMessage(
+        EventId = LogEventIDs.Errors.Error,
+        Level = LogLevel.Error,
+        Message = "Could not charge subscription in bulk {BulkCharges} got {Response}"
+    )
+    ]
+    public static partial void LogErrorBulkCharge(this ILogger logger, BulkCharge bulkCharges, string response);
 }
