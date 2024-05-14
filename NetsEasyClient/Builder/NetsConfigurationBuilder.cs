@@ -153,6 +153,7 @@ public sealed class NetsConfigurationBuilder
         var httpbuilder = services.AddHttpClient<NetsPaymentClient>(HttpConfiguration)
             .AddTypedClient<ICheckoutClient>()
             .AddTypedClient<IChargeClient>()
+            .AddTypedClient<IBulkSubscriptionClient>()
             .AddHttpMessageHandler<CommercePlatformTagHandler>()
             .AddHttpMessageHandler<NetsAuthorizationHandler>();
 
