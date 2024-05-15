@@ -8,7 +8,7 @@ namespace SolidNetsEasyClient.Models.DTOs.Responses.Payments;
 /// A paginated result set of <typeparamref name="T"/>
 /// </summary>
 /// <typeparam name="T">The subscription process statuses</typeparam>
-public record PageResult<T> where T : BaseProcessStatus
+public record PageResult<T>
 {
     /// <summary>
     /// A page of subscription statusses

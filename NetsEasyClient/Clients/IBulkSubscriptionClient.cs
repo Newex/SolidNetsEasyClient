@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using SolidNetsEasyClient.Models.DTOs.Requests.Payments.Subscriptions;
 using SolidNetsEasyClient.Models.DTOs.Requests.Webhooks;
 using SolidNetsEasyClient.Models.DTOs.Responses.Payments;
+using SolidNetsEasyClient.Models.DTOs.Responses.Payments.Subscriptions;
 
 namespace SolidNetsEasyClient.Clients;
 
@@ -95,4 +96,22 @@ public interface IBulkSubscriptionClient
     ValueTask<BulkSubscriptionResult?> VerifySubscriptions(string externalBulkVerificationId,
                                                            IList<SubscriptionCharge> subscriptions,
                                                            CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Retrieves verifications associated with the specified bulk verification 
+    /// operation. The bulkId is returned from Nexi Group in the response of the 
+    /// Verify subscriptions method. 
+    /// 
+    /// This method supports pagination. Specify the range of subscriptions to 
+    /// retrieve by using either skip and take or pageNumber together with 
+    /// pageSize. The boolean property named more in the response body, 
+    /// indicates whether there are more subscriptions beyond the requested 
+    /// range.
+    /// </summary>
+    /// <param name="bulkId">The bulk id</param>
+    /// <param name="range">The optional range selection</param>
+    /// <param name="page">The optional page selection</param>
+    /// <param name="cancellationToken">The cancellation token</param>
+    /// <returns>A page result of subscription verification statuses or null.</returns>
+    ValueTask<PageResult<SubscriptionVerificationStatus>?> RetrieveBulkVerifications(Guid bulkId, (int skip, int take)? range = null, (int pageNumber, int pageSize)? page = null, CancellationToken cancellationToken = default);
 }

@@ -5,6 +5,7 @@ using SolidNetsEasyClient.Models.DTOs.Requests.Orders;
 using SolidNetsEasyClient.Models.DTOs.Requests.Payments;
 using SolidNetsEasyClient.Models.DTOs.Requests.Payments.Subscriptions;
 using SolidNetsEasyClient.Models.DTOs.Responses.Payments;
+using SolidNetsEasyClient.Models.DTOs.Responses.Payments.Subscriptions;
 
 namespace SolidNetsEasyClient.Logging.PaymentClientLogging;
 
@@ -295,4 +296,20 @@ internal static partial class NetsPaymentClientLogging
     )
     ]
     public static partial void LogErrorInvalidSubscription(this ILogger logger, SubscriptionCharge subscription);
+
+    [LoggerMessage(
+        EventId = LogEventIDs.Success.Correct,
+        Level = LogLevel.Information,
+        Message = "Got verification for {BulkId} and it is {Page}."
+    )
+    ]
+    public static partial void LogInfoRetrieveBulkVerification(this ILogger logger, Guid bulkId, PageResult<SubscriptionVerificationStatus> page);
+
+    [LoggerMessage(
+        EventId = LogEventIDs.Errors.Error,
+        Level = LogLevel.Error,
+        Message = "Could not retrieve verification for {BulkId}. Got response: {Response}."
+    )
+    ]
+    public static partial void LogErrorRetrieveBulkVerification(this ILogger logger, Guid bulkId, string response);
 }
