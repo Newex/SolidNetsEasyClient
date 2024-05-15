@@ -312,4 +312,20 @@ internal static partial class NetsPaymentClientLogging
     )
     ]
     public static partial void LogErrorRetrieveBulkVerification(this ILogger logger, Guid bulkId, string response);
+
+    [LoggerMessage(
+        EventId = LogEventIDs.Success.Correct,
+        Level = LogLevel.Information,
+        Message = "Got unscheduled subscription with id {Id} and it is {UnscheduledSubscription}."
+    )
+    ]
+    public static partial void LogInfoRetrieveUnscheduledSubscription(this ILogger logger, Guid id, UnscheduledSubscriptionDetails unscheduledSubscription);
+
+    [LoggerMessage(
+        EventId = LogEventIDs.Errors.Error,
+        Level = LogLevel.Error,
+        Message = "Could not retrieve unscheduled subscription with {Id}. Got response: {Response}"
+    )
+    ]
+    public static partial void LogErrorRetrieveUnscheduledSubscription(this ILogger logger, Guid id, string response);
 }

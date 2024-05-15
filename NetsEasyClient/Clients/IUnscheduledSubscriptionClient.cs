@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
+using SolidNetsEasyClient.Models.DTOs.Responses.Payments;
 
 namespace SolidNetsEasyClient.Clients;
 
@@ -18,4 +20,15 @@ namespace SolidNetsEasyClient.Clients;
 /// </remarks>
 public interface IUnscheduledSubscriptionClient
 {
+    /// <summary>
+    /// Retrieves an existing unscheduled subscription by a 
+    /// unscheduledSubscriptionId. The unscheduledSubscriptionId can be obtained 
+    /// from the Retrieve payment method. 
+    /// </summary>
+    /// <param name="unscheduledSubscriptionId">The unscheduled subscription id. 
+    /// The unscheduledSubscriptionId can be obtained from the Retrieve payment 
+    /// method.</param>
+    /// <param name="cancellationToken">The cancellation token</param>
+    /// <returns>A details about an unscheduled subscription or null</returns>
+    ValueTask<UnscheduledSubscriptionDetails?> RetrieveUnscheduledSubscription(Guid unscheduledSubscriptionId, CancellationToken cancellationToken = default);
 }

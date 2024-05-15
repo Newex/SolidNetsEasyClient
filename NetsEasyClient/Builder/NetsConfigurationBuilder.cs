@@ -154,6 +154,7 @@ public sealed class NetsConfigurationBuilder
             .AddTypedClient<IPaymentClient>()
             .AddTypedClient<IChargeClient>()
             .AddTypedClient<ISubscriptionClient>()
+            .AddTypedClient<IUnscheduledSubscriptionClient>()
             .AddHttpMessageHandler<CommercePlatformTagHandler>()
             .AddHttpMessageHandler<NetsAuthorizationHandler>();
 
