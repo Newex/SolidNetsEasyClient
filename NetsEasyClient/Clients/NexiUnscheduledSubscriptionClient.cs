@@ -173,4 +173,35 @@ public sealed partial class NexiClient : IUnscheduledSubscriptionClient
         logger.LogErrorRetrieveBulkUnscheduledCharges(bulkId, body);
         return null;
     }
+
+    /// <inheritdoc />
+    public async ValueTask<BaseBulkResult?> VerifyCardsForUnscheduledSubscriptions(string externalBulkVerificationId, IList<UnscheduledSubscriptionInfo> subscriptions, CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrWhiteSpace(externalBulkVerificationId))
+        {
+            return null;
+        }
+
+        cancellationToken.ThrowIfCancellationRequested();
+        var url = NetsEndpoints.Relative.UnscheduledSubscriptions + "/verifications";
+        var verify = new VerifyBulkUnscheduledSubscriptions
+        {
+            ExternalBulkVerificationId = externalBulkVerificationId,
+            UnscheduledSubscriptions = subscriptions
+        };
+        var response = await client.PostAsJsonAsync(url, verify, UnscheduledSubscriptionSerializationContext.Default.VerifyBulkUnscheduledSubscriptions, cancellationToken);
+        var body = await response.Content.ReadAsStringAsync(cancellationToken);
+        if (response.IsSuccessStatusCode)
+        {
+            var result = JsonSerializer.Deserialize(body, UnscheduledSubscriptionSerializationContext.Default.BaseBulkResult);
+            if (result is not null)
+            {
+                return result;
+            }
+
+            return null;
+        }
+
+        return null;
+    }
 }
