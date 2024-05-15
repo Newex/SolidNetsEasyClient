@@ -6,7 +6,7 @@ namespace SolidNetsEasyClient.Models.DTOs.Enums;
 /// <summary>
 /// Supported currencies for Nets Easy. see: https://developers.nets.eu/nets-easy/en-EU/api/#currency-and-amount
 /// </summary>
-[JsonConverter(typeof(CurrencyStringEnumConverter))]
+[JsonConverter(typeof(JsonStringEnumConverter<Currency>))]
 public enum Currency
 {
     /// <summary>

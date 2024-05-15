@@ -17,7 +17,7 @@ namespace SolidNetsEasyClient.SerializationContexts;
     typeof(IntegrationEnumConverter),
     typeof(InvoiceDateConverter),
     typeof(MonthOnlyConverter),
-])]
+], UseStringEnumConverter = true)]
 [JsonSerializable(typeof(PaymentRequest))]
 public partial class PaymentRequestSerializationContext : JsonSerializerContext
 {

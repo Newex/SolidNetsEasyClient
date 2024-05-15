@@ -5,7 +5,7 @@ namespace SolidNetsEasyClient.Models.DTOs.Enums;
 /// <summary>
 /// Indicates whether the operation has completed or is still processing subscriptions. Possible values are 'Done' and 'Processing'.
 /// </summary>
-[JsonConverter(typeof(JsonStringEnumConverter))]
+[JsonConverter(typeof(JsonStringEnumConverter<BulkStatus>))]
 public enum BulkStatus
 {
     /// <summary>

@@ -6,7 +6,7 @@ namespace SolidNetsEasyClient.Models.DTOs.Enums;
 /// <summary>
 /// Payment methods
 /// </summary>
-[JsonConverter(typeof(PaymentMethodEnumConverter))]
+[JsonConverter(typeof(JsonStringEnumConverter<PaymentMethodEnum>))]
 public enum PaymentMethodEnum
 {
     /// <summary>

@@ -17,7 +17,7 @@ namespace SolidNetsEasyClient.SerializationContexts;
     typeof(IntegrationEnumConverter),
     typeof(InvoiceDateConverter),
     typeof(MonthOnlyConverter),
-])]
+], UseStringEnumConverter = true)]
 [JsonSerializable(typeof(RefundResult))]
 [JsonSerializable(typeof(RetrieveRefund))]
 public partial class RefundSerializationContext : JsonSerializerContext

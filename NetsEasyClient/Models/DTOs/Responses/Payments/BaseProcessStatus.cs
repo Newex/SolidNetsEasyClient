@@ -32,6 +32,7 @@ public abstract record BaseProcessStatus
     /// </summary>
     [Required]
     [JsonPropertyName("status")]
+    [JsonConverter(typeof(JsonStringEnumConverter<SubscriptionStatus>))]
     public SubscriptionStatus Status { get; init; }
 
     /// <summary>

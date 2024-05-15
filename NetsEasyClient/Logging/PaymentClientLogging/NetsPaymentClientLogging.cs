@@ -254,4 +254,20 @@ internal static partial class NetsPaymentClientLogging
     )
     ]
     public static partial void LogErrorBulkCharge(this ILogger logger, BulkCharge bulkCharges, string response);
+
+    [LoggerMessage(
+        EventId = LogEventIDs.Success.Correct,
+        Level = LogLevel.Information,
+        Message = "Retrieved bulk id {BulkId} subscription page: {Page}"
+    )
+    ]
+    public static partial void LogInfoRetrieveBulkCharge(this ILogger logger, Guid bulkId, PageResult<SubscriptionProcessStatus> page);
+
+    [LoggerMessage(
+        EventId = LogEventIDs.Errors.Error,
+        Level = LogLevel.Error,
+        Message = "Could not retrieve bulk charge {BulkId}. Response: {Response}"
+    )
+    ]
+    public static partial void LogErrorRetrieveBulkCharge(this ILogger logger, Guid bulkId, string response);
 }

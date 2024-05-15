@@ -6,7 +6,7 @@ namespace SolidNetsEasyClient.Models.DTOs.Enums;
 /// <summary>
 /// An enumeration of consumer types
 /// </summary>
-[JsonConverter(typeof(ConsumerTypeEnumConverter))]
+[JsonConverter(typeof(JsonStringEnumConverter<ConsumerTypeEnum>))]
 public enum ConsumerTypeEnum
 {
     /// <summary>

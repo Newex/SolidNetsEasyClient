@@ -5,7 +5,7 @@ namespace SolidNetsEasyClient.Models.DTOs.Enums;
 /// <summary>
 /// The current processing status of the subscription. Possible values are: 'Pending', 'Succeeded', and 'Failed'.
 /// </summary>
-[JsonConverter(typeof(JsonStringEnumConverter))]
+[JsonConverter(typeof(JsonStringEnumConverter<SubscriptionStatus>))]
 public enum SubscriptionStatus
 {
     /// <summary>

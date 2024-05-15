@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Net.Http.Json;
+using System.Text;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
@@ -105,5 +106,75 @@ public sealed partial class NetsPaymentClient : IBulkSubscriptionClient
 
         logger.LogErrorBulkCharge(requestBody, await response.Content.ReadAsStringAsync(cancellationToken));
         return null;
+    }
+
+    /// <inheritdoc />
+    public async ValueTask<PageResult<SubscriptionProcessStatus>?> RetrieveBulkCharges(Guid bulkId,
+                                                                                       (int skip, int take)? range = null,
+                                                                                       (int pageNumber, int pageSize)? page = null,
+                                                                                       CancellationToken cancellationToken = default)
+    {
+        if (bulkId == Guid.Empty)
+        {
+            return null;
+        }
+
+        cancellationToken.ThrowIfCancellationRequested();
+        var query = QueryBuilder(range, page);
+        var url = NetsEndpoints.Relative.Subscription + "/charges/" + bulkId.ToString("N") + query;
+        var response = await client.GetAsync(url, cancellationToken);
+        if (response.IsSuccessStatusCode)
+        {
+            var body = await response.Content.ReadAsStringAsync(cancellationToken);
+            var result = JsonSerializer.Deserialize(body, SubscriptionSerializationContext.Default.PageResultSubscriptionProcessStatus);
+            if (result is not null)
+            {
+                logger.LogInfoRetrieveBulkCharge(bulkId, result);
+                return result;
+            }
+
+            logger.LogUnexpectedResponse(body);
+            return null;
+        }
+
+        logger.LogErrorRetrieveBulkCharge(bulkId, await response.Content.ReadAsStringAsync(cancellationToken));
+        return null;
+    }
+
+    private static string QueryBuilder((int skip, int take)? range, (int pageNumber, int pageSize)? page)
+    {
+        if (!range.HasValue && !page.HasValue)
+        {
+            return string.Empty;
+        }
+
+        var sb = new StringBuilder();
+        sb.Append('?');
+        if (range.HasValue)
+        {
+            sb.Append("skip=");
+            sb.Append(range.Value.skip);
+            sb.Append('&');
+            sb.Append("take=");
+            sb.Append(range.Value.take);
+            sb.Append('&');
+        }
+
+        if (page.HasValue)
+        {
+            sb.Append("pageNumber=");
+            sb.Append(page.Value.pageNumber);
+            sb.Append('&');
+            sb.Append("pageSize=");
+            sb.Append(page.Value.pageSize);
+        }
+
+        // Remove the trailing '&' if it exists
+        if (sb[^1] == '&')
+        {
+            sb.Remove(sb.Length - 1, 1);
+        }
+
+        return sb.ToString();
     }
 }

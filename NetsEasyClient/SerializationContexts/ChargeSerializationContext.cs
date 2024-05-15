@@ -18,7 +18,7 @@ namespace SolidNetsEasyClient.SerializationContexts;
     typeof(IntegrationEnumConverter),
     typeof(InvoiceDateConverter),
     typeof(MonthOnlyConverter),
-])]
+], UseStringEnumConverter = true)]
 [JsonSerializable(typeof(Charge))]
 [JsonSerializable(typeof(ChargeResult))]
 [JsonSerializable(typeof(ChargeDetailsInfo))]

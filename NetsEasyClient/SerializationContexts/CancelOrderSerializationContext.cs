@@ -17,7 +17,7 @@ namespace SolidNetsEasyClient.SerializationContexts;
     typeof(IntegrationEnumConverter),
     typeof(InvoiceDateConverter),
     typeof(MonthOnlyConverter),
-])]
+], UseStringEnumConverter = true)]
 [JsonSerializable(typeof(CancelOrder))]
 public partial class CancelOrderSerializationContext : JsonSerializerContext
 {
