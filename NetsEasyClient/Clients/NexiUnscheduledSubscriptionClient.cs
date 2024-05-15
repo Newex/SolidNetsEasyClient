@@ -140,4 +140,37 @@ public sealed partial class NexiClient : IUnscheduledSubscriptionClient
         logger.LogErrorBulkChargeUnscheduledSubscriptions(externalBulkChargeId, charges, body);
         return null;
     }
+
+    /// <inheritdoc />
+    public async ValueTask<PageResult<UnscheduledSubscriptionProcessStatus>?> RetrieveBulkUnscheduledCharges(Guid bulkId,
+                                                                                                             (int skip, int take)? range = null,
+                                                                                                             (int pageNumber, int pageSize)? page = null,
+                                                                                                             CancellationToken cancellationToken = default)
+    {
+        if (bulkId == Guid.Empty)
+        {
+            return null;
+        }
+
+        cancellationToken.ThrowIfCancellationRequested();
+        var query = QueryBuilder(range, page);
+        var url = NetsEndpoints.Relative.UnscheduledSubscriptions + "/charges/" + bulkId.ToString("N") + query;
+        var response = await client.GetAsync(url, cancellationToken);
+        var body = await response.Content.ReadAsStringAsync(cancellationToken);
+        if (response.IsSuccessStatusCode)
+        {
+            var result = JsonSerializer.Deserialize(body, UnscheduledSubscriptionSerializationContext.Default.PageResultUnscheduledSubscriptionProcessStatus);
+            if (result is not null)
+            {
+                logger.LogInfoRetrieveBulkUnscheduledCharges(bulkId, result);
+                return result;
+            }
+
+            logger.LogUnexpectedResponse(body);
+            return null;
+        }
+
+        logger.LogErrorRetrieveBulkUnscheduledCharges(bulkId, body);
+        return null;
+    }
 }

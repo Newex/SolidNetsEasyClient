@@ -82,4 +82,26 @@ public interface IUnscheduledSubscriptionClient
                                                                   IList<ChargeUnscheduledSubscription> charges,
                                                                   Notification? notifications = null,
                                                                   CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Retrieves charges associated with the specified bulk charge operation. 
+    /// The bulkId is returned from Nexi Group in the response of the Bulk 
+    /// charge unscheduled subscriptions method. 
+    /// This method supports pagination. Specify the range of subscriptions to 
+    /// retrieve by using either skip and take or pageNumber together with 
+    /// pageSize. The boolean property named more in the response body, 
+    /// indicates whether there are more subscriptions beyond the requested 
+    /// range.
+    /// </summary>
+    /// <param name="bulkId">The bulk id. The identifier of the bulk charge 
+    /// operation that was returned from the Bulk charge unscheduled 
+    /// subscriptions method.</param>
+    /// <param name="range">The optional range to skip or take.</param>
+    /// <param name="page">The optional page number and size to take.</param>
+    /// <param name="cancellationToken">The cancellation token</param>
+    /// <returns>A page of unscheduled subscription statuses or null.</returns>
+    ValueTask<PageResult<UnscheduledSubscriptionProcessStatus>?> RetrieveBulkUnscheduledCharges(Guid bulkId,
+                                                                                                (int skip, int take)? range = null,
+                                                                                                (int pageNumber, int pageSize)? page = null,
+                                                                                                CancellationToken cancellationToken = default);
 }

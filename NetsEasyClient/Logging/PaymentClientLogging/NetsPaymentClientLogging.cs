@@ -376,4 +376,20 @@ internal static partial class NetsPaymentClientLogging
     )
     ]
     public static partial void LogErrorBulkChargeUnscheduledSubscriptions(this ILogger logger, string externalBulkChargeId, IList<ChargeUnscheduledSubscription> subscriptions, string response);
+
+    [LoggerMessage(
+        EventId = LogEventIDs.Success.Correct,
+        Level = LogLevel.Information,
+        Message = "Retrieved page of unscheduled subscriptions for {BulkId} got {PageStatusSubscriptions}"
+    )
+    ]
+    public static partial void LogInfoRetrieveBulkUnscheduledCharges(this ILogger logger, Guid bulkId, PageResult<UnscheduledSubscriptionProcessStatus> pageStatusSubscriptions);
+
+    [LoggerMessage(
+        EventId = LogEventIDs.Errors.Error,
+        Level = LogLevel.Error,
+        Message = "Could not retrieve bulk unscheduled charges for {BulkId}. Got response: {Response}."
+    )
+    ]
+    public static partial void LogErrorRetrieveBulkUnscheduledCharges(this ILogger logger, Guid bulkId, string response);
 }
