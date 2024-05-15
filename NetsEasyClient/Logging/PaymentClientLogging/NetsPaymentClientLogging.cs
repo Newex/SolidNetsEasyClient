@@ -328,4 +328,36 @@ internal static partial class NetsPaymentClientLogging
     )
     ]
     public static partial void LogErrorRetrieveUnscheduledSubscription(this ILogger logger, Guid id, string response);
+
+    [LoggerMessage(
+        EventId = LogEventIDs.Success.Correct,
+        Level = LogLevel.Information,
+        Message = "Got unscheduled subscription with external reference {ExternalReference} and it is {UnscheduledSubscription}."
+    )
+    ]
+    public static partial void LogInfoRetrieveUnscheduledSubscription(this ILogger logger, string externalReference, UnscheduledSubscriptionDetails unscheduledSubscription);
+
+    [LoggerMessage(
+        EventId = LogEventIDs.Errors.Error,
+        Level = LogLevel.Error,
+        Message = "Could not retrieve unscheduled subscription external reference {ExternalReference}. Got response: {Response}"
+    )
+    ]
+    public static partial void LogErrorRetrieveUnscheduledSubscription(this ILogger logger, string externalReference, string response);
+
+    [LoggerMessage(
+        EventId = LogEventIDs.Success.Correct,
+        Level = LogLevel.Information,
+        Message = "Charged unscheduled subscription with {Id} and {Charge}. Got {Result}"
+    )
+    ]
+    public static partial void LogInfoChargeUnscheduledSubscription(this ILogger logger, Guid id, UnscheduledSubscriptionCharge charge, UnscheduledSubscriptionChargeResult result);
+
+    [LoggerMessage(
+        EventId = LogEventIDs.Errors.Error,
+        Level = LogLevel.Error,
+        Message = "Could not charge unscheduled subscription with {Id} and {Charge}. Got {Response}."
+    )
+    ]
+    public static partial void LogErrorChargeUnscheduledSubscription(this ILogger logger, Guid id, UnscheduledSubscriptionCharge charge, string response);
 }
