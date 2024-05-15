@@ -16,7 +16,7 @@ using SolidNetsEasyClient.Validators;
 
 namespace SolidNetsEasyClient.Clients;
 
-public sealed partial class NetsPaymentClient : IBulkSubscriptionClient
+public sealed partial class NexiClient : ISubscriptionClient
 {
     /// <inheritdoc />
     public async ValueTask<SubscriptionDetails?> RetrieveSubscription(Guid subscriptionId, CancellationToken cancellationToken = default)

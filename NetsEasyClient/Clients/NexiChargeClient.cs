@@ -13,7 +13,7 @@ using SolidNetsEasyClient.SerializationContexts;
 
 namespace SolidNetsEasyClient.Clients;
 
-public sealed partial class NetsPaymentClient : IChargeClient
+public sealed partial class NexiClient : IChargeClient
 {
     /// <inheritdoc />
     public async ValueTask<ChargeResult?> ChargePayment(Guid paymentId, Charge charge, string? idempotencyKey = null, CancellationToken cancellationToken = default)

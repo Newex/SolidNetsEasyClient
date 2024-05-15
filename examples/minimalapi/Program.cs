@@ -47,7 +47,7 @@ if (app.Environment.IsDevelopment())
 
 app.MapFallbackToFile("index.html");
 
-app.MapPost("/checkout", async (NetsPaymentBuilder builder, ICheckoutClient client, Product product, CancellationToken cancellationToken) =>
+app.MapPost("/checkout", async (NetsPaymentBuilder builder, IPaymentClient client, Product product, CancellationToken cancellationToken) =>
 {
     var order = new Order
     {

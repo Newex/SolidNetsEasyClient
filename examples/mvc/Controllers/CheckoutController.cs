@@ -13,12 +13,12 @@ namespace ExampleSite.Controllers;
 
 public class CheckoutController : Controller
 {
-    private readonly NetsPaymentClient client;
+    private readonly NexiClient client;
     private readonly NetsPaymentBuilder paymentBuilder;
     private readonly ILogger<CheckoutController> logger;
 
     public CheckoutController(
-        NetsPaymentClient client,
+        NexiClient client,
         NetsPaymentBuilder paymentBuilder,
         ILogger<CheckoutController>? logger = null)
     {

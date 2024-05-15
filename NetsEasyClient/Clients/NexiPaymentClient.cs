@@ -19,20 +19,20 @@ using SolidNetsEasyClient.Validators;
 namespace SolidNetsEasyClient.Clients;
 
 /// <summary>
-/// Typed http client for the Nets Easy Payment API.
+/// Typed http client for the nets-nexi Checkout Payment API.
 /// </summary>
 /// <remarks>
 /// <![CDATA[ NETS Easy Payment API (2024): https://developer.nexigroup.com/nexi-checkout/en-EU/api/payment-v1/ ]]> <br />
 /// <![CDATA[ Do not use this in a singleton class. See https://learn.microsoft.com/en-us/dotnet/core/extensions/httpclient-factory#avoid-typed-clients-in-singleton-services ]]>
 /// </remarks>
-public sealed partial class NetsPaymentClient(
+public sealed partial class NexiClient(
     HttpClient client,
     IOptions<NetsEasyOptions> options,
-    ILogger<NetsPaymentClient>? logger = null
-) : IDisposable, ICheckoutClient
+    ILogger<NexiClient>? logger = null
+) : IDisposable, IPaymentClient
 {
     private readonly HttpClient client = client;
-    private readonly ILogger<NetsPaymentClient> logger = logger ?? NullLogger<NetsPaymentClient>.Instance;
+    private readonly ILogger<NexiClient> logger = logger ?? NullLogger<NexiClient>.Instance;
 
     /// <inheritdoc />
     public string? CheckoutKey => options.Value.CheckoutKey;

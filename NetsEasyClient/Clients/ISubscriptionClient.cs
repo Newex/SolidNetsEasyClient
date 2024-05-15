@@ -12,7 +12,7 @@ namespace SolidNetsEasyClient.Clients;
 /// <summary>
 /// Bulk subscription Nets client
 /// </summary>
-public interface IBulkSubscriptionClient
+public interface ISubscriptionClient
 {
     /// <summary>
     /// Retrieves an existing subscription by a subscriptionId. The

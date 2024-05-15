@@ -14,7 +14,7 @@ namespace SolidNetsEasyClient.Tests.ActualClientTests;
 [IntegrationTest]
 public class HappyPathTesting
 {
-    private readonly NetsPaymentClient client;
+    private readonly NexiClient client;
     private readonly NetsPaymentBuilder builder;
     public HappyPathTesting()
     {
@@ -34,7 +34,7 @@ public class HappyPathTesting
             BaseAddress = NetsEndpoints.TestingBaseUri,
         };
         httpClient.DefaultRequestHeaders.Add("Authorization", "my-api-key-here");
-        client = new NetsPaymentClient(httpClient, options);
+        client = new NexiClient(httpClient, options);
         builder = new NetsPaymentBuilder(options);
     }
 
