@@ -19,6 +19,7 @@ namespace SolidNetsEasyClient.SerializationContexts;
     typeof(InvoiceDateConverter),
     typeof(MonthOnlyConverter),
 ], UseStringEnumConverter = true)]
+[JsonSerializable(typeof(BulkSubscriptionVerification))]
 [JsonSerializable(typeof(PageResult<SubscriptionProcessStatus>))]
 [JsonSerializable(typeof(BulkSubscriptionResult))]
 [JsonSerializable(typeof(BulkCharge))]

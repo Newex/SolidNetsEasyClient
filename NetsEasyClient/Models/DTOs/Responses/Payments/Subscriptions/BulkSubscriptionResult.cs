@@ -22,8 +22,7 @@ public record BulkSubscriptionResult
     /// <summary>
     /// An international phone number.
     /// </summary>
-    [JsonPropertyName("bulkId")]
-    [JsonConverter(typeof(GuidTypeConverter))]
-    [Required]
+    [JsonPropertyName("phoneNumber")]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public PhoneNumber? PhoneNumber { get; init; }
 }

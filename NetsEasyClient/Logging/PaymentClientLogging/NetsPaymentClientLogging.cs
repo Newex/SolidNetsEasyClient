@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Microsoft.Extensions.Logging;
 using SolidNetsEasyClient.Models.DTOs.Requests.Orders;
 using SolidNetsEasyClient.Models.DTOs.Requests.Payments;
@@ -270,4 +271,28 @@ internal static partial class NetsPaymentClientLogging
     )
     ]
     public static partial void LogErrorRetrieveBulkCharge(this ILogger logger, Guid bulkId, string response);
+
+    [LoggerMessage(
+        EventId = LogEventIDs.Success.Correct,
+        Level = LogLevel.Information,
+        Message = "Started verification for {Subscriptions} with {ExternalBulkVerificationId} and got {BulkResult}"
+    )
+    ]
+    public static partial void LogInfoVerifyBulk(this ILogger logger, IList<SubscriptionCharge> subscriptions, string externalBulkVerificationId, BulkSubscriptionResult bulkResult);
+
+    [LoggerMessage(
+        EventId = LogEventIDs.Errors.Error,
+        Level = LogLevel.Error,
+        Message = "Could not verify bulk {ExternalBulkVerificationId} containing {Subscriptions}, got response {Response}."
+    )
+    ]
+    public static partial void LogErrorVerifyBulk(this ILogger logger, string externalBulkVerificationId, IList<SubscriptionCharge> subscriptions, string response);
+
+    [LoggerMessage(
+        EventId = LogEventIDs.Errors.Invalid,
+        Level = LogLevel.Error,
+        Message = "Invalid subscription {Subscription}"
+    )
+    ]
+    public static partial void LogErrorInvalidSubscription(this ILogger logger, SubscriptionCharge subscription);
 }

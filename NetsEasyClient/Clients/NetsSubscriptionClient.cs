@@ -11,6 +11,7 @@ using SolidNetsEasyClient.Models.DTOs.Requests.Payments.Subscriptions;
 using SolidNetsEasyClient.Models.DTOs.Requests.Webhooks;
 using SolidNetsEasyClient.Models.DTOs.Responses.Payments;
 using SolidNetsEasyClient.SerializationContexts;
+using SolidNetsEasyClient.Validators;
 
 namespace SolidNetsEasyClient.Clients;
 
@@ -138,6 +139,52 @@ public sealed partial class NetsPaymentClient : IBulkSubscriptionClient
         }
 
         logger.LogErrorRetrieveBulkCharge(bulkId, await response.Content.ReadAsStringAsync(cancellationToken));
+        return null;
+    }
+
+    /// <inheritdoc />
+    public async ValueTask<BulkSubscriptionResult?> VerifySubscriptions(string externalBulkVerificationId, IList<SubscriptionCharge> subscriptions, CancellationToken cancellationToken = default)
+    {
+        var valid = true;
+        foreach (var s in subscriptions)
+        {
+            valid = valid && SubscriptionValidator.ValidateSubscriptionCharge(s);
+            if (!valid)
+            {
+                logger.LogErrorInvalidSubscription(s);
+                break;
+            }
+        }
+        if (!valid)
+        {
+            return null;
+        }
+
+        var url = NetsEndpoints.Relative.Subscription + "/verifications";
+        var requestBody = new BulkSubscriptionVerification()
+        {
+            ExternalBulkVerificationId = externalBulkVerificationId,
+            Subscriptions = subscriptions
+        };
+        var response = await client.PostAsJsonAsync(url,
+                                                    requestBody,
+                                                    SubscriptionSerializationContext.Default.BulkSubscriptionVerification,
+                                                    cancellationToken);
+        if (response.IsSuccessStatusCode)
+        {
+            var body = await response.Content.ReadAsStringAsync(cancellationToken);
+            var result = JsonSerializer.Deserialize(body, SubscriptionSerializationContext.Default.BulkSubscriptionResult);
+            if (result is not null)
+            {
+                logger.LogInfoVerifyBulk(subscriptions, externalBulkVerificationId, result);
+                return result;
+            }
+
+            logger.LogUnexpectedResponse(body);
+            return null;
+        }
+
+        logger.LogErrorVerifyBulk(externalBulkVerificationId, subscriptions, await response.Content.ReadAsStringAsync(cancellationToken));
         return null;
     }
 

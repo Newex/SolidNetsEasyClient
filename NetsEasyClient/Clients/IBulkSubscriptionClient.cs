@@ -76,4 +76,23 @@ public interface IBulkSubscriptionClient
                                                                           (int skip, int take)? range = null,
                                                                           (int pageNumber, int pageSize)? page = null,
                                                                           CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Verifies the specified set of subscriptions in bulk. The bulkId returned 
+    /// from a successful request can be used for querying the status of the 
+    /// subscriptions.
+    /// This starts the verification process and can later be queried to view 
+    /// the status of the verification.
+    /// </summary>
+    /// <param name="externalBulkVerificationId">A string that uniquely 
+    /// identifies the verification operation. Use this property for enabling 
+    /// safe retries. Must be between 1 and 64 characters.</param>
+    /// <param name="subscriptions">The set of subscriptions that should be
+    /// verified. Each item in the array should define either a subscriptioId or
+    /// an externalReference, but not both.</param>
+    /// <param name="cancellationToken">The cancellation token</param>
+    /// <returns>A bulk id result or null</returns>
+    ValueTask<BulkSubscriptionResult?> VerifySubscriptions(string externalBulkVerificationId,
+                                                           IList<SubscriptionCharge> subscriptions,
+                                                           CancellationToken cancellationToken = default);
 }
