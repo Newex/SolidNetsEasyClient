@@ -10,8 +10,12 @@ using SolidNetsEasyClient.Models.DTOs.Responses.Payments.Subscriptions;
 namespace SolidNetsEasyClient.Clients;
 
 /// <summary>
-/// Bulk subscription Nets client
+/// Bulk subscription nexi client
 /// </summary>
+/// <remarks>
+/// <![CDATA[ Nexi Checkout API (2024): https://developer.nexigroup.com/nexi-checkout/en-EU/api/payment-v1/ ]]> <br />
+/// <![CDATA[ Do not use this in a singleton class. See https://learn.microsoft.com/en-us/dotnet/core/extensions/httpclient-factory#avoid-typed-clients-in-singleton-services ]]>
+/// </remarks>
 public interface ISubscriptionClient
 {
     /// <summary>

@@ -8,10 +8,10 @@ using SolidNetsEasyClient.Models.DTOs.Responses.Payments;
 namespace SolidNetsEasyClient.Clients;
 
 /// <summary>
-/// Client for NETS, when customer is about to checkout and pay.
+/// Client for nexi, when customer is about to checkout and pay.
 /// </summary>
 /// <remarks>
-/// <![CDATA[ NETS Easy Payment API (2024): https://developer.nexigroup.com/nexi-checkout/en-EU/api/payment-v1/ ]]> <br />
+/// <![CDATA[ Nexi Checkout API (2024): https://developer.nexigroup.com/nexi-checkout/en-EU/api/payment-v1/ ]]> <br />
 /// <![CDATA[ Do not use this in a singleton class. See https://learn.microsoft.com/en-us/dotnet/core/extensions/httpclient-factory#avoid-typed-clients-in-singleton-services ]]>
 /// </remarks>
 public interface IPaymentClient : IDisposable
