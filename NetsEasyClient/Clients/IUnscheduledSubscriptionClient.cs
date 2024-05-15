@@ -1,10 +1,11 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using SolidNetsEasyClient.Models.DTOs.Requests.Payments.Subscriptions;
+using SolidNetsEasyClient.Models.DTOs.Requests.Webhooks;
 using SolidNetsEasyClient.Models.DTOs.Responses.Payments;
+using SolidNetsEasyClient.Models.DTOs.Responses.Payments.Subscriptions;
 
 namespace SolidNetsEasyClient.Clients;
 
@@ -55,6 +56,30 @@ public interface IUnscheduledSubscriptionClient
     /// <param name="unscheduledSubscriptionId">The unscheduled subscription id</param>
     /// <param name="charge">The charge</param>
     /// <param name="cancellationToken">The cancellation token</param>
-    /// <returns>The charge result</returns>
+    /// <returns>The charge result or null</returns>
     ValueTask<UnscheduledSubscriptionChargeResult?> ChargeUnscheduledSubscription(Guid unscheduledSubscriptionId, UnscheduledSubscriptionCharge charge, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Charges multiple unscheduled subscriptions at once. The request body must contain: 
+    /// A unique string that identifies this bulk charge operation 
+    /// A set of unscheduled subscription identifiers that should be charged. 
+    /// To get status updates about the bulk charge you can subscribe to the 
+    /// webhooks for charges and refunds (payment.charges.* and 
+    /// payments.refunds.*). See also the webhooks documentation.
+    /// </summary>
+    /// <param name="externalBulkChargeId">The external bulk charge id. A string 
+    /// that uniquely identifies the bulk charge operation. Use this property 
+    /// for enabling safe retries. Must be between 1 and 64 characters.</param>
+    /// <param name="charges">The unscheduled subscriptions to charge. The array 
+    /// of unscheduled subscriptions that should be charged. Each item in the 
+    /// array should define either a subscriptionId or an externalReference, but 
+    /// not both.</param>
+    /// <param name="notifications">Notifications allow you to subscribe to 
+    /// status updates for a payment.</param>
+    /// <param name="cancellationToken">The cancellation token</param>
+    /// <returns>A bulk id or null</returns>
+    ValueTask<BaseBulkResult?> BulkChargeUnscheduledSubscriptions(string externalBulkChargeId,
+                                                                  IList<ChargeUnscheduledSubscription> charges,
+                                                                  Notification? notifications = null,
+                                                                  CancellationToken cancellationToken = default);
 }

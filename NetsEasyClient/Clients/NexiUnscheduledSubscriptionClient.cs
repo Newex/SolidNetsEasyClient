@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Net.Http.Json;
 using System.Text.Json;
 using System.Threading;
@@ -6,7 +7,9 @@ using System.Threading.Tasks;
 using SolidNetsEasyClient.Constants;
 using SolidNetsEasyClient.Logging.PaymentClientLogging;
 using SolidNetsEasyClient.Models.DTOs.Requests.Payments.Subscriptions;
+using SolidNetsEasyClient.Models.DTOs.Requests.Webhooks;
 using SolidNetsEasyClient.Models.DTOs.Responses.Payments;
+using SolidNetsEasyClient.Models.DTOs.Responses.Payments.Subscriptions;
 using SolidNetsEasyClient.SerializationContexts;
 
 namespace SolidNetsEasyClient.Clients;
@@ -97,6 +100,44 @@ public sealed partial class NexiClient : IUnscheduledSubscriptionClient
         }
 
         logger.LogErrorChargeUnscheduledSubscription(unscheduledSubscriptionId, charge, body);
+        return null;
+    }
+
+    /// <inheritdoc />
+    public async ValueTask<BaseBulkResult?> BulkChargeUnscheduledSubscriptions(string externalBulkChargeId,
+                                                                               IList<ChargeUnscheduledSubscription> charges,
+                                                                               Notification? notifications = null,
+                                                                               CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrWhiteSpace(externalBulkChargeId))
+        {
+            return null;
+        }
+
+        cancellationToken.ThrowIfCancellationRequested();
+        var url = NetsEndpoints.Relative.UnscheduledSubscriptions + "/charges";
+        var bulk = new BulkUnscheduledSubscriptionCharge()
+        {
+            ExternalBulkChargeId = externalBulkChargeId,
+            Notifications = notifications,
+            UnscheduledSubscriptions = charges
+        };
+        var response = await client.PostAsJsonAsync(url, bulk, UnscheduledSubscriptionSerializationContext.Default.BulkUnscheduledSubscriptionCharge, cancellationToken);
+        var body = await response.Content.ReadAsStringAsync(cancellationToken);
+        if (response.IsSuccessStatusCode)
+        {
+            var result = JsonSerializer.Deserialize(body, UnscheduledSubscriptionSerializationContext.Default.BaseBulkResult);
+            if (result is not null)
+            {
+                logger.LogInfoBulkChargeUnscheduledSubscriptions(charges, externalBulkChargeId, result.BulkId);
+                return result;
+            }
+
+            logger.LogUnexpectedResponse(body);
+            return null;
+        }
+
+        logger.LogErrorBulkChargeUnscheduledSubscriptions(externalBulkChargeId, charges, body);
         return null;
     }
 }

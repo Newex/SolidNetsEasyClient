@@ -360,4 +360,20 @@ internal static partial class NetsPaymentClientLogging
     )
     ]
     public static partial void LogErrorChargeUnscheduledSubscription(this ILogger logger, Guid id, UnscheduledSubscriptionCharge charge, string response);
+
+    [LoggerMessage(
+        EventId = LogEventIDs.Success.Correct,
+        Level = LogLevel.Information,
+        Message = "Bulk charged unscheduled subscriptions {Subscriptions} with {ExternalBulkChargeId}. Got bulk id: {BulkId}."
+    )
+    ]
+    public static partial void LogInfoBulkChargeUnscheduledSubscriptions(this ILogger logger, IList<ChargeUnscheduledSubscription> subscriptions, string externalBulkChargeId, Guid bulkId);
+
+    [LoggerMessage(
+        EventId = LogEventIDs.Errors.Error,
+        Level = LogLevel.Error,
+        Message = "Could not bulk charge id {ExternalBulkChargeId} the {Subscriptions}. Got response: {Response}."
+    )
+    ]
+    public static partial void LogErrorBulkChargeUnscheduledSubscriptions(this ILogger logger, string externalBulkChargeId, IList<ChargeUnscheduledSubscription> subscriptions, string response);
 }

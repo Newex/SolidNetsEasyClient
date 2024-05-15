@@ -2,6 +2,7 @@ using System.Text.Json.Serialization;
 using SolidNetsEasyClient.Converters;
 using SolidNetsEasyClient.Models.DTOs.Requests.Payments.Subscriptions;
 using SolidNetsEasyClient.Models.DTOs.Responses.Payments;
+using SolidNetsEasyClient.Models.DTOs.Responses.Payments.Subscriptions;
 
 namespace SolidNetsEasyClient.SerializationContexts;
 
@@ -19,6 +20,8 @@ namespace SolidNetsEasyClient.SerializationContexts;
     typeof(InvoiceDateConverter),
     typeof(MonthOnlyConverter),
 ], UseStringEnumConverter = true)]
+[JsonSerializable(typeof(BaseBulkResult))]
+[JsonSerializable(typeof(BulkUnscheduledSubscriptionCharge))]
 [JsonSerializable(typeof(UnscheduledSubscriptionChargeResult))]
 [JsonSerializable(typeof(UnscheduledSubscriptionCharge))]
 [JsonSerializable(typeof(UnscheduledSubscriptionDetails))]
