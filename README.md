@@ -61,7 +61,7 @@ Then start a checkout session using the http client `NexiClient` or the typed `I
 
 ```csharp
 NexiClient client; // Inject by dependency injection
-PaymentResult? payment = await paymentClient.StartCheckoutPayment(payment);
+PaymentResult? payment = await client.StartCheckoutPayment(payment);
 ```
 
 If using the `EmbeddedCheckout` - see this documentation for more information: https://developer.nexigroup.com/nexi-checkout/en-EU/docs/web-integration/integrate-checkout-on-your-website-embedded/
