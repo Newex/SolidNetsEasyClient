@@ -1,4 +1,3 @@
-using System.Diagnostics;
 using System.Text.Json.Serialization;
 using SolidNetsEasyClient.Constants;
 using SolidNetsEasyClient.Converters;
@@ -9,7 +8,6 @@ namespace SolidNetsEasyClient.Models.DTOs.Enums;
 /// An event enum for web hook events
 /// </summary>
 [JsonConverter(typeof(EventNameConverter))]
-[DebuggerDisplay("{@event}")]
 public enum EventName
 {
     /// <summary>

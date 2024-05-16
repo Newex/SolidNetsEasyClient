@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using System.Text.Json;
 using SolidNetsEasyClient.Models.DTOs.Enums;
 using SolidNetsEasyClient.Models.DTOs.Responses.Payments;
@@ -30,8 +29,8 @@ public class PaginatedSubscriptionSerializationTests
         "}";
         var expected = new PageResult<SubscriptionProcessStatus>
         {
-            Page = new List<SubscriptionProcessStatus>()
-            {
+            Page =
+            [
                 new()
                 {
                     SubscriptionId = new("d079718b-ff63-45dd-947b-4950c023750f"),
@@ -43,7 +42,7 @@ public class PaginatedSubscriptionSerializationTests
                     Source = "string",
                     ExternalReference = "string"
                 }
-            },
+            ],
             More = true,
             Status = BulkStatus.Processing
         };

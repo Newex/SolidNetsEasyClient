@@ -10,14 +10,14 @@ public class ConsumerTypeSerializationTests
     public void Serialize_enum_to_json_string()
     {
         // Arrange
-        const ConsumerTypeEnum consumerType = ConsumerTypeEnum.B2B;
+        const ConsumerTypeEnum ConsumerType = ConsumerTypeEnum.B2B;
 
         // Act
-        var actual = JsonSerializer.Serialize(consumerType);
-        const string expected = "\"B2B\"";
+        var actual = JsonSerializer.Serialize(ConsumerType);
+        const string Expected = "\"B2B\"";
 
         // Assert
-        Assert.Equal(expected, actual);
+        actual.Should().Be(Expected);
     }
 
     [Fact]

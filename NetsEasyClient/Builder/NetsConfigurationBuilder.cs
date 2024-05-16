@@ -1,13 +1,17 @@
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Net.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
-using Polly;
+using Microsoft.Extensions.Options;
 using SolidNetsEasyClient.Clients;
 using SolidNetsEasyClient.Constants;
-using SolidNetsEasyClient.Helpers.Encryption;
+using SolidNetsEasyClient.Converters;
+using SolidNetsEasyClient.DelegatingHandlers;
+using SolidNetsEasyClient.Extensions;
+using SolidNetsEasyClient.Models.DTOs.Requests.Payments;
 using SolidNetsEasyClient.Models.Options;
+using SolidNetsEasyClient.SerializationContexts;
 
 namespace SolidNetsEasyClient.Builder;
 
@@ -20,10 +24,14 @@ public sealed class NetsConfigurationBuilder
     /// private readonly ServiceDescriptor
     /// </summary>
     private readonly IServiceCollection services;
+    private readonly IHttpClientBuilder httpBuilder;
+    private readonly OptionsBuilder<NetsEasyOptions> optionsBuilder;
 
-    private NetsConfigurationBuilder(IServiceCollection services)
+    private NetsConfigurationBuilder(IServiceCollection services, IHttpClientBuilder httpBuilder, OptionsBuilder<NetsEasyOptions> optionsBuilder)
     {
         this.services = services;
+        this.httpBuilder = httpBuilder;
+        this.optionsBuilder = optionsBuilder;
     }
 
     /// <summary>
@@ -32,13 +40,12 @@ public sealed class NetsConfigurationBuilder
     /// </summary>
     /// <param name="configuration">The configuration object</param>
     /// <returns>A builder object</returns>
+    [RequiresUnreferencedCode("Using member 'Microsoft.Extensions.DependencyInjection.OptionsBuilderConfigurationExtensions.Bind<TOptions>(OptionsBuilder<TOptions>, IConfiguration)' which has 'RequiresUnreferencedCodeAttribute' can break functionality when trimming application code. TOptions's dependent types may have their members trimmed. Ensure all required members are preserved.")]
+    [RequiresDynamicCode("Using member 'Microsoft.Extensions.DependencyInjection.OptionsBuilderConfigurationExtensions.Bind<TOptions>(OptionsBuilder<TOptions>, IConfiguration)' which has 'RequiresDynamicCodeAttribute' can break functionality when AOT compiling. Binding strongly typed objects to configuration values may require generating dynamic code at runtime.")]
     public NetsConfigurationBuilder ConfigureFromConfiguration(IConfiguration configuration)
     {
         var section = configuration.GetSection(NetsEasyOptions.NetsEasyConfigurationSection);
-        _ = services.Configure<NetsEasyOptions>(section);
-
-        var webhookSection = configuration.GetSection(WebhookEncryptionOptions.WebhookEncryptionConfigurationSection);
-        _ = services.Configure<WebhookEncryptionOptions>(webhookSection);
+        optionsBuilder.Bind(section);
         return this;
     }
 
@@ -47,111 +54,115 @@ public sealed class NetsConfigurationBuilder
     /// </summary>
     /// <param name="options">The options to set</param>
     /// <returns>A builder object</returns>
-    public NetsConfigurationBuilder ConfigureNetsEasyOptions(Action<NetsEasyOptions> options)
+    internal NetsConfigurationBuilder ConfigureNetsEasyOptions(Action<NetsEasyOptions> options)
     {
-        _ = services.Configure(options);
+        optionsBuilder.Configure(options);
         return this;
     }
 
     /// <summary>
-    /// Configure the http client for a specific mode
+    /// Configure the http client factory builder for NETS.
     /// </summary>
-    /// <param name="mode">The client mode</param>
-    /// <param name="options">The http client options</param>
-    /// <param name="transientHttpErrorPolicy">The retry policy configuration for the Polly library</param>
+    /// <param name="configure">The configuration action</param>
     /// <returns>A builder object</returns>
-    /// <exception cref="NotSupportedException">If client mode is not supported</exception>
-    public NetsConfigurationBuilder ConfigureHttpClient(ClientMode mode, Action<HttpClient> options, Func<PolicyBuilder<HttpResponseMessage>, IAsyncPolicy<HttpResponseMessage>>? transientHttpErrorPolicy = null)
+    public NetsConfigurationBuilder ConfigureHttpClientFactory(Action<IHttpClientBuilder> configure)
     {
-        var clientMode = mode switch
-        {
-            ClientMode.Live => ClientConstants.Live,
-            ClientMode.Test => ClientConstants.Test,
-            _ => throw new NotSupportedException()
-        };
-
-        _ = transientHttpErrorPolicy is not null
-            ? services
-                .AddHttpClient(clientMode, options)
-                .AddTransientHttpErrorPolicy(transientHttpErrorPolicy)
-            : services.AddHttpClient(clientMode, options);
+        configure(httpBuilder);
         return this;
     }
 
     /// <summary>
-    /// Configure the http client transient retry policy for a specific mode
+    /// Configure the typed http client, for NETS.
     /// </summary>
-    /// <param name="mode">The client mode</param>
-    /// <param name="transientHttpErrorPolicy">The retry policy configuration using the Polly library</param>
+    /// <param name="configure">The configuration action</param>
     /// <returns>A builder object</returns>
-    /// <exception cref="NotSupportedException">Thrown if client mode is not supported</exception>
-    public NetsConfigurationBuilder ConfigureRetryPolicy(ClientMode mode, Func<PolicyBuilder<HttpResponseMessage>, IAsyncPolicy<HttpResponseMessage>> transientHttpErrorPolicy)
+    public NetsConfigurationBuilder ConfigureHttpClient(Action<HttpClient> configure)
     {
-        var clientMode = mode switch
-        {
-            ClientMode.Live => ClientConstants.Live,
-            ClientMode.Test => ClientConstants.Test,
-            _ => throw new NotSupportedException()
-        };
-
-        _ = services.AddHttpClient(clientMode).AddTransientHttpErrorPolicy(transientHttpErrorPolicy);
-        return this;
-    }
-
-    /// <summary>
-    /// Configure the webhook encryption options
-    /// </summary>
-    /// <param name="configure">The options to configure</param>
-    /// <returns>A builder object</returns>
-    public NetsConfigurationBuilder ConfigureEncryptionOptions(Action<WebhookEncryptionOptions> configure)
-    {
-        _ = services.AddOptions<WebhookEncryptionOptions>()
-                                     .Configure(configure)
-                                     .ValidateDataAnnotations()
-                                     .ValidateOnStart();
-        return this;
-    }
-
-    /// <summary>
-    /// Configure the webhook encryption options from a configuration file
-    /// </summary>
-    /// <param name="configuration">The configuration properties</param>
-    /// <returns>A builder object</returns>
-    public NetsConfigurationBuilder ConfigureEncryptionOptions(IConfiguration configuration)
-    {
-        var section = configuration.GetSection(WebhookEncryptionOptions.WebhookEncryptionConfigurationSection);
-        _ = services.Configure<WebhookEncryptionOptions>(section);
+        httpBuilder.ConfigureHttpClient(configure);
         return this;
     }
 
     internal static NetsConfigurationBuilder Create(IServiceCollection services)
     {
-        var instance = new NetsConfigurationBuilder(services);
-
         // Add options
-        _ = services.Configure<NetsEasyOptions>(_ => { });
-        _ = services.Configure<WebhookEncryptionOptions>(c => c.Hasher = new HmacSHA256Hasher());
+        services.ConfigureHttpJsonOptions(options =>
+        {
+            // Add all the converters
+            options.SerializerOptions.Converters.AddAll();
+
+            // Serialization contexts
+            options.SerializerOptions.TypeInfoResolverChain.Add(WebhookSerializationContext.Default);
+            options.SerializerOptions.TypeInfoResolverChain.Add(PaymentResultSerializationContext.Default);
+        });
+        var optionsBuilder = services.AddOptions<NetsEasyOptions>().Validate(config =>
+        {
+            if (string.IsNullOrWhiteSpace(config.ApiKey))
+            {
+                return false;
+            }
+
+            // Conditions:
+            var isValid = true;
+            if (config.IntegrationType == Integration.EmbeddedCheckout)
+            {
+                // Embedded
+                // 1. CheckoutUrl
+                isValid &= !string.IsNullOrWhiteSpace(config.CheckoutUrl);
+
+                // 2. CheckoutKey
+                isValid &= !string.IsNullOrWhiteSpace(config.CheckoutKey);
+            }
+            else if (config.IntegrationType == Integration.HostedPaymentPage)
+            {
+                // Hosted
+                // 1. ReturnUrl
+                isValid &= !string.IsNullOrWhiteSpace(config.ReturnUrl);
+
+                // 2. CancelUrl
+                isValid &= !string.IsNullOrWhiteSpace(config.CancelUrl);
+            }
+
+            // Common
+            // 1. TermsUrl
+            isValid &= !string.IsNullOrWhiteSpace(config.TermsUrl);
+
+            // 2. PrivacyPolicyUrl
+            isValid &= !string.IsNullOrWhiteSpace(config.PrivacyPolicyUrl);
+
+            return isValid;
+        }, "NetsEasyOptions is not configured correctly. Either missing or misconfigured options.")
+        .ValidateOnStart();
 
         // Add factories
-        services.TryAddScoped<NetsPaymentFactory>();
-        services.TryAddScoped<NetsNotificationFactory>();
+
+        // Http configuration
+        static void HttpConfiguration(IServiceProvider provider, HttpClient client)
+        {
+            var opt = provider.GetOptions<NetsEasyOptions>()?.Value;
+
+            var baseUrl = opt?.ClientMode switch
+            {
+                ClientMode.Test => NetsEndpoints.TestingBaseUri,
+                ClientMode.Live => NetsEndpoints.LiveBaseUri,
+                _ => throw new InvalidOperationException("Mode not supported")
+            };
+            client.BaseAddress = baseUrl;
+        }
 
         // Add http clients
-        _ = services.AddHttpClient(ClientConstants.Live, client => client.BaseAddress = NetsEndpoints.LiveBaseUri);
-        _ = services.AddHttpClient(ClientConstants.Test, client => client.BaseAddress = NetsEndpoints.TestingBaseUri);
+        var httpbuilder = services.AddHttpClient<NexiClient>(HttpConfiguration)
+            .AddTypedClient<IPaymentClient>()
+            .AddTypedClient<IChargeClient>()
+            .AddTypedClient<ISubscriptionClient>()
+            .AddTypedClient<IUnscheduledSubscriptionClient>()
+            .AddHttpMessageHandler<CommercePlatformTagHandler>()
+            .AddHttpMessageHandler<NetsAuthorizationHandler>();
 
-        // Add payment client
-        services.TryAddScoped<IPaymentClient, PaymentClient>();
-        services.TryAddScoped(typeof(PaymentClient));
+        // Add dependencies
+        services.AddScoped<NetsPaymentBuilder>();
+        services.AddScoped<CommercePlatformTagHandler>();
+        services.AddScoped<NetsAuthorizationHandler>();
 
-        // Add subscription client
-        services.TryAddScoped<ISubscriptionClient, SubscriptionClient>();
-        services.TryAddScoped(typeof(SubscriptionClient));
-
-        // Add unscheduled subscription client
-        services.TryAddScoped<IUnscheduledSubscriptionClient, UnscheduledSubscriptionClient>();
-        services.TryAddScoped(typeof(UnscheduledSubscriptionClient));
-
-        return instance;
+        return new NetsConfigurationBuilder(services, httpbuilder, optionsBuilder);
     }
 }

@@ -94,7 +94,7 @@ public class PaymentModelTests
             });
 
         // Act
-        var result = PaymentValidator.ShippingCountryCodeMustBeISO3166(payment);
+        var result = PaymentValidator.HasProperShippingAddress(payment);
 
         // Assert
         Assert.False(result);
@@ -112,7 +112,7 @@ public class PaymentModelTests
             });
 
         // Act
-        var result = PaymentValidator.ShippingCountryCodeMustBeISO3166(payment);
+        var result = PaymentValidator.ShippingCountryCodesMustBeISO3166(payment);
 
         // Assert
         Assert.True(result);
@@ -130,7 +130,7 @@ public class PaymentModelTests
             });
 
         // Act
-        var result = PaymentValidator.ShippingCountryCodeMustBeISO3166(payment);
+        var result = PaymentValidator.ShippingCountryCodesMustBeISO3166(payment);
 
         // Assert
         Assert.True(result);
@@ -490,5 +490,71 @@ public class PaymentModelTests
 
         // Assert
         Assert.False(result);
+    }
+
+    [Fact]
+    public void Payment_with_MyReference_containing_illegal_characters_is_invalid()
+    {
+        // Arrange
+        var payment = Setup.DefaultPayment() with
+        {
+            MyReference = "my<illegal>chars&reference"
+        };
+
+        // Act
+        var result = PaymentValidator.MerchantReferenceIsProper(payment);
+
+        // Assert
+        result.Should().BeFalse();
+    }
+
+    [Fact]
+    public void Payment_with_MyReference_containing_more_than_36_chars_is_invalid()
+    {
+        // Arrange
+        var payment = Setup.DefaultPayment() with
+        {
+            MyReference = "mylongreferencetothispaymentexceeds36characterlimit"
+        };
+
+        // Act
+        var result = PaymentValidator.MerchantReferenceIsProper(payment);
+
+        // Assert
+        result.Should().BeFalse();
+    }
+
+    [Fact]
+    public void Payment_with_no_MyReference_is_valid()
+    {
+        // Arrange
+        var payment = Setup.DefaultPayment() with
+        {
+            MyReference = null
+        };
+
+        // Act
+        var result = PaymentValidator.MerchantReferenceIsProper(payment);
+
+        // Assert
+        result.Should().BeTrue();
+    }
+
+    [Fact]
+    public void Payment_with_shipping_to_non_country_is_invalid()
+    {
+        // Arrange
+        var payment = Setup.DefaultPayment()
+            .WithConsumer(c => c)
+            .WithShippingAddress(a => new()
+            {
+                Country = "THI"
+            });
+
+        // Act
+        var result = PaymentValidator.HasProperShippingAddress(payment);
+
+        // Assert
+        result.Should().BeFalse();
     }
 }

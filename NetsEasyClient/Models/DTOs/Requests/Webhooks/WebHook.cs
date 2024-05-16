@@ -33,6 +33,5 @@ public record WebHook
     /// Must be between 8 and 32 characters long and contain alphanumeric characters
     /// </remarks>
     [JsonPropertyName("authorization")]
-    [Required]
-    public required string Authorization { get; init; }
+    public string? Authorization { get; init; }
 }

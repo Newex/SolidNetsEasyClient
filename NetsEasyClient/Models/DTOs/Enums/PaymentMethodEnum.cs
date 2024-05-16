@@ -6,7 +6,7 @@ namespace SolidNetsEasyClient.Models.DTOs.Enums;
 /// <summary>
 /// Payment methods
 /// </summary>
-[JsonConverter(typeof(PaymentMethodEnumConverter))]
+[JsonConverter(typeof(JsonStringEnumConverter<PaymentMethodEnum>))]
 public enum PaymentMethodEnum
 {
     /// <summary>
@@ -60,32 +60,37 @@ public enum PaymentMethodEnum
     EasyInvoice = 9,
 
     /// <summary>
+    /// EasyInstallment payment method
+    /// </summary>
+    EasyInstallment = 10,
+
+    /// <summary>
     /// EasyCampaign payment method
     /// </summary>
-    EasyCampaign = 10,
+    EasyCampaign = 11,
 
     /// <summary>
     /// RatePayInvoice payment method
     /// </summary>
-    RatePayInvoice = 11,
+    RatePayInvoice = 12,
 
     /// <summary>
     /// RatePayInstallment payment method
     /// </summary>
-    RatePayInstallment = 12,
+    RatePayInstallment = 13,
 
     /// <summary>
     /// RatePaySepa payment method
     /// </summary>
-    RatePaySepa = 13,
+    RatePaySepa = 14,
 
     /// <summary>
     /// Sofort payment method
     /// </summary>
-    Sofort = 14,
+    Sofort = 15,
 
     /// <summary>
     /// Trustly payment method
     /// </summary>
-    Trustly = 15
+    Trustly = 16
 }

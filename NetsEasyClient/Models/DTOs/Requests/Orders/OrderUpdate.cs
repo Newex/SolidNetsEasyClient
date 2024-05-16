@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Text.Json.Serialization;
 using SolidNetsEasyClient.Models.DTOs.Requests.Payments;
 
@@ -10,11 +11,11 @@ namespace SolidNetsEasyClient.Models.DTOs.Requests.Orders;
 public record OrderUpdate
 {
     /// <summary>
-    /// The amount, for example 10000
+    /// The amount, for example 10000. Must be higher than 0.
     /// </summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("amount")]
-    public int? Amount { get; init; }
+    public int? Amount => Items?.Sum(x => x.GrossTotalAmount);
 
     /// <summary>
     /// The array of order items

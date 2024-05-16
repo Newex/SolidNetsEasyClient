@@ -1,70 +1,71 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Text;
 using System.Text.Json;
+using SolidNetsEasyClient.Converters;
 using SolidNetsEasyClient.Models.DTOs;
 using SolidNetsEasyClient.Models.DTOs.Enums;
 using SolidNetsEasyClient.Models.DTOs.Responses.Webhooks;
+using SolidNetsEasyClient.Models.DTOs.Responses.Webhooks.Payloads;
 
 namespace SolidNetsEasyClient.Tests.SerializationTests.WebHooksTests;
 
 [UnitTest]
 public class PaymentCancelledFailedSerializationTests
 {
-    [Fact]
-    public void Can_deserialize_payment_cancelled_failed_event_to_PaymentCancelledFailed_object()
+    const string Json = """
     {
-        // Arrange
-        const string json = "{\n" +
-            "\"id\": \"df7f9346097842bdb90c869b5c9ccfa9\",\n" +
-            "\"merchantId\": 100017120,\n" +
-            "\"timestamp\": \"2021-05-06T11:37:30.1114+02:00\",\n" +
-            "\"event\": \"payment.cancel.failed\",\n" +
-            "\"data\": {\n" +
-                "\"error\": {\n" +
-                    "\"code\": \"25\",\n" +
-                    "\"message\": \"Trans not found\",\n" +
-                    "\"source\": \"Internal\"\n" +
-                "},\n" +
-                "\"cancelId\": \"df7f9346097842bdb90c869b5c9ccfa9\",\n" +
-                "\"orderItems\": [\n" +
-                    "{\n" +
-                        "\"reference\": \"Sneaky NE2816-82\",\n" +
-                        "\"name\": \"Sneaky\",\n" +
-                        "\"quantity\": 2,\n" +
-                        "\"unit\": \"pcs\",\n" +
-                        "\"unitPrice\": 2500,\n" +
-                        "\"taxRate\": 1000,\n" +
-                        "\"taxAmount\": 500,\n" +
-                        "\"netTotalAmount\": 5000,\n" +
-                        "\"grossTotalAmount\": 5500\n" +
-                    "}\n" +
-                "],\n" +
-                "\"amount\": {\n" +
-                    "\"amount\": 5500,\n" +
-                    "\"currency\": \"SEK\"\n" +
-                "},\n" +
-                "\"paymentId\": \"023a00005ea744ed368812223c86c299\"\n" +
-            "}\n" +
-        "}\n";
+        "id": "df7f9346097842bdb90c869b5c9ccfa9",
+        "merchantId": 100017120,
+        "timestamp": "2021-05-06T11:37:30.1114+02:00",
+        "event": "payment.cancel.failed",
+        "data": {
+            "error": {
+                "code": "25",
+                "message": "Trans not found",
+                "source": "Internal"
+            },
+            "cancelId": "df7f9346097842bdb90c869b5c9ccfa9",
+            "orderItems": [
+                {
+                    "reference": "Sneaky NE2816-82",
+                    "name": "Sneaky",
+                    "quantity": 2,
+                    "unit": "pcs",
+                    "unitPrice": 2500,
+                    "taxRate": 1000,
+                    "taxAmount": 500,
+                    "netTotalAmount": 5000,
+                    "grossTotalAmount": 5500
+                }
+            ],
+            "amount": {
+                "amount": 5500,
+                "currency": "SEK"
+            },
+            "paymentId": "023a00005ea744ed368812223c86c299"
+        }
+    }
+    """;
 
-        var expected = new PaymentCancellationFailed()
+    private readonly PaymentCancellationFailed expected = new()
+    {
+        Id = new("df7f9346097842bdb90c869b5c9ccfa9"),
+        MerchantId = 100017120,
+        Timestamp = DateTimeOffset.Parse("2021-05-06T11:37:30.1114+02:00", CultureInfo.InvariantCulture),
+        Event = EventName.PaymentCancellationFailed,
+        Data = new()
         {
-            Id = new("df7f9346097842bdb90c869b5c9ccfa9"),
-            MerchantId = 100017120,
-            Timestamp = DateTimeOffset.Parse("2021-05-06T11:37:30.1114+02:00", CultureInfo.InvariantCulture),
-            Event = EventName.PaymentCancellationFailed,
-            Data = new()
+            Error = new()
             {
-                Error = new()
-                {
-                    Code = "25",
-                    Message = "Trans not found",
-                    Source = "Internal"
-                },
-                CancelId = new("df7f9346097842bdb90c869b5c9ccfa9"),
-                OrderItems = new List<Item>
-                {
+                Code = "25",
+                Message = "Trans not found",
+                Source = "Internal"
+            },
+            CancelId = new("df7f9346097842bdb90c869b5c9ccfa9"),
+            OrderItems =
+                [
                     new()
                     {
                         Reference = "Sneaky NE2816-82",
@@ -74,20 +75,41 @@ public class PaymentCancelledFailedSerializationTests
                         UnitPrice = 2500,
                         TaxRate = 1000,
                     }
-                },
-                Amount = new()
-                {
-                    Amount = 5500,
-                    Currency = Currency.SEK
-                },
-                PaymentId = new("023a00005ea744ed368812223c86c299")
-            }
-        };
+                ],
+            Amount = new()
+            {
+                Amount = 5500,
+                Currency = Currency.SEK
+            },
+            PaymentId = new("023a00005ea744ed368812223c86c299")
+        }
+    };
+
+    [Fact]
+    public void Can_deserialize_payment_cancelled_failed_event_to_PaymentCancelledFailed_object()
+    {
+        // Arrange
 
         // Act
-        var actual = JsonSerializer.Deserialize<PaymentCancellationFailed>(json);
+        var actual = JsonSerializer.Deserialize<PaymentCancellationFailed>(Json);
 
         // Assert
         actual.Should().BeEquivalentTo(expected);
+    }
+
+    [Fact]
+    public void Deserialize_payment_cancellation_failed_using_custom_converter()
+    {
+        // Arrange
+        var options = new JsonSerializerOptions(JsonSerializerOptions.Default);
+        options.Converters.Add(new IWebhookConverter());
+        var reader = new Utf8JsonReader(Encoding.UTF8.GetBytes(Json));
+
+        // Act
+        var actual = JsonSerializer.Deserialize<IWebhook<WebhookData>>(ref reader, options);
+        var paymentCancellationFailed = actual as PaymentCancellationFailed;
+
+        // Assert
+        paymentCancellationFailed.Should().NotBeNull().And.BeEquivalentTo(expected);
     }
 }

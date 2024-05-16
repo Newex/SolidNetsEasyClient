@@ -35,7 +35,8 @@ public record Charge
     public ChargeShipping? Shipping { get; init; }
 
     /// <summary>
-    /// Flag to release remaining reservation
+    /// Flag to release remaining reservation.
+    /// If set to true, the remaining authorization amount will be released.
     /// </summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("finalCharge")]

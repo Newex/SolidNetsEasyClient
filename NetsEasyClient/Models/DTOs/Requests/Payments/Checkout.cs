@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
+using SolidNetsEasyClient.Converters;
 using SolidNetsEasyClient.Models.DTOs.Requests.Customers;
 using SolidNetsEasyClient.Models.DTOs.Requests.Customers.Addresses;
 using SolidNetsEasyClient.Models.DTOs.Requests.Styles;
@@ -28,6 +29,7 @@ public record Checkout
     /// </remarks>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("integrationType")]
+    [JsonConverter(typeof(IntegrationEnumConverter))]
     public Integration? IntegrationType { get; init; }
 
     /// <summary>
@@ -89,20 +91,26 @@ public record Checkout
     public ConsumerType? ConsumerType { get; init; }
 
     /// <summary>
-    /// If set to true, the transaction will be charged automatically after the reservation has been accepted. Default value is false if not specified
+    /// If set to true, the transaction will be charged automatically after the
+    /// reservation has been accepted. Default value is false if not specified
     /// </summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("charge")]
     public bool? Charge { get; init; }
 
     /// <summary>
-    /// If set to true, the checkout will not load any user data, and also the checkout will not remember the current consumer on this device. Default value is false if not specified
+    /// If set to true, the checkout will not load any user data, and also the
+    /// checkout will not remember the current consumer on this device. Default
+    /// value is false if not specified
     /// </summary>
     [JsonPropertyName("publicDevice")]
     public bool PublicDevice { get; init; }
 
     /// <summary>
-    /// Allows you to initiate the checkout with customer data so that your customer only need to provide payment details. If set to true, you also need to specify a consumer object (either a privatePerson or a company, not both)
+    /// Allows you to initiate the checkout with customer data so that your
+    /// customer only need to provide payment details. If set to true, you also
+    /// need to specify a consumer object (either a privatePerson or a company,
+    /// not both)
     /// </summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("merchantHandlesConsumerData")]
@@ -116,7 +124,9 @@ public record Checkout
     public CheckoutAppearance? Appearance { get; init; }
 
     /// <summary>
-    /// Merchant's three-letter checkout country code (ISO 3166-1), for example GBR
+    /// Merchant's (your) three-letter checkout country code (ISO 3166-1), for example GBR.
+    /// Important: For Klarna payments, the countryCode field is mandatory. If
+    /// not provided, Klarna will not be available as a payment method.
     /// </summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("countryCode")]

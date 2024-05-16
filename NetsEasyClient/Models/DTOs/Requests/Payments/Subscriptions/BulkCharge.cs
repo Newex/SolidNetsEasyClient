@@ -28,5 +28,5 @@ public record BulkCharge
     /// The array of subscriptions that should be charged. Each item in the array should define either a subscriptionId or an externalReference, but not both.
     /// </summary>
     [JsonPropertyName("subscriptions")]
-    public IList<SubscriptionCharge> Subscriptions { get; init; } = Enumerable.Empty<SubscriptionCharge>().ToList();
+    public IList<SubscriptionCharge> Subscriptions { get; init; } = [];
 }

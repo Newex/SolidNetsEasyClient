@@ -1,0 +1,19 @@
+﻿{
+  id: Guid_1,
+  merchantId: 100017120,
+  timestamp: DateTimeOffset_1,
+  event: payment.refund.failed,
+  data: {
+    paymentId: Guid_2,
+    refundId: Guid_3,
+    error: {
+      message: Some error message,
+      code: 25,
+      source: Internal
+    },
+    amount: {
+      amount: 5500,
+      currency: SEK
+    }
+  }
+}

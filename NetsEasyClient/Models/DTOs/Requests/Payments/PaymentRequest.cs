@@ -68,7 +68,8 @@ public record PaymentRequest
     public IEnumerable<PaymentMethod>? PaymentMethods { get; init; }
 
     /// <summary>
-    /// Merchant payment reference
+    /// Merchant payment reference.
+    /// The maximum length is 36 characters.
     /// </summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("myReference")]

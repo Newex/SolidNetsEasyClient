@@ -15,11 +15,14 @@ public record PaymentResult
     /// <summary>
     /// The payment ID
     /// </summary>
+    [JsonPropertyName("paymentId")]
     [JsonConverter(typeof(GuidTypeConverter))]
     public Guid PaymentId { get; init; }
 
     /// <summary>
     /// The URL your website should redirect to if using a hosted pre-built checkout page
     /// </summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    [JsonPropertyName("hostedPaymentPageUrl")]
     public string? HostedPaymentPageUrl { get; init; }
 }

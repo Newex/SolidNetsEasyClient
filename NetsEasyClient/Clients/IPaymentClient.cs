@@ -1,7 +1,6 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using SolidNetsEasyClient.Models.DTOs.Requests.Customers;
 using SolidNetsEasyClient.Models.DTOs.Requests.Orders;
 using SolidNetsEasyClient.Models.DTOs.Requests.Payments;
 using SolidNetsEasyClient.Models.DTOs.Responses.Payments;
@@ -9,186 +8,103 @@ using SolidNetsEasyClient.Models.DTOs.Responses.Payments;
 namespace SolidNetsEasyClient.Clients;
 
 /// <summary>
-/// Payment client, responsible for mediating communication between NETS payment API and this client
+/// Client for nexi, when customer is about to checkout and pay.
 /// </summary>
-public interface IPaymentClient
+/// <remarks>
+/// <![CDATA[ Nexi Checkout API (2024): https://developer.nexigroup.com/nexi-checkout/en-EU/api/payment-v1/ ]]> <br />
+/// <![CDATA[ Do not use this in a singleton class. See https://learn.microsoft.com/en-us/dotnet/core/extensions/httpclient-factory#avoid-typed-clients-in-singleton-services ]]>
+/// </remarks>
+public interface IPaymentClient : IDisposable
 {
     /// <summary>
-    /// The checkout key for the payment client
+    /// The checkout key
     /// </summary>
-    string CheckoutKey { get; }
+    string? CheckoutKey { get; }
 
     /// <summary>
-    /// Cancels the specified payment. When a payment is canceled, the reserved amount of the payment will be released to the customer's payment card
+    /// Send the payment request to NETS to initiate a checkout process. 
+    /// This should be called before showing the payment page, since the response info should be used on the payment page. 
+    /// The checkout can either be a one-time payment, or a subscription.
+    /// </summary>
+    /// <param name="paymentRequest">The payment request</param>
+    /// <param name="cancellationToken">The cancellation token</param>
+    /// <returns>The payment result</returns>
+    /// <exception cref="InvalidOperationException">Thrown if invalid payment request.</exception>
+    ValueTask<PaymentResult?> StartCheckoutPayment(PaymentRequest paymentRequest, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Retrieve payment details for a payment.
+    /// </summary>
+    /// <param name="paymentId">The payment id</param>
+    /// <param name="cancellationToken">The optional cancellation token</param>
+    /// <returns>Payment detail or null</returns>
+    ValueTask<PaymentStatus?> RetrievePaymentDetails(Guid paymentId, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Updates the specified payment object with a new reference string and a
+    /// checkoutUrl. If you instead want to update the order of a payment
+    /// object, use the <see cref="UpdateOrderBeforeCheckout(Guid, OrderUpdate, CancellationToken)"/>
+    /// </summary>
+    /// <param name="paymentId">The payment id</param>
+    /// <param name="references">The new updated reference information</param>
+    /// <param name="cancellationToken">The cancellation token</param>
+    /// <returns>True if updated references otherwise false</returns>
+    ValueTask<bool> UpdateReferenceInformationBeforeCheckout(Guid paymentId, ReferenceInformation references, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Update order, before final payment. Updates the order for the specified
+    /// payment. This endpoint makes it possible to change the order on the
+    /// checkout page after the payment object has been created. This is
+    /// typically used when managing destination-based shipping costs at the
+    /// checkout. This endpoint can only be used as long as the checkout has not
+    /// yet been completed by the customer. (See the payment.checkout.completed
+    /// event.)
+    /// </summary>
+    /// <param name="paymentId">The payment id</param>
+    /// <param name="update">The order updates</param>
+    /// <param name="cancellationToken">The cancellation token</param>
+    /// <returns>True if updated otherwise false</returns>
+    ValueTask<bool> UpdateOrderBeforeCheckout(Guid paymentId, OrderUpdate update, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Terminate payment before checkout is completed.
+    /// Terminates an ongoing checkout session. A payment can only be terminated
+    /// before the checkout has completed (see the payment.checkout event). Use
+    /// this method to prevent a customer from having multiple open payment
+    /// sessions simultaneously.
+    /// </summary>
+    /// <param name="paymentId">The payment id</param>
+    /// <param name="cancellationToken">The cancellation token</param>
+    /// <returns>True if payment has been terminated otherwise false</returns>
+    ValueTask<bool> TerminatePaymentBeforeCheckout(Guid paymentId, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Cancels the specified payment. When a payment is canceled, the reserved
+    /// amount of the payment will be released to the customer's payment card.
     /// </summary>
     /// <remarks>
-    /// Note that;
-    /// Only full cancels are allowed. The amount must always match the total amount of the order;
-    /// Once a payment has been charged (fully or partially), the payment cannot be canceled;
-    /// It is not possible to change the status of a payment once it has been canceled;
-    /// Nets will not charge a fee for a canceled payment
+    /// Only full cancels are allowed. The amount must always match the total
+    /// amount of the order.
+    /// Once a payment has been charged (fully or partially), the payment cannot
+    /// be canceled.
+    /// It is not possible to change the status of a payment once it has been
+    /// canceled.
+    /// Nexi Group will not charge a fee for a canceled payment.
     /// </remarks>
-    /// <param name="paymentID">The payment ID</param>
-    /// <param name="order">The order</param>
+    /// <param name="paymentId">The payment id</param>
+    /// <param name="order">The order cancellation</param>
     /// <param name="cancellationToken">The cancellation token</param>
-    /// <returns>An awaitable task</returns>
-    /// <exception cref="ArgumentException">Thrown if <paramref name="paymentID"/> is empty</exception>
-    Task<bool> CancelPaymentAsync(Guid paymentID, Order order, CancellationToken cancellationToken);
+    /// <returns>True if order has been canceled otherwise false</returns>
+    ValueTask<bool> CancelPaymentBeforeCharge(Guid paymentId, CancelOrder order, CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Cancels a pending refund. A refund can be in a pending state when there are not enough funds in the merchant's account to make the refund
+    /// Updates myReference field on payment. The myReference can be used if you 
+    /// want to create a myReference ID that can be used in your own accounting 
+    /// system to keep track of the actions connected to the payment.
     /// </summary>
-    /// <param name="refundId">The refund Id</param>
-    /// <param name="cancellationToken">The cancellation token</param>
-    /// <returns>An awaitable task</returns>
-    /// <exception cref="ArgumentException">Thrown if <paramref name="refundId"/> is empty</exception>
-    Task<bool> CancelPendingRefundAsync(Guid refundId, CancellationToken cancellationToken);
-
-    /// <summary>
-    /// Charges the specified payment. Charge a payment on the same day as you ship the matching order.A payment can be fully charged or partially charged
-    /// </summary>
-    /// <remarks>
-    /// Full charge: Your customer will be charged the total amount of the payment. The amount must be specified in the request body and is required to match the total amount of the payment
-    /// Partial charge: Only charge for a subset of the order items. In this case you have to provide the amount and the orderItems you want to charge in the request body
-    /// </remarks>
-    /// <param name="paymentID">The payment ID</param>
-    /// <param name="charge">The charges</param>
-    /// <param name="cancellationToken">The cancellation token</param>
-    /// <param name="idempotencyKey">The optional idempotency key used to avoid calling API endpoint several times</param>
-    /// <returns>A charge result</returns>
-    Task<ChargeResult?> ChargePaymentAsync(Guid paymentID, Charge charge, CancellationToken cancellationToken, string? idempotencyKey = null);
-
-    /// <summary>
-    /// Create a payment in NETS. The payment will be charged immediately.
-    /// </summary>
-    /// <remarks>
-    /// Initializes a new payment object that becomes the object used throughout the checkout flow for a particular customer and order. Creating a payment object is the first step when you intend to accept a payment from your customer. Entering the amount 100 corresponds to 1 unit of the currency entered, such as e.g. 1 NOK
-    /// </remarks>
-    /// <param name="order">The order</param>
-    /// <param name="integration">The integration type</param>
-    /// <param name="cancellationToken">The cancellation token</param>
-    /// <param name="charge">True if the payment should be charged on creation otherwise a separate call to charge the payment must be called</param>
-    /// <param name="checkoutUrl">The optional checkout url, if not specified it will use the value given from configuration</param>
-    /// <param name="returnUrl">The optional return url, if not specified it will use the value given from configuration only if <paramref name="integration"/> is set to hosted</param>
-    /// <param name="termsUrl">The optional terms url, if not specified it will use the value given from configuration</param>
-    /// <param name="validate">True if the payment should be validated before sending the payment request to Nets</param>
-    /// <returns>A payment result or throws an exception</returns>
-    /// <exception cref="ArgumentException">Thrown if invalid payment object</exception>
-    Task<PaymentResult> CreatePaymentAsync(Order order, Integration integration, CancellationToken cancellationToken, bool charge = true, string? checkoutUrl = null, string? returnUrl = null, string? termsUrl = null, bool validate = true);
-
-    /// <summary>
-    /// Create a payment in NETS
-    /// </summary>
-    /// <remarks>
-    /// Initializes a new payment object that becomes the object used throughout the checkout flow for a particular customer and order. Creating a payment object is the first step when you intend to accept a payment from your customer. Entering the amount 100 corresponds to 1 unit of the currency entered, such as e.g. 1 NOK
-    /// </remarks>
-    /// <param name="payment">The payment request</param>
-    /// <param name="cancellationToken">The cancellation token</param>
-    /// <param name="validate">True if the payment should be validated before sending the payment request to Nets</param>
-    /// <returns>A payment result or throws an exception</returns>
-    /// <exception cref="ArgumentException">Thrown if invalid payment object</exception>
-    Task<PaymentResult> CreatePaymentAsync(PaymentRequest payment, CancellationToken cancellationToken, bool validate = true);
-
-    /// <summary>
-    /// Create a payment in NETS. Assumes that the payment is embedded (as opposed to hosted). The payment will be charged immediately.
-    /// </summary>
-    /// <remarks>
-    /// Initializes a new payment object that becomes the object used throughout the checkout flow for a particular customer and order. Creating a payment object is the first step when you intend to accept a payment from your customer. Entering the amount 100 corresponds to 1 unit of the currency entered, such as e.g. 1 NOK
-    /// </remarks>
-    /// <param name="order">The order</param>
-    /// <param name="consumer">The consumer details</param>
-    /// <param name="cancellationToken">The cancellation token</param>
-    /// <param name="charge">True if the payment should be charged on creation otherwise a separate call to charge the payment must be called</param>
-    /// <param name="checkoutUrl">The optional checkout url, if not specified it will use the value given from configuration</param>
-    /// <param name="termsUrl">The optional terms url, if not specified it will use the value given from configuration</param>
-    /// <param name="validate">True if the payment should be validated before sending the payment request to Nets</param>
-    /// <returns>A payment result or throws an exception</returns>
-    /// <exception cref="ArgumentException">Thrown if invalid payment object</exception>
-    Task<PaymentResult> CreatePaymentAsync(Order order, Consumer consumer, CancellationToken cancellationToken, bool charge = true, string? checkoutUrl = null, string? termsUrl = null, bool validate = true);
-
-    /// <summary>
-    /// Get status for a payment
-    /// </summary>
-    /// <remarks>
-    /// Retrieves the details of an existing payment. The paymentId is obtained from Nets when creating a <see cref="CreatePaymentAsync(Order, Integration, CancellationToken, bool, string?, string?, string?, bool)"/>
-    /// </remarks>
-    /// <param name="paymentID">The payment ID</param>
-    /// <param name="cancellationToken">The cancellation token</param>
-    /// <returns>A payment status or null</returns>
-    Task<PaymentStatus?> RetrievePaymentAsync(Guid paymentID, CancellationToken cancellationToken);
-
-    /// <summary>
-    /// Refunds a previously settled transaction (a charged payment). The refunded amount will be transferred back to the customer's account. The required chargeId is returned from the Charge payment method
-    /// A settled transaction can be fully or partially refunded:
-    /// * Full refund requires only the amount to be specified in the request body.
-    /// * Partial refund requires the amount and the orderItems to be refunded.
-    /// </summary>
-    /// <param name="chargeId">The charge Id</param>
-    /// <param name="refund">The refund amount and items</param>
-    /// <param name="cancellationToken">The cancellation token</param>
-    /// <param name="idempotencyKey">The optional idempotency key used to avoid calling API endpoint several times</param>
-    /// <returns>A refund result</returns>
-    Task<RefundResult?> RefundChargeAsync(Guid chargeId, Refund refund, CancellationToken cancellationToken, string? idempotencyKey = null);
-
-    /// <summary>
-    /// Retrieves the details of an existing charge operation. The <paramref name="chargeId"/> is obtained from Nets when creating a new charge. The primary usage of this method is to retrieve invoice details of a charge
-    /// </summary>
-    /// <param name="chargeId">The charge Id</param>
-    /// <param name="cancellationToken">The cancellation token</param>
-    /// <returns>A charge details info</returns>
-    Task<ChargeDetailsInfo?> RetrieveChargeAsync(Guid chargeId, CancellationToken cancellationToken);
-
-    /// <summary>
-    /// Retrieves the details of an existing refund. The refundId is obtained from Nets when creating a new refund. The primary usage of this method is to retrieve invoice details of a refund
-    /// </summary>
-    /// <param name="refundId">The refund Id</param>
-    /// <param name="cancellationToken">The cancellation token</param>
-    /// <returns>A refund status</returns>
-    Task<RetrieveRefund?> RetrieveRefundAsync(Guid refundId, CancellationToken cancellationToken);
-
-    /// <summary>
-    /// Terminates an ongoing checkout session. A payment can only be terminated before the checkout has completed (see the payment.checkout event). Use this method to prevent a customer from having multiple open payment sessions simultaneously.
-    /// </summary>
-    /// <param name="paymentID">The payment ID</param>
-    /// <param name="cancellationToken">The cancellation token</param>
-    /// <returns>An awaitable task</returns>
-    /// <exception cref="ArgumentException">Thrown if <paramref name="paymentID"/> is empty</exception>
-    Task<bool> TerminatePaymentAsync(Guid paymentID, CancellationToken cancellationToken);
-
-    /// <summary>
-    /// Update an existing order for a payment
-    /// </summary>
-    /// <remarks>
-    /// Updates the order for the specified payment. This endpoint makes it possible to change the order on the checkout page after the payment object has been created. This is typically used when managing destination-based shipping costs at the checkout. This endpoint can only be used as long as the checkout has not yet been completed by the customer. (See the payment.checkout.completed event.)
-    /// </remarks>
-    /// <param name="paymentID">The payment ID</param>
-    /// <param name="updates">The order updates</param>
-    /// <param name="cancellationToken">The cancellation token</param>
-    /// <returns>An awaitable task</returns>
-    /// <exception cref="ArgumentException">Thrown when <paramref name="paymentID"/> is empty</exception>
-    Task<bool> UpdateOrderAsync(Guid paymentID, OrderUpdate updates, CancellationToken cancellationToken);
-
-    /// <summary>
-    /// Updates myReference field on payment
-    /// </summary>
-    /// <param name="paymentId">The payment Id</param>
-    /// <param name="myReference">The merchant payment reference</param>
-    /// <param name="cancellationToken">The cancellation token</param>
-    /// <returns>An awaitable task that is true on success or false otherwise</returns>
-    /// <exception cref="ArgumentException">Thrown if <paramref name="paymentId"/> is empty</exception>
-    /// <seealso cref="PaymentRequest.MyReference"/>
-    Task<bool> UpdatePaymentReferenceAsync(Guid paymentId, string? myReference, CancellationToken cancellationToken);
-
-    /// <summary>
-    /// Update an existing payments checkout url and reference
-    /// </summary>
-    /// <remarks>
-    /// Updates the specified payment object with a new reference string and a checkoutUrl. If you instead want to update the order of a payment object, use the Update order method.
-    /// </remarks>
-    /// <param name="payment">The payment object</param>
-    /// <param name="checkoutUrl">The checkout url</param>
-    /// <param name="reference">The reference</param>
-    /// <param name="cancellationToken">The cancellation token</param>
-    /// <returns>An awaitable task</returns>
-    Task<bool> UpdateReferences(Payment payment, string checkoutUrl, string reference, CancellationToken cancellationToken);
+    /// <param name="paymentId">The payment id.</param>
+    /// <param name="myReference">The updated reference for the payment.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>True if reference has been updated otherwise false.</returns>
+    ValueTask<bool> UpdateMyReference(Guid paymentId, PaymentReference myReference, CancellationToken cancellationToken = default);
 }

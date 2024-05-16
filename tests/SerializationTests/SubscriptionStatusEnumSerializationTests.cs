@@ -11,12 +11,12 @@ public class SubscriptionStatusEnumSerializationTests
     {
         // Arrange
         const string json = @"""succeeded""";
-        const SubscriptionStatus expected = SubscriptionStatus.Succeeded;
+        const SubscriptionStatus Expected = SubscriptionStatus.Succeeded;
 
         // Act
         var actual = JsonSerializer.Deserialize<SubscriptionStatus>(json);
 
         // Assert
-        actual.Should().BeOneOf(expected);
+        actual.Should().BeOneOf(Expected);
     }
 }

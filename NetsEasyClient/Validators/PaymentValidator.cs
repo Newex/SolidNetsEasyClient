@@ -1,4 +1,5 @@
 using System;
+using System.Buffers;
 using System.Linq;
 using ISO3166;
 using Microsoft.Extensions.Logging;
@@ -12,6 +13,8 @@ namespace SolidNetsEasyClient.Validators;
 /// </summary>
 internal static class PaymentValidator
 {
+    private static readonly SearchValues<char> searchValues = SearchValues.Create("<>'\"&\\");
+
     /// <summary>
     /// Checks if a payment is valid
     /// </summary>
@@ -21,6 +24,13 @@ internal static class PaymentValidator
     internal static bool IsValidPaymentObject(PaymentRequest payment, ILogger logger)
     {
         // Checkout URL must not be empty
+        // TODO: Add checking for illegal characters in
+        // billingAddress.Country,
+        // orderDetails.Currency,
+        // checkoutUrl,
+        // webhooks.eventName,
+        // webhooks.Url,
+        // merchantNumber
         if (!EmbeddedCheckoutHasCheckoutUrl(payment))
         {
             logger.ErrorEmbeddedCheckoutMissingUrl(payment);
@@ -45,7 +55,7 @@ internal static class PaymentValidator
             return false;
         }
 
-        if (!ShippingCountryCodeMustBeISO3166(payment))
+        if (!ShippingCountryCodesMustBeISO3166(payment))
         {
             logger.ErrorInvalidShippingCountryFormat(payment);
             return false;
@@ -84,6 +94,26 @@ internal static class PaymentValidator
         if (!NonSubscriptionMustHaveNonNegativeAmount(payment))
         {
             logger.ErrorInvalidPaymentAmount(payment);
+            return false;
+        }
+
+        // MyReference,
+        if (!MerchantReferenceIsProper(payment))
+        {
+            return false;
+        }
+
+        // consumer.shippingAddress.Country,
+        if (!HasProperShippingAddress(payment))
+        {
+            return false;
+        }
+
+        // orderItems.Reference,
+        // orderItems.Name,
+        // orderItems.Unit,
+        if (!HasProperOrderItems(payment))
+        {
             return false;
         }
 
@@ -138,18 +168,8 @@ internal static class PaymentValidator
         };
     }
 
-    internal static bool ShippingCountryCodeMustBeISO3166(PaymentRequest payment)
+    internal static bool ShippingCountryCodesMustBeISO3166(PaymentRequest payment)
     {
-        var shippingCountry = payment.Checkout.Consumer?.ShippingAddress?.Country;
-        if (shippingCountry is not null)
-        {
-            var isValid = CountryCodeExists(shippingCountry);
-            if (!isValid)
-            {
-                return false;
-            }
-        }
-
         var shippingCountries = payment.Checkout.ShippingCountries;
         if (shippingCountries?.Any() == true)
         {
@@ -252,6 +272,89 @@ internal static class PaymentValidator
         }
 
         return payment.Order.Amount > 0;
+    }
+
+    internal static bool HasProperOrderItems(PaymentRequest payment)
+    {
+        var result = true;
+        foreach (var item in payment.Order.Items)
+        {
+            result = result
+                && NoSpecialCharacters(item.Reference)
+                && item.Reference.Length <= 128
+                && NoSpecialCharacters(item.Name)
+                && item.Name.Length <= 128
+                && NoSpecialCharacters(item.Unit)
+                && item.Unit.Length <= 128;
+
+            if (!result)
+            {
+                break;
+            }
+        }
+
+        return result;
+    }
+
+    internal static bool MerchantReferenceIsProper(PaymentRequest payment)
+    {
+        if (payment.MyReference is null)
+        {
+            return true;
+        }
+
+        if (NoSpecialCharacters(payment.MyReference)
+            && payment.MyReference.Length <= 36)
+        {
+            return true;
+        }
+
+        return false;
+    }
+
+    internal static bool HasProperShippingAddress(PaymentRequest payment)
+    {
+        if (payment.Checkout?.Consumer?.ShippingAddress is null)
+        {
+            return true;
+        }
+
+        var result = true;
+        var address = payment.Checkout.Consumer.ShippingAddress;
+        if (address.AddressLine1 is not null)
+        {
+            result = NoSpecialCharacters(address.AddressLine1)
+                    && address.AddressLine1.Length <= 128;
+        }
+        if (result && address.AddressLine2 is not null)
+        {
+            result = NoSpecialCharacters(address.AddressLine2)
+                    && address.AddressLine2.Length <= 128;
+        }
+        if (result && address.PostalCode is not null)
+        {
+            result = NoSpecialCharacters(address.PostalCode)
+                    && address.PostalCode.Length <= 12;
+        }
+        if (result && address.City is not null)
+        {
+            result = NoSpecialCharacters(address.City)
+                    && address.City.Length <= 128;
+        }
+        if (result && address.Country is not null)
+        {
+            result = NoSpecialCharacters(address.Country)
+                     && CountryCodeExists(address.Country);
+        }
+
+        return result;
+    }
+
+    private static bool NoSpecialCharacters(string? input)
+    {
+        if (input is not null)
+            return input.AsSpan().IndexOfAny(searchValues) == -1;
+        return true;
     }
 
     private static bool ProperWebHookUrl(string? url)

@@ -10,22 +10,14 @@ namespace SolidNetsEasyClient.Models.DTOs.Responses.Webhooks.Payloads;
 /// <summary>
 /// The data associated with this event.
 /// </summary>
-public record PaymentCancelledData : IWebhookData
+public record PaymentCancelledData : WebhookData
 {
-    /// <summary>
-    /// The payment identifier
-    /// </summary>
-    [Required]
-    [JsonConverter(typeof(GuidTypeConverter))]
-    [JsonPropertyName("paymentId")]
-    public Guid PaymentId { get; init; }
-
     /// <summary>
     /// The cancellation id
     /// </summary>
     [Required]
-    [JsonConverter(typeof(GuidTypeConverter))]
     [JsonPropertyName("cancelId")]
+    [JsonConverter(typeof(GuidTypeConverter))]
     public Guid CancelId { get; init; }
 
     /// <summary>
@@ -33,7 +25,7 @@ public record PaymentCancelledData : IWebhookData
     /// </summary>
     [Required]
     [JsonPropertyName("orderItems")]
-    public IList<Item> OrderItems { get; init; } = new List<Item>();
+    public IList<Item> OrderItems { get; init; } = [];
 
     /// <summary>
     /// The amount of the charge.

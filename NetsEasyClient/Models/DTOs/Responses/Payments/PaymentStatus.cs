@@ -19,6 +19,7 @@ public record PaymentStatus
     [JsonPropertyName("payment")]
     public Payment Payment { get; init; } = new();
 }
+
 /// <summary>
 /// The payment object
 /// </summary>

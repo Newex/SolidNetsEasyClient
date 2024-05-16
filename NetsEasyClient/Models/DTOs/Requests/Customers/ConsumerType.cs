@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
+using SolidNetsEasyClient.Converters;
 using SolidNetsEasyClient.Models.DTOs.Enums;
 
 namespace SolidNetsEasyClient.Models.DTOs.Requests.Customers;
@@ -14,6 +15,7 @@ public record ConsumerType
     /// </summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("default")]
+    [JsonConverter(typeof(ConsumerTypeEnumConverter))]
     public ConsumerTypeEnum? Default { get; init; }
 
     /// <summary>

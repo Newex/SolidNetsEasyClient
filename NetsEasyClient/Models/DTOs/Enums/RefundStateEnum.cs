@@ -1,12 +1,11 @@
 using System.Text.Json.Serialization;
-using SolidNetsEasyClient.Converters;
 
 namespace SolidNetsEasyClient.Models.DTOs.Enums;
 
 /// <summary>
 /// Refund states
 /// </summary>
-[JsonConverter(typeof(RefundStateConverter))]
+[JsonConverter(typeof(JsonStringEnumConverter<RefundStateEnum>))]
 public enum RefundStateEnum
 {
     /// <summary>

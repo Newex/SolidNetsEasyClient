@@ -17,21 +17,21 @@ public record Item
     /// </remarks>
     [Required]
     [JsonPropertyName("reference")]
-    public string Reference { get; init; } = string.Empty;
+    public required string Reference { get; init; }
 
     /// <summary>
     /// The name of the product
     /// </summary>
     [Required]
     [JsonPropertyName("name")]
-    public string Name { get; init; } = string.Empty;
+    public required string Name { get; init; }
 
     /// <summary>
     /// The quantity of the product
     /// </summary>
     [Required]
     [JsonPropertyName("quantity")]
-    public double Quantity { get; init; }
+    public required double Quantity { get; init; }
 
     /// <summary>
     /// The defined unit of measurement for the product
@@ -41,17 +41,18 @@ public record Item
     /// </remarks>
     [Required]
     [JsonPropertyName("unit")]
-    public string Unit { get; init; } = string.Empty;
+    public required string Unit { get; init; }
 
     /// <summary>
     /// The price per unit excluding VAT
     /// </summary>
     [Required]
     [JsonPropertyName("unitPrice")]
-    public int UnitPrice { get; init; }
+    public required int UnitPrice { get; init; }
 
     /// <summary>
-    /// The tax/VAT rate in percentage times 100
+    /// The tax/VAT rate in percentage times 100. 
+    /// Must be between 0 and 99999.
     /// </summary>
     /// <remarks>
     /// Example the value 2500 corresponds to 25%
@@ -89,4 +90,15 @@ public record Item
     [Required]
     [JsonPropertyName("netTotalAmount")]
     public int NetTotalAmount => Convert.ToInt32(Math.Ceiling(UnitPrice * Quantity));
+
+    /// <summary>
+    /// Url to image of the product. Meant to be configured before checkout is
+    /// completed. Ignored on later operations like charging, refunding etc.
+    /// Currently affecting: Riverty Invoice. Supported size: width and height
+    /// between 100 pixels and 1280 pixels. Supported formats: gif, jpeg(jpg),
+    /// png, webp.
+    /// </summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    [JsonPropertyName("imageUrl")]
+    public string? ImageUrl { get; init; }
 }

@@ -16,8 +16,11 @@ public record PaymentMethod
     public PaymentTypeMethodName? Name { get; } = PaymentMethodEnum.EasyInvoice;
 
     /// <summary>
-    /// Represents a line of a customer order. An order item refers to a product that the customer has bought. A product can be anything from a physical product to an online subscription or shipping
+    /// Represents a line of a customer order. An order item refers to a product
+    /// that the customer has bought. A product can be anything from a physical
+    /// product to an online subscription or shipping
     /// </summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("fee")]
-    public Item Fee { get; init; } = new();
+    public Item? Fee { get; init; }
 }
