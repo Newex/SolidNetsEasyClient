@@ -1,3 +1,5 @@
+![NuGet Version](https://img.shields.io/nuget/v/SolidNetsEasyClient)
+
 # What is it?
 This is a client for making type safe requests to the [Easy Payment API endpoint](https://developer.nexigroup.com/nexi-checkout/en-EU/api/payment-v1/).
 
