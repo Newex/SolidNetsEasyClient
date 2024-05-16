@@ -54,7 +54,7 @@ public sealed class NetsConfigurationBuilder
     /// </summary>
     /// <param name="options">The options to set</param>
     /// <returns>A builder object</returns>
-    public NetsConfigurationBuilder ConfigureNetsEasyOptions(Action<NetsEasyOptions> options)
+    internal NetsConfigurationBuilder ConfigureNetsEasyOptions(Action<NetsEasyOptions> options)
     {
         optionsBuilder.Configure(options);
         return this;

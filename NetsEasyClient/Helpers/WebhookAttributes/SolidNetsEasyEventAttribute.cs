@@ -141,30 +141,4 @@ public abstract class SolidNetsEasyEventAttribute<T, TData> : ActionFilterAttrib
             return Task.CompletedTask;
         }, context);
     }
-
-    private static (string Nonce, string? Complement)? GetNonceAndComplement(HttpRequest request, string nonceName, string complementName)
-    {
-        if (!request.Query.TryGetValue(nonceName, out var nonce))
-        {
-            var tmp = request.RouteValues[nonceName]?.ToString();
-            if (tmp is null)
-            {
-                return null;
-            }
-
-            nonce = tmp;
-        }
-
-        string? complement;
-        if (complementName is null)
-        {
-            return (nonce!, null);
-        }
-
-        complement = !request.Query.TryGetValue(complementName, out var complementValue)
-            ? (request.RouteValues[complementName]?.ToString())
-            : complementValue.ToString();
-
-        return (Nonce: nonce.ToString(), Complement: complement);
-    }
 }

@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using SolidNetsEasyClient.Constants;
 using SolidNetsEasyClient.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);

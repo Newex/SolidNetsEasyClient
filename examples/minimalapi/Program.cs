@@ -65,7 +65,15 @@ app.MapPost("/checkout", async (NetsPaymentBuilder builder, IPaymentClient clien
         ],
         Reference = "my-order-id"
     };
-    var paymentBuilder = builder.CreatePayment(order, "my-payment-id");
+    var paymentBuilder = builder.CreatePayment(order, "my-payment-id")
+        .WithPrivateCustomer(
+            customerId: "internal-customer-id",
+            firstName: "John",
+            lastName: "Doe",
+            email: "john@doe.com"
+        )
+        .MerchantHandlesCustomerData()
+        .AddCostumer();
     paymentBuilder.AddWebhook("https://localhost:5110/nets/webhook", EventName.PaymentCreated, "authHeaderVal123");
 
     var paymentRequest = paymentBuilder.Build();

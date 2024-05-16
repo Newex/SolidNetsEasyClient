@@ -1,8 +1,9 @@
 # What is it?
-This is a client for making type safe requests to the [nets easy API endpoint](https://developers.nets.eu/nets-easy/en-EU/api/payment-v1/).
+This is a client for making type safe requests to the [Easy Payment API endpoint](https://developer.nexigroup.com/nexi-checkout/en-EU/api/payment-v1/).
 
 ### Status
-Current development status is: under development, somewhat functional library.
+Current development status is: under development, somewhat functional library. 
+Since Nexi and Nets have had a merger, this library uses a mixture of naming references to Nets and Nexi.
 
 # Quickstart
 
@@ -15,78 +16,84 @@ Register the service in the startup process:
 
 ```csharp
 // Register nets services
-builder
-.Services
-.AddNetsEasyClient()
-.ConfigureFromConfiguration(builder.Configuration);
-```
-
-Either via appsettings.json or environment variables set the payment option values (or via the `ConfigureNetsEasyOptions` extension method)
-```
-// File appsettings.json
+builder.Services
+  .AddNetsEasy(options =>
   {
-    ...
-    "SolidNetsEasy": {
-        "ApiKey": "<insert-secret-api-key-here>", // DO NOT EXPOSE to end user
-        "CheckoutKey": "<insert-checkout-key-here>", // Use on the front end
-        "CheckoutUrl": "https://exact.url.to/checkout",
-        "TermsUrl": "http://my.terms.url",
-        "PrivacyPolicyUrl": "http://privacy.url",
-        "CommercePlatformTag": "optional identifier for the ecommerce platform",
-        "ReturnUrl": "http://only-use-when-hosting-checkout-on-nets.com/aka/HostedPaymentPage",
-        "ClientMode": "Test" // Can be 'Test' or 'Live' mode
-    }
-  }
+    // Configure all the options here...
+    // MUST set these either through appsettings.json or via env vars:
+    options.ApiKey = "my-api-key";
+    options.TermsUrl = "https://my-site/terms-and-conditions";
+    options.PrivacyPolicyUrl = "https://my-site/privacy-policy";
+
+    // If embedded checkout:
+    options.IntegrationType = Integration.EmbeddedCheckout;
+    options.CheckoutUrl = "https://exact.url.to/checkout";
+    options.CheckoutKey = "my-checkout-key";
+
+    // If hosted on nexi:
+    options.IntegrationType = Integration.HostedPaymentPage;
+    options.ReturnUrl = "https://redirect-on-success.to/my-page";
+    options.CancelUrl = "https://redirect-on-cancel.to/my-other-page";
+  });
 ```
 
-And use the payment builder to construct a payment object:
+Use the payment builder to construct a payment object, or make a `PaymentRequest` yourself:
 
 ```csharp
 Order order = new Order { /* With order items */};
-NetsPaymentFactory paymentFactory; // Inject by dependency injection into the constructor
-var paymentBuilder = paymentFactory.CreatePaymentBuilder(order)
-                        .EmbedCheckoutOnMyPage()
+NetsPaymentBuilder builder; // Inject by dependency injection
+PaymentRequest payment = builder.CreatePayment(order)
                         .WithPrivateCustomer(
                             customerId: "myInternalCustomerId",
                             firstName: "John",
                             lastName: "Doe",
                             email: "john@doe.com"
                         )
-                        .ChargePaymentOnCreation(true)
-                        .SubscribeToEvent(EventName.ChargeCreated, Url)
-                        .AsSinglePayment();
-PaymentRequest payment = paymentBuilder.BuildPaymentRequest;
-```
-Then start a checkout session using the `PaymentClient` or `SubscriptionClient` or `UnscheduledSubscriptionClient` in your `Controller` via dependency injection:
-
-
-```csharp
-PaymentClient paymentClient; // Inject by dependency injection
-PaymentResult payment = await paymentClient.CreatePaymentAsync(payment, CancellationToken.None);
+                        .MerchantHandlesCustomerData()
+                        .AddCustomer()
+                        .ChargeImmidiately()
+                        .AddWebhook("https://my-site/callback/charge", EventName.ChargeCreated, "authorizationheader123")
+                        .AddWebhook("https://my-site/callback", EventName.PaymentCreated, "authorizationheader123")
+                        .Build();
 ```
 
-To get webhook notifications create a controller and add the following action methods, see example site for more examples:
+Then start a checkout session using the http client `NexiClient` or the typed `IPaymentClient`.
 
 ```csharp
-[SolidNetsEasyIPFilter(WhitelistIPs = "::1")]
-[Route("/webhook")]
-public class WebhookController : Controller
+NexiClient client; // Inject by dependency injection
+PaymentResult? payment = await paymentClient.StartCheckoutPayment(payment);
+```
+
+# Webhooks
+The webhook notifications, will be directed to the endpoint you specified in the `AddWebhook` builder method.  
+It is highly recommended to use these for processing customer payments. The callback webhook will be an http `POST` request with an authorization header as specified on the payment request.
+
+For example, you can either use the generic interface `IWebhook<WebhookData>` to catch any webhook callbacks OR you can specify the expected callback type (e.g) `ChargeCreated`.
+
+```csharp
+[HttpPost("/callback")]
+public IResult Method(IWebhook<WebhookData> payload)
 {
-    [SolidNetsEasyChargeCreated("nets/charge/created")]
-    public ActionResult ChargeCreated([FromBody] ChargeCreated charge)
+    if (payload is PaymentCreated paymentCreated)
     {
-        // Handle code response
-        // Note the action MUST have the correct Event webhook DTO, in this example: ChargeCreated
-        return Ok();
+        // Handle payment creation..
+    }
+    else if (payload is ChargeFailed chargeFailed)
+    {
+        // etc.
     }
 }
 ```
 
-Naming convention for the webhook attributes is `SolidNetsEasy_{EventName}_Attribute`, for example: `SolidNetsEasyPaymentCreatedAttribute`.
+```csharp
+// Route: https://my-site/callback/charge
+public IResult Method(ChargeCreation payload)
+{
+    // Handle charge creation..
+}
+```
 
-# Webhooks
-Use these attributes if you want SolidNetsEasy to construct the URL when sending payment to Nets using the `SubscribeToEvent`-method with the `IUrlHelper` parameter.  
-Furthermore SolidNetsEasy will validate the incoming requests using Authorization header, a complement to the authorization header and an optional nonce value.
+Naming convention for the webhook attributes is `SolidNetsEasy_{EventName}_Attribute`, for example: `SolidNetsEasyPaymentCreatedAttribute`.
 
 
 |Nets event name |Attribute | Description (from [Nets Easy](https://developers.nets.eu/nets-easy/en-EU/api/webhooks/#payment-events))| DTO |
@@ -104,46 +111,48 @@ Furthermore SolidNetsEasy will validate the incoming requests using Authorizatio
 |payment.cancel.created | SolidNetsEasyPaymentCancelledAttribute | A reservation has been canceled. | PaymentCancelled |
 |payment.cancel.failed | SolidNetsEasyPaymentCancellationFailedAttribute | A cancellation has failed. | PaymentCancellationFailed |
 
-## How url webhook endpoints are constructed
-The webhook attributes uses named routes. It is important that each route in the application are unique. Using the `NetsEasyOption.BaseUrl`-property in combination with the webhook url route name a full path is constructed. To this url path 2 additional parameters are inserted:
+# Proxy
+You must remember to configure the forwarded headers, if you want ASP.NET Core to work with proxy servers and load balancers.  
+Documentation reference: https://learn.microsoft.com/en-us/aspnet/core/host-and-deploy/proxy-load-balancer?view=aspnetcore-8.0
 
-* a complement,
-* and a nonce
+### Summary
 
-## What is a Complement and a nonce?
-The Authorization header is calculated using HMAC-SHA256 which gives an output of 256 bits.  
-Since Nets restricts header value to only alphanumeric values, the 256 bits hash is encoded into a Base62 (yes base62).  
-And because Nets restricts the header length to 32 characters any remaining characters are just dumped into the `Complement`.
+Configure the forwarded headers for `X-Forwarded-For` header field.
 
-A nonce is a random string used to prevent replay-attacks.
+```csharp
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders =
+        ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+});
+```
 
-## Step-by-step Authorization header creation
-1. Determine what event the user wants to subscribe to, so that we can know what properties we will know beforehand.
-2. Use the info (invariant) with a random nonce to calculate HMAC-SHA256 using the `System.Security.Cryptography.HMACSHA256` class with a key from the `SolidNetsEasyClient.Models.Options.WebhookEncryptionOptions.Key` property.
-3. Set the Authorization to the first 32 characters.
-4. Construct a URL to the correct webhook endpoint using route name, by attribute.
-5. Add the remaining complement and nonce to the constructed URL.
+Then insert the middleware as the first item in the pipeline:
 
-## Validation
-1. Combine the Authorization-header with the Complement.
-2. Calculate the HMAC-SHA256 for the invariant with the nonce.
-3. Check if the calculated hash is the same as in step 1.
+```csharp
+app.UseForwardedHeaders();
+```
 
 ## IP-filter
 The `SolidNetsEasyIPFilterAttribute` can both whitelist and blacklist ips or ip-ranges (using the CIDR-format). Thus minimally ensuring that any webhook requests are coming from an accepted source.
 
 But it should be kept in mind that an IP can be spoofed easily.
 
-## Security disclaimer
-I am not a security expert. I have tried to rely only on known security implementations, from Microsoft. I have not implemented any kind of key rotation mechanism or if this is even applicable.
+For the minimal API you can use the endpoint filter `WebhookFilter` to ensure that the IP is on the whitelist.  
+Or just use the `MapNetsWebhook` extension method, which also ensures the response to be 200 OK and listens on POST requests.
 
-If you have any suggestions please let me know.
+# Terminology for Nexi-Nets
+According to my own understanding.
 
-# Options
-You can configure options using the afforementioned `NetsEasyOptions` class either by appsettings.json; environment variables or in-code using the `NetConfigurationBuilder`.
-
-You can also configure the webhook options using `WebhookEncryptionOptions` class by same methods as above.
-
+| Term | Definition |
+|------|------------|
+| **Merchant** | You, the seller.|
+| **Consumer** | The customer. |
+| **Payment** | A request from merchant to the consumer, to get paid. |
+| **Charge** | When money has been transfered thus finalizing the payment. |
+| **Order** | The items the consumer has bought. |
+| **Subscription** | A completely regular recurring payment, which cannot change in either Amount or in Time. E.g. Always 50 DKK on the last day of the month. Has an exact end date. |
+| **Unscheduled subscription** | A variable recurring payment, which can change in Amount and in Time. Consumer MUST agree to the terms that Nexi/Nets stores the consumer's payment details. Has no end date. |
 
 # Features
 Use the client to make and manage payments, from the backend. Remember that the you still need a frontend for a customer to input payment details.

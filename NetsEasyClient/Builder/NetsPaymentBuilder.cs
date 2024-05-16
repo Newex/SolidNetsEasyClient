@@ -39,6 +39,12 @@ public sealed class NetsPaymentBuilder(
     /// </summary>
     public class PaymentRequestBuilder
     {
+        /// <summary>
+        /// True if merchant should handle the consumer data.
+        /// Otherwise false.
+        /// </summary>
+        protected internal bool? merchantHandlesConsumerData;
+
         private readonly NetsEasyOptions options;
         private readonly List<WebHook> webHooks = [];
         private readonly Order order;
@@ -48,7 +54,6 @@ public sealed class NetsPaymentBuilder(
         private List<ConsumerTypeEnum>? supportedCostumerTypes;
         private bool? chargeImmidiately;
         private bool? publicDevice;
-        private bool? merchantHandlesConsumerData;
         private CheckoutAppearance? appearance;
         private Shipping? shipping;
         private List<PaymentMethod>? paymentMethods = null;
@@ -121,21 +126,23 @@ public sealed class NetsPaymentBuilder(
         }
 
         /// <summary>
-        /// Set the customer id reference. 
-        /// If Nets should prefill customer data, you must supply that data. 
-        /// Either as a (B2C) natural private person customer or as a (B2B) 
-        /// company customer. Furthermore, merchant (you) will be responsible 
-        /// for the customer data.
+        /// Add customer info as a natural private person as opposed to a company.
         /// </summary>
         /// <param name="customerId">The customer id reference.</param>
-        /// <param name="prefillCustomerData">True if Nets should prefill
-        /// customer info. Otherwise false. If false, the customer must repeat
-        /// their information, on the checkout page.</param>
-        /// <returns>A payment builder</returns>
-        public ConsumerBuilder WithCustomer(string customerId, bool prefillCustomerData = false)
+        /// <param name="firstName">The first name</param>
+        /// <param name="lastName">The last name</param>
+        /// <param name="email">The email address</param>
+        /// <returns>A customer builder</returns>
+        public ConsumerBuilder WithPrivateCustomer(string customerId, string? firstName, string? lastName = null, string? email = null)
         {
-            merchantHandlesConsumerData = prefillCustomerData;
-            return ConsumerBuilder.Create(this, customerId);
+            return ConsumerBuilder
+                .Create(this, customerId)
+                .AsPrivatePersonCustomer(new Person()
+                {
+                    FirstName = firstName,
+                    LastName = lastName
+                })
+                .SetEmail(email);
         }
 
         internal PaymentRequestBuilder SetCustomerInfo(Consumer customer)
@@ -371,7 +378,7 @@ public sealed class NetsPaymentBuilder(
         /// </summary>
         /// <param name="person">The personal details.</param>
         /// <returns>A consumer builder</returns>
-        public ConsumerBuilder AsPrivatePersonCustomer(Person person)
+        internal ConsumerBuilder AsPrivatePersonCustomer(Person person)
         {
             company = null;
             this.person = person;
@@ -384,10 +391,23 @@ public sealed class NetsPaymentBuilder(
         /// </summary>
         /// <param name="company">The business details.</param>
         /// <returns>A consumer builder</returns>
-        public ConsumerBuilder AsBusinessCustomer(Company company)
+        internal ConsumerBuilder AsBusinessCustomer(Company company)
         {
             person = null;
             this.company = company;
+            return this;
+        }
+
+        /// <summary>
+        /// If the toggled, this will mean that you (the merchant) must handle 
+        /// and provide the customer data.
+        /// The benefit is the customer will not have to enter their info, on 
+        /// the checkout page.
+        /// </summary>
+        /// <returns>A consumer builder</returns>
+        public ConsumerBuilder MerchantHandlesCustomerData()
+        {
+            paymentRequestBuilder.merchantHandlesConsumerData = true;
             return this;
         }
 
