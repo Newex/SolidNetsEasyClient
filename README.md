@@ -82,7 +82,10 @@ The overall steps for the embedded checkout is as follows:
 8. Nets charges the customer
 9. Nets calls your endpoint via webhooks
 
-The customer never leaves your checkout page, the Nets integration is displayed in an iframe by using the Nets Checkout JS SDK.
+The customer never leaves your checkout page, the Nets integration is displayed in an iframe by using the Nets Checkout JS SDK.  
+The benefit is the possibility for a more streamlined customer experience, by only having the customer in 1 place and being able to customize the look and feel of your checkout page.
+
+The drawback is a more complex developer burden.
 
 ## Hosted checkout
 
@@ -96,6 +99,9 @@ The customer never leaves your checkout page, the Nets integration is displayed 
 9. Nets calls your endpoint via webhooks
 
 The customer will leave your page and be redirected upon the start and end of their customer journey.
+
+The benefit is a simpler developer flow and maybe easier to customize some parts.  
+The drawback is the customer redirection, and limited customization.
 
 
 # Webhooks
