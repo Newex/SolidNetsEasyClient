@@ -119,4 +119,21 @@ public interface IUnscheduledSubscriptionClient
     /// <param name="cancellationToken">The cancellation token</param>
     /// <returns>A bulk id result or null</returns>
     ValueTask<BaseBulkResult?> VerifyCardsForUnscheduledSubscriptions(string externalBulkVerificationId, IList<UnscheduledSubscriptionInfo> subscriptions, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Retrieves verifications associated with the specified bulk unscheduled 
+    /// verification operation. The bulkId is returned from Nexi Group in the 
+    /// response of the Verify unscheduled subscriptions method.
+    /// </summary>
+    /// <param name="bulkId">The bulk id. The identifier of the bulk 
+    /// verification operation that was returned from the Verify unscheduled 
+    /// subscriptions method.</param>
+    /// <param name="range">The optional range to skip or take.</param>
+    /// <param name="page">The optional page number and size to take.</param>
+    /// <param name="cancellationToken">The cancellation token</param>
+    /// <returns>A page of unscheduled subscriptions verification statuses or null.</returns>
+    ValueTask<PageResult<UnscheduledSubscriptionVerificationStatus>?> RetrieveBulkVerificationsForUnscheduledSubscriptions(Guid bulkId,
+                                                                                                                                        (int skip, int take)? range = null,
+                                                                                                                                        (int pageNumber, int pageSize)? page = null,
+                                                                                                                                        CancellationToken cancellationToken = default);
 }

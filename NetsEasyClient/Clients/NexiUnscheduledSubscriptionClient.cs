@@ -204,4 +204,36 @@ public sealed partial class NexiClient : IUnscheduledSubscriptionClient
 
         return null;
     }
+
+    /// <inheritdoc />
+    public async ValueTask<PageResult<UnscheduledSubscriptionVerificationStatus>?> RetrieveBulkVerificationsForUnscheduledSubscriptions(Guid bulkId,
+                                                                                                                                        (int skip, int take)? range = null,
+                                                                                                                                        (int pageNumber, int pageSize)? page = null,
+                                                                                                                                        CancellationToken cancellationToken = default)
+    {
+        if (bulkId == Guid.Empty)
+        {
+            return null;
+        }
+
+        var query = QueryBuilder(range, page);
+        var url = NetsEndpoints.Relative.UnscheduledSubscriptions + "/verifications/" + bulkId.ToString("N") + query;
+        var response = await client.GetAsync(url, cancellationToken);
+        var body = await response.Content.ReadAsStringAsync(cancellationToken);
+        if (response.IsSuccessStatusCode)
+        {
+            var result = JsonSerializer.Deserialize(body, UnscheduledSubscriptionSerializationContext.Default.PageResultUnscheduledSubscriptionVerificationStatus);
+            if (result is not null)
+            {
+                logger.LogInfoRetrieveBulkVerificationsForUnscheduledSubscriptions(bulkId, result);
+                return result;
+            }
+
+            logger.LogUnexpectedResponse(body);
+            return null;
+        }
+
+        logger.LogErrorRetrieveBulkVerificationsForUnscheduledSubscriptions(bulkId, body);
+        return null;
+    }
 }
