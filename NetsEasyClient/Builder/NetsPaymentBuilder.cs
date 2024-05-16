@@ -27,7 +27,7 @@ public sealed class NetsPaymentBuilder(
     /// Construct a payment request builder.
     /// </summary>
     /// <param name="order">The order</param>
-    /// <param name="myReference">My payment reference</param>
+    /// <param name="myReference">My payment reference. The merchants (your) payment id reference.</param>
     /// <returns>The builder</returns>
     public PaymentRequestBuilder CreatePayment(Order order, string? myReference = null)
     {
