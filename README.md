@@ -64,6 +64,40 @@ NexiClient client; // Inject by dependency injection
 PaymentResult? payment = await paymentClient.StartCheckoutPayment(payment);
 ```
 
+If using the `EmbeddedCheckout` - see this documentation for more information: https://developer.nexigroup.com/nexi-checkout/en-EU/docs/web-integration/integrate-checkout-on-your-website-embedded/
+
+If using the `HostedPaymentPage` - see this documentation for more information: https://developer.nexigroup.com/nexi-checkout/en-EU/docs/web-integration/integrate-checkout-on-your-website-hosted/
+
+## Embedded checkout
+
+The overall steps for the embedded checkout is as follows:
+
+1. Customer creates an order
+2. Your backend receives the order
+3. Initiate a checkout by contacting Nexi/Nets (backend)
+4. Get paymentId from Nets (backend)
+5. Make the frontend use paymentId and your checkoutKey
+6. Customer inputs their payment details
+7. Nets receives the payment details
+8. Nets charges the customer
+9. Nets calls your endpoint via webhooks
+
+The customer never leaves your checkout page, the Nets integration is displayed in an iframe by using the Nets Checkout JS SDK.
+
+## Hosted checkout
+
+1. Customer creates an order
+2. Your backend receives the order
+3. Initiate checkout by contacting Nexi/Nets (backend)
+4. Redirect customer to Nets
+5. Customer inputs their payment details on Nets
+7. Nets redirects customer to your page
+8. Nets charges the customer
+9. Nets calls your endpoint via webhooks
+
+The customer will leave your page and be redirected upon the start and end of their customer journey.
+
+
 # Webhooks
 The webhook notifications, will be directed to the endpoint you specified in the `AddWebhook` builder method.  
 It is highly recommended to use these for processing customer payments. The callback webhook will be an http `POST` request with an authorization header as specified on the payment request.
