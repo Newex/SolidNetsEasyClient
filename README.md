@@ -103,6 +103,11 @@ The customer will leave your page and be redirected upon the start and end of th
 The benefit is a simpler developer flow and maybe easier to customize some parts. The base checkout is already developed by Nets/Nexi.  
 The drawback is the customer redirection, and limited customization.
 
+# MVC
+TODO
+
+# Minimal Api
+TODO
 
 # Webhooks
 The webhook notifications, will be directed to the endpoint you specified in the `AddWebhook` builder method.  
