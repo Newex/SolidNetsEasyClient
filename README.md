@@ -93,23 +93,20 @@ public IResult Method(ChargeCreation payload)
 }
 ```
 
-Naming convention for the webhook attributes is `SolidNetsEasy_{EventName}_Attribute`, for example: `SolidNetsEasyPaymentCreatedAttribute`.
-
-
-|Nets event name |Attribute | Description (from [Nets Easy](https://developers.nets.eu/nets-easy/en-EU/api/webhooks/#payment-events))| DTO |
---- | --- | --- | --- |
-|payment.created |SolidNetsEasyPaymentCreatedAttribute | A payment has been created. | PaymentCreated |
-|payment.reservation.created | SolidNetsEasyReservationCreatedV1Attribute |	The amount of the payment has been reserved.| ReservationCreatedV1 |
-|payment.reservation.created.v2 | SolidNetsEasyReservationCreatedV2Attribute | 	The amount of the payment has been reserved.| ReservationCreatedV2 |
-|payment.reservation.failed | SolidNetsEasyReservationFailedAttribute | A reservation attempt has failed.| ReservationFailed |
-|payment.checkout.completed | SolidNetsEasyCheckoutCompletedAttribute | The customer has completed the checkout.| CheckoutCompleted |
-|payment.charge.created.v2 | SolidNetsEasyChargeCreatedAttribute | The customer has successfully been charged, partially or fully.| ChargeCreated |
-|payment.charge.failed | SolidNetsEasyChargeFailedAttribute | A charge attempt has failed.| ChargeFailed |
-|payment.refund.initiated.v2 | SolidNetsEasyRefundInitiatedAttribute | A refund has been initiated. | RefundInitiated |
-|payment.refund.failed | SolidNetsEasyRefundFailedAttribute | A refund attempt has failed.| RefundFailed |
-|payment.refund.completed | SolidNetsEasyRefundCompletedAttribute | A refund has successfully been completed.| RefundCompleted |
-|payment.cancel.created | SolidNetsEasyPaymentCancelledAttribute | A reservation has been canceled. | PaymentCancelled |
-|payment.cancel.failed | SolidNetsEasyPaymentCancellationFailedAttribute | A cancellation has failed. | PaymentCancellationFailed |
+|Nets event name | Description (from [Nets Easy](https://developers.nets.eu/nets-easy/en-EU/api/webhooks/#payment-events))| DTO |  
+| --- | --- | --- |  
+|payment.created | A payment has been created. | PaymentCreated |
+|payment.reservation.created | The amount of the payment has been reserved.| ReservationCreatedV1 |
+|payment.reservation.created.v2 | The amount of the payment has been reserved.| ReservationCreatedV2 |
+|payment.reservation.failed | A reservation attempt has failed.| ReservationFailed |
+|payment.checkout.completed | The customer has completed the checkout.| CheckoutCompleted |
+|payment.charge.created.v2 | The customer has successfully been charged, partially or fully.| ChargeCreated |
+|payment.charge.failed | A charge attempt has failed.| ChargeFailed |
+|payment.refund.initiated.v2 | A refund has been initiated. | RefundInitiated |
+|payment.refund.failed | A refund attempt has failed.| RefundFailed |
+|payment.refund.completed | A refund has successfully been completed.| RefundCompleted |
+|payment.cancel.created | A reservation has been canceled. | PaymentCancelled |
+|payment.cancel.failed | A cancellation has failed. | PaymentCancellationFailed |
 
 # Proxy
 You must remember to configure the forwarded headers, if you want ASP.NET Core to work with proxy servers and load balancers.  
@@ -135,8 +132,6 @@ app.UseForwardedHeaders();
 
 ## IP-filter
 The `SolidNetsEasyIPFilterAttribute` can both whitelist and blacklist ips or ip-ranges (using the CIDR-format). Thus minimally ensuring that any webhook requests are coming from an accepted source.
-
-But it should be kept in mind that an IP can be spoofed easily.
 
 For the minimal API you can use the endpoint filter `WebhookFilter` to ensure that the IP is on the whitelist.  
 Or just use the `MapNetsWebhook` extension method, which also ensures the response to be 200 OK and listens on POST requests.
