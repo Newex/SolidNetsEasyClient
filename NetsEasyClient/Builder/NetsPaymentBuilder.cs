@@ -128,6 +128,9 @@ public sealed class NetsPaymentBuilder(
         /// <summary>
         /// Add customer info as a natural private person as opposed to a company.
         /// </summary>
+        /// <remarks>
+        /// Also sets the default costumer type to <see cref="ConsumerTypeEnum.B2C"/>
+        /// </remarks>
         /// <param name="customerId">The customer id reference.</param>
         /// <param name="firstName">The first name</param>
         /// <param name="lastName">The last name</param>
@@ -135,6 +138,7 @@ public sealed class NetsPaymentBuilder(
         /// <returns>A customer builder</returns>
         public ConsumerBuilder WithPrivateCustomer(string customerId, string? firstName, string? lastName = null, string? email = null)
         {
+            defaultCostumerType = ConsumerTypeEnum.B2C;
             return ConsumerBuilder
                 .Create(this, customerId)
                 .AsPrivatePersonCustomer(new Person()
@@ -143,6 +147,32 @@ public sealed class NetsPaymentBuilder(
                     LastName = lastName
                 })
                 .SetEmail(email);
+        }
+
+        /// <summary>
+        /// Add customer info as a business customer, as opposed to a natural person.
+        /// </summary>
+        /// <remarks>
+        /// Also sets the default costumer type to <see cref="ConsumerTypeEnum.B2B"/>
+        /// </remarks>
+        /// <param name="customerId">The customer id reference.</param>
+        /// <param name="companyName">The company name.</param>
+        /// <param name="contactFirstName">The first name of the contact in the company.</param>
+        /// <param name="contactLastName">The last name of the contact in the company.</param>
+        /// <returns>A customer builder</returns>
+        public ConsumerBuilder WithBusinessCustomer(string customerId, string companyName, string? contactFirstName = null, string? contactLastName = null)
+        {
+            defaultCostumerType = ConsumerTypeEnum.B2B;
+            return ConsumerBuilder.Create(this, customerId)
+                .AsBusinessCustomer(new Company()
+                {
+                    Contact = new()
+                    {
+                        FirstName = contactFirstName,
+                        LastName = contactLastName
+                    },
+                    Name = companyName
+                });
         }
 
         internal PaymentRequestBuilder SetCustomerInfo(Consumer customer)
