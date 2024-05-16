@@ -216,6 +216,7 @@ There is only 1 client with 4 typed interfaces.
 - [x] Add unit tests
 - [x] Add easy to use configuration for handling API keys and other client settings
 - [x] Add example site
+- [ ] Consolidate the various Models into related models
 - [ ] Add more unit tests
 - [ ] Proof read README
 - [ ] Add options section that explains each option
