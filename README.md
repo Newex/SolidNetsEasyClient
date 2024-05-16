@@ -183,6 +183,7 @@ According to my own understanding.
 |------|------------|
 | **Merchant** | You, the seller.|
 | **Consumer** | The customer. |
+| **Checkout** | The time when the customer is inputting their payment details. |
 | **Payment** | A request from merchant to the consumer, to get paid. |
 | **Charge** | When money has been transfered thus finalizing the payment. |
 | **Order** | The items the consumer has bought. |
