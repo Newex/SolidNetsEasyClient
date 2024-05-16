@@ -193,6 +193,22 @@ According to my own understanding.
 # Features
 Use the client to make and manage payments, from the backend. Remember that the you still need a frontend for a customer to input payment details.
 
+# Client
+
+Using the `NexiClient` you must ensure that the http client is not used in a singleton.  
+See the guidelines here: https://learn.microsoft.com/en-us/dotnet/fundamentals/networking/http/httpclient-guidelines
+
+The ASP.NET Core will use the `HttpClient` and dispose it after use, but the `HttpMessageHandler` will be reused depending on their lifetimes.
+
+The pooling ensures that port and socket exhaustion is limited.  
+The lifetime restriction ensures that new DNS changes can be updated.
+
+There is only 1 client with 4 typed interfaces.
+
+- `IPaymentClient` - handles the checkout, and payment.
+- `IChargeClient` - handles the charge and refund of a payment.
+- `ISubscriptionClient` - handles the subscriptions, bulk charging and bulk verification.
+- `IUnscheduledSubscriptionClient` - handles unscheduled subscriptions, bulk charging and bulk verification of cards.
 
 # Roadmap
 - [x] Handle payments, subscriptions and webhooks in a type safe and easy to use way.
@@ -200,6 +216,7 @@ Use the client to make and manage payments, from the backend. Remember that the 
 - [x] Add unit tests
 - [x] Add easy to use configuration for handling API keys and other client settings
 - [x] Add example site
+- [ ] Add more unit tests
 - [ ] Proof read README
 - [ ] Add options section that explains each option
 - [ ] Add Nets Terminology for vocabulary such as: Payment, checkout, charge...
