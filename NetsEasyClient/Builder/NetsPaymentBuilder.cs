@@ -88,12 +88,12 @@ public sealed class NetsPaymentBuilder(
         /// Make this payment request an unscheduled subscription. 
         /// An unscheduled subscription, can have variable charge amount, and
         /// have variable interval between charges. 
-        /// This is also know an 'card-on-file' which means that you must get 
+        /// This is also know as 'card-on-file' which means that you must get 
         /// permission from the customer to have Nets store their (customer's) payment info. 
-        ///  Common scenarios for the use of unscheduled subscriptions are 
-        ///  pay-per-use services such as car sharing, electric scooters, top up 
-        ///  for internally used payment cards (canteen), payments for meal 
-        ///  delivery and so on. 
+        /// Common scenarios for the use of unscheduled subscriptions are 
+        /// pay-per-use services such as car sharing, electric scooters, top up 
+        /// for internally used payment cards (canteen), payments for meal 
+        /// delivery and so on. 
         /// </summary>
         /// <remarks>
         /// Since each charging of an unscheduled subscription will create a new
