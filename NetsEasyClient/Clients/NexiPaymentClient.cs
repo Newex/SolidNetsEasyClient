@@ -25,6 +25,9 @@ namespace SolidNetsEasyClient.Clients;
 /// <![CDATA[ NETS Easy Payment API (2024): https://developer.nexigroup.com/nexi-checkout/en-EU/api/payment-v1/ ]]> <br />
 /// <![CDATA[ Do not use this in a singleton class. See https://learn.microsoft.com/en-us/dotnet/core/extensions/httpclient-factory#avoid-typed-clients-in-singleton-services ]]>
 /// </remarks>
+/// <param name="client">The http client used to send request to nets-nexi.</param>
+/// <param name="options">The nets-nexi options.</param>
+/// <param name="logger">The optional logger</param>
 public sealed partial class NexiClient(
     HttpClient client,
     IOptions<NetsEasyOptions> options,
